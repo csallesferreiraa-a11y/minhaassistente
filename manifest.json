@@ -1,0 +1,42 @@
+{
+  "name": "Minha Assistente 🍒",
+  "short_name": "Carol",
+  "description": "Assistente pessoal e profissional da Carol",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f2f2f7",
+  "theme_color": "#e8306e",
+  "categories": ["productivity", "lifestyle"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hoje",
+      "url": "/?page=hoje",
+      "description": "Ver painel do dia"
+    },
+    {
+      "name": "Nova Tarefa",
+      "url": "/?page=tarefas&new=true",
+      "description": "Adicionar tarefa rápida"
+    },
+    {
+      "name": "Olivia",
+      "url": "/?page=olivia",
+      "description": "Cuidados da Olivia"
+    }
+  ]
+}

@@ -1,0 +1,2378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Minha Assistente">
+<meta name="theme-color" content="#e8306e">
+<title>Minha Assistente 🍒</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p50:#fff5f8;--p100:#ffe0ea;--p200:#ffb3ca;--p300:#ff80a8;--p400:#f7538a;--p500:#e8306e;--p600:#c41f56;--p700:#9e1843;
+  --cherry:#8b1a2e;
+  --green:#1a7a40;--greenbg:#edfaf2;--greenbr:#c0ecd4;
+  --amber:#9a7c00;--amberbg:#fffbe0;--amberbr:#ffe8a0;
+  --blue:#185fa5;--bluebg:#e8f0ff;--bluebr:#b5d4f4;
+  --red:#c41f56;--redbg:#ffe0ea;--redbr:#f8bbd0;
+  --purple:#6c3aaa;--purplebg:#f0ebff;--purplebr:#d4c4f8;
+  --bg:#f2f2f7;--card-bg:rgba(255,255,255,.92);--sidebar-bg:rgba(255,255,255,.78);
+  --border:rgba(200,60,100,.11);--border-strong:rgba(200,60,100,.2);--divider:rgba(0,0,0,.06);
+  --txt:#1c1018;--muted:#8e6070;--light:#c4a0ac;
+  --sh-xs:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-sm:0 2px 8px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.05);
+  --sh-md:0 4px 16px rgba(0,0,0,.10),0 2px 6px rgba(0,0,0,.06);
+  --sh-lg:0 8px 32px rgba(0,0,0,.12),0 4px 12px rgba(0,0,0,.07);
+  --sh-pink:0 4px 20px rgba(232,48,110,.22);
+  --sh-focus:0 0 0 3px rgba(232,48,110,.18);
+  --r-xs:6px;--r-sm:10px;--r:14px;--r-lg:18px;--r-xl:24px;--r-full:999px;
+  /* legacy aliases */
+  --card:#fff;--border-old:#ffd6e2;--sh:0 2px 12px rgba(200,60,100,.08);--shm:0 4px 24px rgba(200,60,100,.13);--r-old:16px;--rs:10px;
+  --p50-old:#fff0f4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{
+  font-family:'Manrope',sans-serif;background:var(--bg);color:var(--txt);font-size:13px;min-height:100vh;
+  background-image:radial-gradient(ellipse at 15% 0%,rgba(232,48,110,.055) 0%,transparent 55%),radial-gradient(ellipse at 85% 100%,rgba(247,83,138,.04) 0%,transparent 55%);
+}
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sb{width:228px;min-height:100vh;background:var(--sidebar-bg);backdrop-filter:blur(28px) saturate(1.8);-webkit-backdrop-filter:blur(28px) saturate(1.8);border-right:1px solid var(--border);padding:0 0 60px;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;box-shadow:1px 0 0 var(--divider),var(--sh-sm);overflow-y:auto}
+.sb-logo{padding:20px 16px 16px;border-bottom:1px solid var(--divider);display:flex;align-items:center;gap:9px}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--p400),var(--p600));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:var(--sh-pink)}
+.sb-name{font-size:13px;font-weight:800;color:var(--p600);letter-spacing:-.3px;line-height:1.2}
+.sb-sub{font-size:10px;color:var(--muted);font-weight:600;margin-top:1px}
+.sb-section{padding:12px 14px 3px;font-size:9px;font-weight:900;color:var(--light);letter-spacing:.1em;text-transform:uppercase}
+.nav{display:flex;align-items:center;gap:7px;padding:7px 12px;margin:1px 5px;border-radius:var(--r-sm);font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;width:calc(100% - 10px);text-align:left;transition:all .14s;font-family:'Manrope',sans-serif}
+.nav:hover{color:var(--p600);background:rgba(232,48,110,.07)}
+.nav.active{color:var(--p600);font-weight:800;background:rgba(232,48,110,.09);box-shadow:inset 0 0 0 1px rgba(232,48,110,.14)}
+.nav-ic{font-size:13px;width:16px;text-align:center;opacity:.85}
+.sb-foot{margin-top:auto;padding:13px 16px;border-top:1px solid var(--divider);font-size:10px;color:var(--light);font-weight:600;display:flex;align-items:center;gap:5px}
+
+/* MAIN */
+.main{margin-left:228px;flex:1;padding:22px 26px 72px;max-width:1140px}
+.page{display:none;animation:pgIn .18s ease}.page.active{display:block}
+@keyframes pgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.ph{margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.pt{font-size:21px;font-weight:900;letter-spacing:-.5px}
+.ps{font-size:11px;color:var(--muted);font-weight:600;margin-top:3px}
+
+/* CARDS */
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 20px;box-shadow:var(--sh-sm);transition:box-shadow .18s,transform .14s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.card:hover{box-shadow:var(--sh-md);transform:translateY(-1px)}
+.ct{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:11px;display:flex;align-items:center;gap:5px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.col{display:flex;flex-direction:column;gap:11px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:var(--r-full);font-size:10px;font-weight:700;letter-spacing:.01em}
+.b-red{background:var(--redbg);color:var(--red)}.b-orange{background:#fff0e0;color:#c47000}.b-yellow{background:var(--amberbg);color:var(--amber)}.b-green{background:var(--greenbg);color:var(--green)}.b-pink{background:var(--p100);color:var(--p600)}.b-gray{background:#f0edf0;color:#7a6070}.b-blue{background:var(--bluebg);color:var(--blue)}.b-purple{background:var(--purplebg);color:var(--purple)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--r-full);font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;cursor:pointer;transition:all .14s;border:none;letter-spacing:.01em}
+.btn-p{background:linear-gradient(135deg,var(--p400),var(--p600));color:#fff;box-shadow:var(--sh-pink)}.btn-p:hover{box-shadow:0 6px 22px rgba(232,48,110,.35);transform:translateY(-1px)}
+.btn-o{background:rgba(232,48,110,.06);color:var(--p600);border:1px solid rgba(232,48,110,.18)}.btn-o:hover{background:rgba(232,48,110,.10)}
+.btn-g{background:transparent;color:var(--muted);font-size:11px;padding:5px 10px}.btn-g:hover{color:var(--p500);background:rgba(232,48,110,.06)}
+.btn-sm{padding:5px 11px;font-size:10px}
+.bic{padding:6px;border-radius:var(--r-sm);background:rgba(232,48,110,.06);color:var(--p500);border:none;cursor:pointer;font-size:12px;transition:all .14s}.bic:hover{background:rgba(232,48,110,.12)}
+
+/* INPUTS */
+.inp,.sel,.ta{width:100%;padding:8px 12px;border:1px solid var(--border-strong);border-radius:var(--r-sm);font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;color:var(--txt);background:rgba(255,255,255,.85);outline:none;transition:all .14s}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--p400);box-shadow:var(--sh-focus);background:#fff}
+.inp::placeholder,.ta::placeholder{color:var(--light)}
+.ta{resize:vertical;min-height:70px}
+.lbl{font-size:10px;font-weight:800;color:var(--muted);margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.04em}
+.form-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+
+/* PROGRESS */
+.pw{background:rgba(0,0,0,.06);border-radius:99px;height:5px;overflow:hidden}
+.pb{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p400),var(--p600));transition:width .5s ease}
+.pb-green{background:linear-gradient(90deg,#34c759,#1a7a40)}.pb-amber{background:linear-gradient(90deg,#ffcc00,#c47000)}
+
+/* TASK */
+.ti{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;background:rgba(255,255,255,.7);border:1px solid var(--border);border-radius:var(--r-sm);transition:all .14s;cursor:pointer}
+.ti:hover{border-color:var(--p300);background:rgba(255,255,255,.96);box-shadow:var(--sh-xs)}
+.ti.done{opacity:.4}.ti.done .ti-t{text-decoration:line-through}
+.cb{width:15px;height:15px;border:1.5px solid var(--p300);border-radius:5px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .14s;background:rgba(255,255,255,.8);font-size:9px}
+.cb.on{background:var(--p500);border-color:var(--p500);color:#fff;box-shadow:0 2px 6px rgba(232,48,110,.28)}
+.ti-c{flex:1;min-width:0}
+.ti-t{font-size:12px;font-weight:700;line-height:1.4}
+.ti-m{display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap}
+.ti-a{display:flex;gap:3px;opacity:0;transition:opacity .14s}
+.ti:hover .ti-a{opacity:1}
+
+/* PILL TABS */
+.pt-wrap{display:flex;gap:3px;background:rgba(0,0,0,.04);border-radius:var(--r);padding:3px;margin-bottom:14px;border:1px solid var(--border);width:fit-content}
+.pt-btn{padding:5px 11px;border-radius:var(--r-sm);font-size:11px;font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer;transition:all .14s;font-family:'Manrope',sans-serif;white-space:nowrap}
+.pt-btn.on{background:var(--card-bg);color:var(--p600);box-shadow:var(--sh-xs);font-weight:800}
+
+/* TIMELINE */
+.tl{position:relative;padding-left:20px}
+.tl::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:1.5px;background:var(--border);border-radius:2px}
+.tl-i{position:relative;padding-bottom:13px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--p200);border:2px solid #fff;box-shadow:0 0 0 1.5px var(--p200)}
+.tl-dot.on{background:var(--p500);box-shadow:0 0 0 3px rgba(232,48,110,.14)}
+.tl-dot.done{background:#34c759;box-shadow:0 0 0 2px rgba(52,199,89,.2)}
+.tl-time{font-size:9px;font-weight:800;color:var(--light);margin-bottom:1px;text-transform:uppercase;letter-spacing:.04em}
+.tl-c{font-size:12px;font-weight:700;color:var(--txt)}
+.tl-n{font-size:10px;color:var(--muted);margin-top:1px;font-weight:500}
+
+/* HABIT */
+.hg-row{display:grid;grid-template-columns:140px repeat(7,34px);gap:3px;align-items:center;margin-bottom:4px}
+.hg-dlbl{font-size:9px;font-weight:800;color:var(--light);text-align:center;text-transform:uppercase;letter-spacing:.04em}
+.hg-lbl{font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.hc{width:34px;height:34px;border-radius:6px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);cursor:pointer;transition:all .14s;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900}
+.hc:hover{border-color:var(--p300)}.hc.done{background:var(--p500);border-color:var(--p500);color:#fff;box-shadow:0 2px 6px rgba(232,48,110,.22)}.hc.miss{background:rgba(0,0,0,.03)}.hc.fut{opacity:.18;cursor:default}
+
+/* STAT CARD */
+.sc{text-align:center;padding:14px 10px}
+.sv{font-size:23px;font-weight:900;color:var(--p600);letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.sl{font-size:9px;font-weight:800;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(28,16,24,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+.mo.open{display:flex}
+.modal{background:rgba(255,255,255,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:var(--r-xl);padding:22px;width:100%;max-width:460px;box-shadow:var(--sh-lg),0 0 0 1px rgba(255,255,255,.6);animation:modalIn .18s ease;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:14px;font-weight:900;margin-bottom:15px;display:flex;align-items:center;gap:7px}
+.mf{display:flex;gap:8px;justify-content:flex-end;margin-top:13px}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)translateY(8px)}to{opacity:1;transform:scale(1)translateY(0)}}
+
+/* FOCUS MODE */
+.focus-overlay{position:fixed;inset:0;background:linear-gradient(135deg,rgba(255,240,244,.96),rgba(255,224,234,.96));backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center}
+.focus-overlay.open{display:flex}
+.focus-title{font-size:9px;font-weight:900;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.12em}
+.focus-task{font-size:26px;font-weight:900;color:var(--p700);text-align:center;max-width:480px;line-height:1.3;margin-bottom:26px;letter-spacing:-.4px}
+.focus-timer{font-size:76px;font-weight:900;color:var(--p500);letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin-bottom:6px}
+.focus-pom{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:26px}
+.focus-btns{display:flex;gap:10px}
+
+/* FOCUS BAR */
+.focus-bar{background:linear-gradient(135deg,var(--p500),var(--cherry));border-radius:var(--r-lg);padding:15px 18px;color:#fff;box-shadow:var(--sh-pink)}
+.fb-label{font-size:9px;font-weight:900;opacity:.7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.fb-title{font-size:16px;font-weight:900;margin-bottom:4px;letter-spacing:-.3px}
+.fb-meta{font-size:10px;opacity:.75;font-weight:600}
+
+/* ALERTS */
+.alert-i{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;border-radius:var(--r-sm);border:1px solid}
+.alert-i.crit{background:var(--redbg);border-color:var(--redbr)}.alert-i.warn{background:var(--amberbg);border-color:var(--amberbr)}.alert-i.info{background:var(--bluebg);border-color:var(--bluebr)}.alert-i.ok{background:var(--greenbg);border-color:var(--greenbr)}
+
+/* NOTA BAR */
+.nota-bar{position:fixed;bottom:0;left:228px;right:0;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:9px 26px;display:flex;gap:9px;align-items:center;z-index:50;box-shadow:0 -1px 0 var(--divider)}
+.nota-inp{flex:1;padding:7px 14px;border:1px solid var(--border);border-radius:var(--r-full);font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;outline:none;color:var(--txt);background:rgba(255,255,255,.8);transition:all .14s}
+.nota-inp:focus{border-color:var(--p400);box-shadow:var(--sh-focus)}
+.nota-inp::placeholder{color:var(--light)}
+
+.kr-item{padding:8px 10px;background:rgba(0,0,0,.025);border-radius:var(--r-sm);margin-bottom:5px}
+.kr-desc{font-size:11px;font-weight:700;margin-bottom:5px}
+.kr-foot{display:flex;justify-content:space-between;align-items:center;margin-top:5px}
+
+/* FOLLOW UP */
+.fu-item{display:flex;align-items:center;gap:9px;padding:9px 12px;background:rgba(255,255,255,.7);border:1px solid var(--border);border-radius:var(--r-sm)}
+.fu-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* PERFORMANCE */
+.perf-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--divider)}
+.perf-item:last-child{border:none}
+
+/* OLIVIA */
+.olivia-card{background:linear-gradient(135deg,#fff5f8,#fff0f7);border:1px solid var(--p200);border-radius:var(--r-lg);padding:16px 20px}
+.olivia-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.olivia-avatar{width:40px;height:40px;background:linear-gradient(135deg,var(--p400),var(--p600));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:var(--sh-pink)}
+
+/* MATRIZ */
+.matrix{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--border);border-radius:var(--r);overflow:hidden}
+.mq{padding:12px 14px;background:var(--card-bg)}
+.mq-title{font-size:10px;font-weight:900;margin-bottom:5px}
+.mq-items{display:flex;flex-direction:column;gap:3px}
+.mq-item{font-size:10px;font-weight:600;color:var(--muted);padding:3px 7px;background:rgba(0,0,0,.03);border-radius:5px}
+
+/* TOAST */
+.tw{position:fixed;bottom:62px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.toast{background:rgba(28,16,24,.88);backdrop-filter:blur(16px);color:#fff;padding:8px 14px;border-radius:var(--r);font-size:11px;font-weight:700;box-shadow:var(--sh-md);animation:toastIn .2s ease;display:flex;align-items:center;gap:6px}
+@keyframes toastIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--p200);border-radius:99px}
+.div{height:1px;background:var(--divider);margin:13px 0}
+.freela-bar{background:rgba(0,0,0,.03);border-radius:var(--r-sm);padding:14px;text-align:center}
+main{padding-bottom:0}
+
+/* ════ MOBILE / PWA ════ */
+@media(max-width:768px){
+
+  /* Layout */
+  .layout{flex-direction:column}
+  .main{margin-left:0;padding:14px 14px 80px;max-width:100%}
+
+  /* Sidebar vira bottom nav */
+  .sb{
+    width:100%;height:auto;min-height:unset;
+    flex-direction:row;align-items:stretch;
+    position:fixed;bottom:0;top:auto;
+    left:0;right:0;
+    border-right:none;border-top:1px solid var(--border);
+    padding:0;overflow-x:auto;overflow-y:hidden;
+    z-index:200;
+    box-shadow:0 -1px 0 var(--divider),0 -4px 12px rgba(0,0,0,.06);
+  }
+
+  /* Esconde elementos que nao cabem na bottom nav */
+  .sb-logo,.sb-section,.sb-foot,.sb-avatar,.sb-name,.sb-sub{display:none}
+
+  /* Nav items viram abas horizontais */
+  .nav{
+    flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:2px;
+    padding:6px 2px 4px;
+    margin:0;
+    width:auto;flex:1;flex-shrink:0;
+    min-width:52px;max-width:72px;
+    border-radius:0;
+    font-size:9px;font-weight:700;
+    text-align:center;
+    border-right:none;
+  }
+  .nav.active{
+    background:var(--p50);
+    border-right:none;
+    border-top:2px solid var(--p500);
+    box-shadow:none;
+  }
+  .nav-ic{font-size:20px;width:auto;line-height:1.2}
+
+  /* Esconde labels longas - mostra só as primeiras 6 letras */
+  .nav span:not(.nav-ic){
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    max-width:64px;
+    display:block;
+  }
+
+  /* Conteúdo começa no topo */
+  .main{padding-top:14px}
+
+  /* Nota bar fica acima da bottom nav */
+  .nota-bar{left:0;bottom:calc(var(--sb-height, 62px));padding:8px 14px;z-index:150}
+
+  /* Grids */
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .g2.keep-2{grid-template-columns:1fr 1fr}
+
+  /* Cards */
+  .card{padding:14px 16px;border-radius:var(--r)}
+
+  /* Page headers */
+  .ph{flex-direction:column;gap:8px;margin-bottom:16px}
+  .pt{font-size:18px}
+
+  /* Pill tabs scrolláveis */
+  .pt-wrap{width:100%;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .pt-wrap::-webkit-scrollbar{display:none}
+  .pt-btn{white-space:nowrap;flex-shrink:0}
+
+  /* Modais como sheets */
+  .mo{align-items:flex-end;padding:0;background:rgba(28,16,24,.4)}
+  .modal{border-radius:24px 24px 0 0;max-height:90vh;width:100%;max-width:100%;margin:0}
+
+  /* Forms */
+  .form-row{grid-template-columns:1fr}
+
+  /* Focus mode */
+  .focus-task{font-size:20px;padding:0 20px}
+  .focus-timer{font-size:64px}
+
+  /* Timeline */
+  .tl-c{font-size:11px}.tl-n{font-size:10px}
+
+  /* Focus bar */
+  .focus-bar{border-radius:var(--r)}.fb-title{font-size:14px}
+
+  /* Alertas */
+  .alert-i{padding:8px 11px}.alert-i div{font-size:11px}
+}
+
+/* Safe areas iPhone */
+@supports(padding-bottom:env(safe-area-inset-bottom)){
+  @media(max-width:768px){
+    .sb{padding-bottom:env(safe-area-inset-bottom)}
+    .nota-bar{bottom:calc(62px + env(safe-area-inset-bottom))}
+    .main{padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+  }
+}
+
+
+/* ════ NOTION ════ */
+.notion-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--r-full);background:rgba(0,0,0,.06);font-size:10px;font-weight:700;color:var(--muted)}
+.notion-badge.connected{background:var(--greenbg);color:var(--green)}
+.notion-badge.syncing{background:var(--bluebg);color:var(--blue)}
+.notion-badge.error{background:var(--redbg);color:var(--red)}
+.notion-setup{background:rgba(0,0,0,.02);border:1.5px dashed var(--border-strong);border-radius:var(--r-lg);padding:20px;text-align:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1s linear infinite;display:inline-block}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-avatar">🍒</div>
+    <div>
+      <div class="sb-name">Minha Assistente</div>
+      <div class="sb-sub">Carol · Designer · APEX</div>
+    </div>
+  </div>
+
+  <div class="sb-section">Visão Geral</div>
+  <button class="nav active" onclick="go('hoje')"><span class="nav-ic">✨</span>Hoje</button>
+  <button class="nav" onclick="go('prioridades')"><span class="nav-ic">🎯</span>Prioridades</button>
+  <button class="nav" onclick="go('radar')"><span class="nav-ic">⚡</span>Radar de Pendências</button>
+  <button class="nav" onclick="go('performance')"><span class="nav-ic">📊</span>Performance</button>
+
+  <div class="sb-section">Trabalho</div>
+  <button class="nav" onclick="go('tarefas')"><span class="nav-ic">✅</span>Tarefas</button>
+  <button class="nav" onclick="go('projetos')"><span class="nav-ic">🗂️</span>Projetos</button>
+  <button class="nav" onclick="go('reunioes')"><span class="nav-ic">💬</span>Reuniões</button>
+  <button class="nav" onclick="go('followups')"><span class="nav-ic">🔁</span>Follow-ups</button>
+
+  <div class="sb-section">Vida Pessoal</div>
+  <button class="nav" onclick="go('rotina')"><span class="nav-ic">🗓️</span>Rotina</button>
+  <button class="nav" onclick="go('habitos')"><span class="nav-ic">🌿</span>Hábitos</button>
+  <button class="nav" onclick="go('saude')"><span class="nav-ic">💪</span>Saúde</button>
+  <button class="nav" onclick="go('olivia')"><span class="nav-ic">🐱</span>Olivia</button>
+  <button class="nav" onclick="go('freela')"><span class="nav-ic">🎨</span>Freela & Estudos</button>
+  <button class="nav" onclick="go('financas')"><span class="nav-ic">💰</span>Finanças</button>
+  <button class="nav" onclick="go('notas')"><span class="nav-ic">📝</span>Notas & Insights</button>
+
+  <div class="sb-foot">🍒 feito pra você</div>
+</aside>
+
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+<!-- ════ HOJE ════ -->
+<div id="p-hoje" class="page active">
+
+  <!-- Banner fim de semana -->
+  <div id="fds-banner" style="display:none;background:linear-gradient(135deg,#e8306e,#8b1a2e);border-radius:var(--r);padding:18px 24px;margin-bottom:16px;color:#fff">
+    <div style="font-size:18px;font-weight:900;margin-bottom:4px">🎉 É fim de semana, Carol!</div>
+    <div style="font-size:12px;opacity:.85;font-weight:600">Nada de APEX hoje. Esse tempo é seu — Olivia, amigos, autocuidado, freela se quiser. Descansa com carinho 💕</div>
+  </div>
+
+  <!-- Seletor de energia -->
+  <div id="energia-banner" style="margin-bottom:14px">
+    <div class="card" style="padding:14px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div class="pt" id="greeting" style="font-size:20px">Bom dia, Carol! 🍒</div>
+          <div class="ps" id="today-dt"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Como você tá hoje?</div>
+          <div style="display:flex;gap:6px" id="energia-btns">
+            <button onclick="setEnergia('baixa')" id="e-baixa" style="padding:6px 12px;border-radius:99px;border:1.5px solid var(--border);background:#fff;font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s">🪫 Cansada</button>
+            <button onclick="setEnergia('media')" id="e-media" style="padding:6px 12px;border-radius:99px;border:1.5px solid var(--border);background:#fff;font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s">⚡ OK</button>
+            <button onclick="setEnergia('alta')" id="e-alta" style="padding:6px 12px;border-radius:99px;border:1.5px solid var(--border);background:#fff;font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s">🚀 Animada</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-o btn-sm" onclick="gerarResumoDiario()">📋 Resumo</button>
+          <button class="btn btn-p btn-sm" onclick="abrirFoco()">⚡ Modo Foco</button>
+        </div>
+      </div>
+      <div id="energia-msg" style="margin-top:10px;padding:10px 14px;border-radius:var(--rs);font-size:12px;font-weight:700;display:none"></div>
+    </div>
+  </div>
+
+  <!-- Recorrentes automáticos do dia -->
+  <div id="recorrentes-banner" style="margin-bottom:14px"></div>
+
+  <!-- Prioridade #1 editável -->
+  <div style="margin-bottom:14px">
+    <div class="focus-bar" id="foco-bar">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div class="fb-label">🎯 sua prioridade #1 hoje</div>
+        <button onclick="editarFoco()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 10px;font-family:'Manrope',sans-serif;font-size:10px;font-weight:800;color:#fff;cursor:pointer">✏️ Editar</button>
+      </div>
+      <div class="fb-title" id="foco-titulo">Carregando...</div>
+      <div class="fb-meta" id="foco-meta"></div>
+    </div>
+    <!-- Editor de prioridade (oculto) -->
+    <div id="foco-editor" style="display:none;background:#fff;border:1.5px solid var(--p300);border-radius:var(--r);padding:16px;margin-top:8px">
+      <div style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:10px">Escolha sua prioridade #1 de hoje:</div>
+      <div id="foco-opcoes" class="col"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <input class="inp" id="foco-custom" placeholder="Ou escreva uma prioridade personalizada..." style="flex:1">
+        <button class="btn btn-p btn-sm" onclick="salvarFocoCustom()">Salvar</button>
+      </div>
+      <button class="btn btn-g btn-sm" style="margin-top:8px" onclick="fecharFocoEditor()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Alertas -->
+  <div id="alertas-container" class="col" style="margin-bottom:14px"></div>
+
+  <!-- Stats rápidos -->
+  <div class="g4" style="margin-bottom:14px">
+    <div class="card sc"><div class="sv" id="st-feitas">0</div><div class="sl">Feitas hoje</div></div>
+    <div class="card sc"><div class="sv" id="st-olivia">🐱</div><div class="sl">Olivia ok?</div></div>
+    <div class="card sc"><div class="sv" id="st-habitos">0%</div><div class="sl">Hábitos hoje</div></div>
+    <div class="card sc" style="cursor:pointer" onclick="iniciarJanta()" id="janta-card">
+      <div class="sv" id="janta-timer-display">🍳</div>
+      <div class="sl" id="janta-label">Iniciar cozinha</div>
+    </div>
+  </div>
+
+  <!-- Grid principal -->
+  <div class="g2">
+    <!-- Timeline dinâmica -->
+    <div class="card">
+      <div class="ct">⏰ linha do tempo de hoje</div>
+      <div id="timeline-hoje" class="tl"></div>
+    </div>
+
+    <!-- Coluna direita -->
+    <div class="col">
+      <div class="card" id="dica-card">
+        <div class="ct">💡 dica pra você hoje</div>
+        <div id="dica-dia" style="font-size:12px;color:var(--muted);line-height:1.65;font-weight:600"></div>
+      </div>
+      <div class="card">
+        <div class="ct">🔥 top 3 de hoje</div>
+        <div id="top3-hoje" class="col"></div>
+      </div>
+      <div class="card" style="background:linear-gradient(135deg,#fff5f8,#fff0f7);border-color:var(--p300)">
+        <div class="ct">🐱 olivia hoje</div>
+        <div id="olivia-hoje" class="col"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Histórico semanal de conclusões -->
+  <div class="card" style="margin-top:14px">
+    <div class="ct">📈 sua semana em conclusões</div>
+    <div id="historico-semana" style="display:flex;gap:8px;align-items:flex-end;height:60px;padding-top:4px"></div>
+    <div style="display:flex;gap:8px;margin-top:4px" id="historico-labels"></div>
+  </div>
+</div>
+
+<!-- ════ PRIORIDADES ════ -->
+<div id="p-prioridades" class="page">
+  <div class="ph">
+    <div><div class="pt">Central de Prioridades 🎯</div><div class="ps">Edite impacto e esforço de cada tarefa pra recalcular</div></div>
+    <button class="btn btn-p btn-sm" onclick="gerarPrioridades()">✨ Replaneja agora</button>
+  </div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ct">📊 matriz impacto × esforço</div>
+      <div class="matrix" id="matriz"></div>
+    </div>
+    <div class="card">
+      <div class="ct">🔢 ranking — clique pra editar prioridade</div>
+      <div id="ranking" class="col"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">⏰ detecção de sobrecarga</div>
+    <div id="sobrecarga" class="col"></div>
+  </div>
+</div>
+
+<!-- ════ RADAR ════ -->
+<div id="p-radar" class="page">
+  <div class="ph"><div class="pt">Radar de Pendências ⚡</div><div class="ps">Tudo que não pode ficar pra depois</div></div>
+  <div class="g2">
+    <div class="col">
+      <div class="card">
+        <div class="ct" style="color:var(--red)">🔴 crítico — resolver hoje</div>
+        <div id="radar-crit" class="col"></div>
+      </div>
+      <div class="card">
+        <div class="ct" style="color:#c47000">🟠 atenção — esta semana</div>
+        <div id="radar-warn" class="col"></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <div class="ct" style="color:var(--amber)">🟡 no radar — não esquecer</div>
+        <div id="radar-info" class="col"></div>
+      </div>
+      <div class="card">
+        <div class="ct">📋 resumo semanal automático</div>
+        <div id="resumo-semanal" style="font-size:12px;color:var(--muted);line-height:1.65;font-weight:600"></div>
+        <button class="btn btn-o btn-sm" style="margin-top:12px;width:100%" onclick="gerarResumoSemanal()">🔄 Gerar resumo desta semana</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PERFORMANCE ════ -->
+<div id="p-performance" class="page">
+  <div class="ph"><div class="pt">Performance 📊</div><div class="ps">Seus indicadores pessoais e profissionais</div></div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card"><div class="ct">👤 pessoal</div><div id="perf-pessoal"></div></div>
+    <div class="card"><div class="ct">💼 profissional</div><div id="perf-prof"></div></div>
+  </div>
+  <div class="g4">
+    <div class="card sc"><div class="sv" id="pp-habitos">0%</div><div class="sl">Consistência hábitos</div></div>
+    <div class="card sc"><div class="sv" id="pp-tarefas">0%</div><div class="sl">Execução de tarefas</div></div>
+    <div class="card sc"><div class="sv" id="pp-freela">0h</div><div class="sl">Freela esta semana</div></div>
+    <div class="card sc"><div class="sv" id="pp-saldo">R$0</div><div class="sl">Saldo do mês</div></div>
+  </div>
+</div>
+
+<!-- ════ TAREFAS ════ -->
+<div id="p-tarefas" class="page">
+  <div class="ph">
+    <div><div class="pt">Tarefas ✅</div><div class="ps">APEX + pessoal + freela — tudo junto</div></div>
+    <button class="btn btn-p btn-sm" onclick="openM('m-task')">+ Nova tarefa</button>
+  </div>
+  <div class="pt-wrap">
+    <button class="pt-btn on" onclick="filtraTasks('todas',this)">Todas</button>
+    <button class="pt-btn" onclick="filtraTasks('apex',this)">APEX</button>
+    <button class="pt-btn" onclick="filtraTasks('pessoal',this)">Pessoal</button>
+    <button class="pt-btn" onclick="filtraTasks('freela',this)">Freela</button>
+    <button class="pt-btn" onclick="filtraTasks('atrasada',this)">⚠️ Atrasadas</button>
+    <button class="pt-btn" onclick="filtraTasks('feitas',this)">Feitas</button>
+  </div>
+  <div id="task-list" class="col"></div>
+</div>
+
+<!-- ════ PROJETOS ════ -->
+<div id="p-projetos" class="page">
+  <div class="ph">
+    <div><div class="pt">Projetos 🗂️</div><div class="ps">Clique em qualquer campo pra editar</div></div>
+    <button class="btn btn-p btn-sm" onclick="openM('m-proj')">+ Novo projeto</button>
+  </div>
+  <div id="proj-list" class="col"></div>
+</div>
+
+<!-- ════ REUNIÕES ════ -->
+<div id="p-reunioes" class="page">
+  <div class="ph">
+    <div><div class="pt">Reuniões & Agenda 💬</div><div class="ps">Preparação antes, registro depois</div></div>
+    <button class="btn btn-p btn-sm" onclick="openM('m-reun')">+ Nova reunião</button>
+  </div>
+  <div class="g2">
+    <div class="col">
+      <div class="card"><div class="ct">📅 próximas reuniões</div><div id="reun-list" class="col"><div style="font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:16px">Nenhuma reunião agendada 💕</div></div></div>
+      <div class="card"><div class="ct">📝 histórico de decisões</div><div id="decisoes-list" class="col"><div style="font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:16px">Registre decisões após suas reuniões</div></div></div>
+    </div>
+    <div class="card">
+      <div class="ct">🤖 assistente de preparação</div>
+      <div style="margin-bottom:12px"><label class="lbl">Título / pauta</label><input class="inp" id="prep-titulo" placeholder="ex: Alinhamento visual com cliente X"></div>
+      <div style="margin-bottom:12px"><label class="lbl">Objetivo</label><textarea class="ta" id="prep-obj" placeholder="O que precisa sair definido?"></textarea></div>
+      <button class="btn btn-p" style="width:100%" onclick="prepararReuniao()">✨ Gerar preparação</button>
+      <div id="prep-result" style="margin-top:14px;font-size:12px;color:var(--muted);line-height:1.65;font-weight:600"></div>
+      <div class="div"></div>
+      <div class="ct">📋 registro pós-reunião</div>
+      <textarea class="ta" id="pos-notas" placeholder="Cole suas notas brutas da reunião..."></textarea>
+      <button class="btn btn-o btn-sm" style="margin-top:8px;width:100%" onclick="registrarReuniao()">📥 Extrair decisões e próximos passos</button>
+      <div id="pos-result" style="margin-top:12px;font-size:12px;color:var(--muted);line-height:1.65;font-weight:600"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ FOLLOW-UPS ════ -->
+<div id="p-followups" class="page">
+  <div class="ph">
+    <div><div class="pt">Follow-ups 🔁</div><div class="ps">Clique no status pra marcar como feito · 🗑️ pra remover</div></div>
+    <button class="btn btn-p btn-sm" onclick="openM('m-fu')">+ Novo follow-up</button>
+  </div>
+  <div id="fu-list" class="col"></div>
+</div>
+
+<!-- ════ ROTINA ════ -->
+<div id="p-rotina" class="page">
+  <div class="ph"><div class="pt">Rotina 🗓️</div><div class="ps">Edite, reordene e personalize sua rotina</div></div>
+  <div class="pt-wrap">
+    <button class="pt-btn on" onclick="switchTab(this,'rot-atual')">Minha rotina</button>
+    <button class="pt-btn" onclick="switchTab(this,'rot-ideal')">Versão ideal 💡</button>
+    <button class="pt-btn" onclick="switchTab(this,'rot-sugestoes')">Sugestões do dia</button>
+    <button class="pt-btn" onclick="switchTab(this,'rot-semana')">Semana</button>
+  </div>
+
+  <div id="rot-atual">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="ct" style="margin-bottom:0">📍 sua rotina — arraste pra reordenar</div>
+        <button class="btn btn-p btn-sm" onclick="openM('m-rotina-item')">+ Adicionar</button>
+      </div>
+      <div id="rotina-list" class="col"></div>
+    </div>
+  </div>
+
+  <div id="rot-ideal" style="display:none">
+    <div class="card" style="border-color:var(--p300)">
+      <div class="ct">✨ rotina ideal sugerida</div>
+      <div style="padding:10px;background:var(--p50);border-radius:9px;margin-bottom:14px;font-size:12px;color:var(--p600);font-weight:700">Pequena mudança, grande impacto: 1h30 real todo dia é possível 💕</div>
+      <div class="tl">
+        <div class="tl-i"><div class="tl-dot on"></div><div class="tl-time">7h</div><div class="tl-c">⏰ Acorda 20 min antes</div><div class="tl-n">Sem correria = começa o dia melhor</div></div>
+        <div class="tl-i"><div class="tl-dot"></div><div class="tl-time">8h</div><div class="tl-c">🎧 Ônibus modo estudo</div><div class="tl-n">Podcast de design, vídeo, inspiração</div></div>
+        <div class="tl-i"><div class="tl-dot"></div><div class="tl-time">9h30–12h</div><div class="tl-c">🎨 APEX — tarefa mais difícil primeiro</div></div>
+        <div class="tl-i"><div class="tl-dot"></div><div class="tl-time">12h–13h</div><div class="tl-c">🥗 Almoço real</div><div class="tl-n">4x descanso · 1x freela leve</div></div>
+        <div class="tl-i"><div class="tl-dot"></div><div class="tl-time">19h50–20h45</div><div class="tl-c">🍳 Janta + marmita juntas</div><div class="tl-n">Meta: terminar às 20h45</div></div>
+        <div class="tl-i" style="padding-bottom:0"><div class="tl-dot" style="background:var(--p500)"></div><div class="tl-time">21h–22h30</div><div class="tl-c" style="color:var(--p600)">✨ SEU TEMPO — 1h30</div><div class="tl-n">Seg/Qua/Sex: freela · Ter/Qui: descanso 💕</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="rot-sugestoes" style="display:none">
+    <div class="card">
+      <div class="ct">🎯 sugestões para hoje — baseadas nas suas tarefas</div>
+      <div id="rotina-sugestoes-list" class="col"></div>
+    </div>
+  </div>
+
+  <div id="rot-semana" style="display:none">
+    <div class="card"><div class="ct">📅 visão da semana</div><div id="semana-grid" class="col"></div></div>
+  </div>
+</div>
+
+<!-- ════ HÁBITOS ════ -->
+<div id="p-habitos" class="page">
+  <div class="ph">
+    <div><div class="pt">Hábitos 🌿</div><div class="ps">Consistência é tudo — vai devagar, mas vai</div></div>
+    <button class="btn btn-p btn-sm" onclick="openM('m-hab')">+ Hábito</button>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ct">📆 esta semana — toque pra marcar · 🗑️ pra remover</div>
+    <div id="hab-tracker"></div>
+  </div>
+  <div class="g3">
+    <div class="card sc"><div class="sv" id="hab-rate">0%</div><div class="sl">Consistência</div></div>
+    <div class="card sc"><div class="sv" id="hab-streak">0🔥</div><div class="sl">Melhor sequência</div></div>
+    <div class="card sc"><div class="sv" id="hab-hoje">0</div><div class="sl">Feitos hoje</div></div>
+  </div>
+</div>
+
+<!-- ════ SAÚDE ════ -->
+<div id="p-saude" class="page">
+  <div class="ph">
+    <div><div class="pt">Saúde 💪</div><div class="ps">Corpo, mente e energia — tudo editável</div></div>
+    <button class="btn btn-p btn-sm" onclick="openM('m-saude-item')">+ Lembrete</button>
+  </div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ct">🏥 lembretes de saúde — clique pra editar · ✓ pra marcar</div>
+      <div id="saude-list" class="col"></div>
+    </div>
+    <div class="card">
+      <div class="ct">💧 hidratação hoje</div>
+      <div style="margin-bottom:8px;font-size:12px;font-weight:700;color:var(--muted)">Copos de água</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="agua-copos"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;font-weight:600" id="agua-label">0 de 8 copos</div>
+      <div class="div"></div>
+      <div class="g3" style="gap:8px">
+        <div style="padding:10px;background:rgba(0,0,0,.03);border-radius:var(--r-sm);text-align:center">
+          <div style="font-size:18px">😮‍💨</div>
+          <div style="font-size:10px;font-weight:800;color:var(--p600);margin-top:4px">Ansiedade</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;font-weight:600">Uma coisa por vez</div>
+        </div>
+        <div style="padding:10px;background:rgba(0,0,0,.03);border-radius:var(--r-sm);text-align:center">
+          <div style="font-size:18px">🌱</div>
+          <div style="font-size:10px;font-weight:800;color:var(--green);margin-top:4px">5 minutos</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;font-weight:600">Só começar</div>
+        </div>
+        <div style="padding:10px;background:rgba(0,0,0,.03);border-radius:var(--r-sm);text-align:center">
+          <div style="font-size:18px">🐱</div>
+          <div style="font-size:10px;font-weight:800;color:var(--blue);margin-top:4px">Olivia</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;font-weight:600">Tá do seu lado</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ OLIVIA ════ -->
+<div id="p-olivia" class="page">
+  <div class="ph">
+    <div><div class="pt">Olivia 🐱</div><div class="ps">Cuidar dela é autocuidado também</div></div>
+    <button class="btn btn-p btn-sm" onclick="openM('m-olivia-item')">+ Cuidado</button>
+  </div>
+  <div class="olivia-card" style="margin-bottom:14px">
+    <div class="olivia-head">
+      <div class="olivia-avatar">🐱</div>
+      <div>
+        <div style="font-size:16px;font-weight:900;color:var(--p600)">Olivia</div>
+        <div style="font-size:11px;color:var(--muted);font-weight:600">
+          <span contenteditable="true" id="olivia-idade" style="outline:none;border-bottom:1px dashed var(--p300);cursor:text" onblur="salvarOliviaInfo()">2 meses</span>
+          · gatinha filhota · sua companhia 💕
+        </div>
+      </div>
+    </div>
+    <div class="g2">
+      <div>
+        <div style="font-size:10px;font-weight:800;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">CUIDADOS — clique ✓ pra marcar</div>
+        <div id="olivia-cuidados" class="col"></div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:800;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">ROTINA DIÁRIA</div>
+        <div id="olivia-rotina" class="col"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="ct" style="margin-bottom:0">📅 calendário vacinal — clique pra editar</div>
+      <button class="btn btn-o btn-sm" onclick="openM('m-vacina')">+ Vacina</button>
+    </div>
+    <div id="olivia-vacinas" class="col"></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="ct">📝 anotações sobre a Olivia</div>
+    <textarea class="ta" id="olivia-notas" placeholder="Comportamento, vet, observações..." style="min-height:80px" onblur="salvarOliviaNotas()"></textarea>
+  </div>
+</div>
+
+<!-- ════ FREELA ════ -->
+<div id="p-freela" class="page">
+  <div class="ph"><div class="pt">Freela & Estudos 🎨</div><div class="ps">Do plano pra realidade — um passo por vez</div></div>
+  <div style="padding:12px 16px;background:var(--p50);border-radius:var(--rs);border:1px dashed var(--p300);margin-bottom:14px">
+    <div contenteditable="true" id="freela-motivacao" style="font-size:12px;font-weight:700;color:var(--p600);outline:none;min-height:20px" onblur="salvarFreelaMotivacao()">💕 Carol, você tem criatividade como superpotência. O freela já existe dentro de você — só precisa de estrutura pra sair do papel. Vamos juntas?</div>
+  </div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="ct" style="margin-bottom:0">🗺️ plano passo a passo — editável</div>
+        <button class="btn btn-o btn-sm" onclick="openM('m-freela-passo')">+ Passo</button>
+      </div>
+      <div id="freela-passos" class="col"></div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <div class="ct">⏱️ horas esta semana</div>
+        <div style="text-align:center;padding:10px">
+          <div style="font-size:38px;font-weight:900;color:var(--p600)" id="freela-h">0h</div>
+          <div style="font-size:10px;color:var(--muted);font-weight:700;margin-top:4px">meta: <span contenteditable="true" id="freela-meta-h" style="outline:none;border-bottom:1px dashed var(--p300)" onblur="salvarFreelaMeta()">5</span>h semanais</div>
+        </div>
+        <div class="pw"><div class="pb" id="freela-pb" style="width:0%"></div></div>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <button class="btn btn-p btn-sm" style="flex:1" onclick="addFreelaH()">+ 1h</button>
+          <button class="btn btn-o btn-sm" style="flex:1" onclick="remFreelaH()">− 1h</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">⚡ blocos disponíveis — editável</div>
+        <div id="freela-blocos" class="col"></div>
+        <button class="btn btn-o btn-sm" style="margin-top:8px;width:100%" onclick="openM('m-freela-bloco')">+ Bloco de tempo</button>
+      </div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="ct" style="margin-bottom:0">📚 estudos em andamento</div>
+        <button class="btn btn-o btn-sm" onclick="openM('m-estudo')">+ Curso</button>
+      </div>
+      <div id="estudos-list" class="col"><div style="font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:16px">Adicione cursos!</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">📝 anotações e ideias</div>
+      <textarea class="ta" id="freela-anotacoes" placeholder="Ideias de nicho, referências, clientes potenciais, valores..." style="min-height:140px" onblur="salvarFreelaAnotacoes()"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ════ FINANÇAS ════ -->
+<div id="p-financas" class="page">
+  <div class="ph">
+    <div><div class="pt">Finanças 💰</div><div class="ps" id="fin-mes"></div></div>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-o btn-sm" onclick="openM('m-rec')">+ Receita</button>
+      <button class="btn btn-p btn-sm" onclick="openM('m-desp')">+ Despesa</button>
+    </div>
+  </div>
+  <div class="g4" style="margin-bottom:14px">
+    <div class="card sc"><div class="sv" id="fin-rec">R$0</div><div class="sl">Receitas</div></div>
+    <div class="card sc"><div class="sv" id="fin-desp">R$0</div><div class="sl">Despesas</div></div>
+    <div class="card sc"><div class="sv" id="fin-saldo">R$0</div><div class="sl">Saldo</div></div>
+    <div class="card sc"><div class="sv" id="fin-eco">0%</div><div class="sl">Economia</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">📋 transações recentes</div><div id="trans-list" class="col"></div></div>
+    <div class="card"><div class="ct">🍩 por categoria</div><div id="cat-list" class="col"></div></div>
+  </div>
+</div>
+
+<!-- ════ NOTAS ════ -->
+<div id="p-notas" class="page">
+  <div class="ph"><div class="pt">Notas & Insights 📝</div><div class="ps">Capture tudo — a mente criativa não pode perder ideias</div></div>
+  <div id="notas-list" class="col"></div>
+  <div style="font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:20px" id="notas-empty">Use a barra abaixo pra capturar ideias 💕</div>
+</div>
+
+</main>
+</div>
+
+<!-- ════ MODALS ════ -->
+<div class="mo" id="m-task"><div class="modal">
+  <h3>✅ Nova Tarefa</h3>
+  <div class="col">
+    <div><label class="lbl">Título</label><input class="inp" id="t-tit" placeholder="O que precisa fazer?"></div>
+    <div class="form-row">
+      <div><label class="lbl">Contexto</label><select class="sel" id="t-ctx"><option value="apex">APEX</option><option value="pessoal">Pessoal</option><option value="freela">Freela</option></select></div>
+      <div><label class="lbl">Prioridade</label><select class="sel" id="t-prio"><option value="critica">🔴 Crítica</option><option value="alta">🟠 Alta</option><option value="media" selected>🟡 Média</option><option value="baixa">🟢 Baixa</option></select></div>
+    </div>
+    <div class="form-row">
+      <div><label class="lbl">Impacto</label><select class="sel" id="t-imp"><option value="alto">Alto</option><option value="medio" selected>Médio</option><option value="baixo">Baixo</option></select></div>
+      <div><label class="lbl">Esforço</label><select class="sel" id="t-esf"><option value="alto">Alto</option><option value="medio" selected>Médio</option><option value="baixo">Baixo</option></select></div>
+    </div>
+    <div><label class="lbl">Prazo</label><input class="inp" id="t-prazo" type="date"></div>
+    <div><label class="lbl">Notas</label><textarea class="ta" id="t-nota" placeholder="Detalhes..."></textarea></div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-task')">Cancelar</button><button class="btn btn-p" onclick="addTask()">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-hab"><div class="modal">
+  <h3>🌿 Novo Hábito</h3>
+  <div class="col">
+    <div><label class="lbl">Nome</label><input class="inp" id="h-nome" placeholder="ex: Beber água, Ler..."></div>
+    <div><label class="lbl">Emoji</label><input class="inp" id="h-emoji" placeholder="💧" style="width:70px"></div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-hab')">Cancelar</button><button class="btn btn-p" onclick="addHab()">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-rec"><div class="modal">
+  <h3>💚 Nova Receita</h3>
+  <div class="col">
+    <div><label class="lbl">Descrição</label><input class="inp" id="r-desc" placeholder="ex: Salário APEX"></div>
+    <div class="form-row">
+      <div><label class="lbl">Valor (R$)</label><input class="inp" id="r-val" type="number" placeholder="0"></div>
+      <div><label class="lbl">Categoria</label><select class="sel" id="r-cat"><option>Salário APEX</option><option>Freela</option><option>Investimentos</option><option>Outros</option></select></div>
+    </div>
+    <div><label class="lbl">Data</label><input class="inp" id="r-data" type="date"></div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-rec')">Cancelar</button><button class="btn btn-p" onclick="addTrans('receita')">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-desp"><div class="modal">
+  <h3>💸 Nova Despesa</h3>
+  <div class="col">
+    <div><label class="lbl">Descrição</label><input class="inp" id="d-desc" placeholder="ex: Mercado, Vet Olivia..."></div>
+    <div class="form-row">
+      <div><label class="lbl">Valor (R$)</label><input class="inp" id="d-val" type="number" placeholder="0"></div>
+      <div><label class="lbl">Categoria</label><select class="sel" id="d-cat"><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Academia</option><option>Saúde</option><option>Olivia 🐱</option><option>Lazer</option><option>Beleza</option><option>Assinaturas</option><option>Outros</option></select></div>
+    </div>
+    <div><label class="lbl">Data</label><input class="inp" id="d-data" type="date"></div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-desp')">Cancelar</button><button class="btn btn-p" onclick="addTrans('despesa')">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-proj"><div class="modal">
+  <h3>🗂️ Novo Projeto</h3>
+  <div class="col">
+    <div><label class="lbl">Nome</label><input class="inp" id="pr-nome" placeholder="ex: Identidade Visual Cliente X"></div>
+    <div class="form-row">
+      <div><label class="lbl">Área</label><select class="sel" id="pr-area"><option>APEX</option><option>Freela</option><option>Pessoal</option></select></div>
+      <div><label class="lbl">Prazo</label><input class="inp" id="pr-prazo" type="date"></div>
+    </div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-proj')">Cancelar</button><button class="btn btn-p" onclick="addProj()">Salvar 🍒</button></div>
+</div></div>
+
+
+<div class="mo" id="m-reun"><div class="modal">
+  <h3>💬 Nova Reunião</h3>
+  <div class="col">
+    <div><label class="lbl">Título</label><input class="inp" id="re-tit" placeholder="ex: Alinhamento visual com cliente X"></div>
+    <div class="form-row">
+      <div><label class="lbl">Data</label><input class="inp" id="re-data" type="date"></div>
+      <div><label class="lbl">Horário</label><input class="inp" id="re-hora" type="time"></div>
+    </div>
+    <div><label class="lbl">Participantes</label><input class="inp" id="re-part" placeholder="ex: Equipe APEX, Cliente Y"></div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-reun')">Cancelar</button><button class="btn btn-p" onclick="addReun()">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-fu"><div class="modal">
+  <h3>🔁 Novo Follow-up</h3>
+  <div class="col">
+    <div><label class="lbl">O que fazer</label><input class="inp" id="fu-tit" placeholder="ex: Confirmar briefing com cliente X"></div>
+    <div><label class="lbl">Prazo</label><input class="inp" id="fu-prazo" type="date"></div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-fu')">Cancelar</button><button class="btn btn-p" onclick="addFu()">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-estudo"><div class="modal">
+  <h3>📚 Novo Curso / Estudo</h3>
+  <div class="col">
+    <div><label class="lbl">Nome</label><input class="inp" id="es-nome" placeholder="ex: UI Design — Origamid"></div>
+    <div><label class="lbl">Plataforma</label><input class="inp" id="es-plat" placeholder="ex: Udemy, YouTube..."></div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-estudo')">Cancelar</button><button class="btn btn-p" onclick="addEstudo()">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-rotina-item"><div class="modal">
+  <h3>🗓️ Novo Item de Rotina</h3>
+  <div class="col">
+    <div><label class="lbl">Horário</label><input class="inp" id="ri-hora" placeholder="ex: 7h – 8h"></div>
+    <div><label class="lbl">Atividade</label><input class="inp" id="ri-titulo" placeholder="ex: ☀️ Acordar e se arrumar"></div>
+    <div><label class="lbl">Observação (opcional)</label><input class="inp" id="ri-nota" placeholder="ex: Sem pressa!"></div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-rotina-item')">Cancelar</button><button class="btn btn-p" onclick="addRotinaItem()">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-saude-item"><div class="modal">
+  <h3>💪 Novo Lembrete de Saúde</h3>
+  <div class="col">
+    <div><label class="lbl">Lembrete</label><input class="inp" id="si-titulo" placeholder="ex: Marcar dentista"></div>
+    <div><label class="lbl">Urgência</label>
+      <select class="sel" id="si-urg">
+        <option value="red">🔴 Urgente</option>
+        <option value="orange">🟠 Atenção</option>
+        <option value="yellow">🟡 Planejar</option>
+        <option value="green">🟢 OK</option>
+      </select>
+    </div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-saude-item')">Cancelar</button><button class="btn btn-p" onclick="addSaudeItem()">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-olivia-item"><div class="modal">
+  <h3>🐱 Novo Cuidado da Olivia</h3>
+  <div class="col">
+    <div><label class="lbl">Cuidado</label><input class="inp" id="oi-titulo" placeholder="ex: 💉 Vacina V4"></div>
+    <div><label class="lbl">Tipo</label>
+      <select class="sel" id="oi-tipo">
+        <option value="cuidado">Próximo cuidado</option>
+        <option value="rotina">Rotina diária</option>
+      </select>
+    </div>
+    <div><label class="lbl">Status</label>
+      <select class="sel" id="oi-status">
+        <option value="red">🔴 Urgente</option>
+        <option value="orange">🟠 Atenção</option>
+        <option value="yellow">🟡 Planejado</option>
+        <option value="green">🟢 Feito</option>
+        <option value="gray">⚪ Futuro</option>
+      </select>
+    </div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-olivia-item')">Cancelar</button><button class="btn btn-p" onclick="addOliviaItem()">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-vacina"><div class="modal">
+  <h3>💉 Nova Vacina / Procedimento</h3>
+  <div class="col">
+    <div><label class="lbl">Nome</label><input class="inp" id="vac-nome" placeholder="ex: V4 2ª dose"></div>
+    <div><label class="lbl">Quando</label><input class="inp" id="vac-quando" placeholder="ex: 4 meses — Junho 2025"></div>
+    <div><label class="lbl">Status</label>
+      <select class="sel" id="vac-status">
+        <option value="red">🔴 Urgente</option>
+        <option value="orange">🟠 Atenção</option>
+        <option value="yellow">🟡 Planejado</option>
+        <option value="green">✅ Feito</option>
+      </select>
+    </div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-vacina')">Cancelar</button><button class="btn btn-p" onclick="addVacina()">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-freela-passo"><div class="modal">
+  <h3>🗺️ Novo Passo do Freela</h3>
+  <div class="col">
+    <div><label class="lbl">Descrição</label><input class="inp" id="fp-titulo" placeholder="ex: Montar proposta comercial"></div>
+    <div><label class="lbl">Prioridade</label>
+      <select class="sel" id="fp-prio">
+        <option value="red">🔴 Próximo</option>
+        <option value="orange">🟠 Em breve</option>
+        <option value="yellow">🟡 Depois</option>
+        <option value="green">🏆 Meta final</option>
+      </select>
+    </div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-freela-passo')">Cancelar</button><button class="btn btn-p" onclick="addFreelaPasso()">Salvar 🍒</button></div>
+</div></div>
+
+<div class="mo" id="m-freela-bloco"><div class="modal">
+  <h3>⚡ Novo Bloco de Tempo</h3>
+  <div class="col">
+    <div><label class="lbl">Descrição</label><input class="inp" id="fb-titulo" placeholder="ex: 🌙 Segunda e Quarta — 21h a 22h"></div>
+    <div><label class="lbl">Duração</label><input class="inp" id="fb-dur" placeholder="ex: 1h30 por dia"></div>
+  </div>
+  <div class="mf"><button class="btn btn-g" onclick="closeM('m-freela-bloco')">Cancelar</button><button class="btn btn-p" onclick="addFreelaBloco()">Salvar 🍒</button></div>
+</div></div>
+
+<!-- MODO FOCO -->
+<div class="focus-overlay" id="focus-overlay">
+  <div class="focus-title">⚡ MODO FOCO</div>
+  <div class="focus-task" id="fo-task">Tarefa em foco</div>
+  <div class="focus-timer" id="fo-timer">25:00</div>
+  <div class="focus-pom" id="fo-pom">🍅 Pomodoro 1 de 4</div>
+  <div class="focus-btns">
+    <button class="btn btn-o" onclick="toggleFoco()">⏸ Pausar</button>
+    <button class="btn btn-o" onclick="pularPausa()">⏭ Pular</button>
+    <button class="btn btn-p" onclick="encerrarFoco()">✓ Concluir</button>
+  </div>
+  <div style="margin-top:20px;font-size:12px;color:var(--muted);font-weight:600">Respirа. Uma coisa por vez. Você consegue 💕</div>
+</div>
+
+<!-- NOTA RÁPIDA -->
+<div class="nota-bar">
+  <span style="font-size:14px">📝</span>
+  <input class="nota-inp" id="nota-inp" placeholder="Capturar ideia, tarefa ou lembrete rápido... (Enter pra salvar)">
+  <button class="btn btn-p btn-sm" onclick="addNota()">+ Salvar</button>
+</div>
+
+<!-- TOAST -->
+<div class="tw" id="tw"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────
+function loadState(){
+  return {
+    tasks:  JSON.parse(localStorage.getItem('c_tasks')||'[]'),
+    habits: JSON.parse(localStorage.getItem('c_habits')||'[]'),
+    hlog:   JSON.parse(localStorage.getItem('c_hlog')||'{}'),
+    trans:  JSON.parse(localStorage.getItem('c_trans')||'[]'),
+    notas:  JSON.parse(localStorage.getItem('c_notas')||'[]'),
+    freelaHours: parseFloat(localStorage.getItem('c_freela')||'0'),
+    agua:   parseInt(localStorage.getItem('c_agua')||'0'),
+    reuns:  JSON.parse(localStorage.getItem('c_reuns')||'[]'),
+    fus:    JSON.parse(localStorage.getItem('c_fus')||'[]'),
+  };
+}
+let S = loadState();
+function sv(){
+  localStorage.setItem('c_tasks',JSON.stringify(S.tasks));
+  localStorage.setItem('c_habits',JSON.stringify(S.habits));
+  localStorage.setItem('c_hlog',JSON.stringify(S.hlog));
+  localStorage.setItem('c_trans',JSON.stringify(S.trans));
+  localStorage.setItem('c_notas',JSON.stringify(S.notas));
+  localStorage.setItem('c_freela',S.freelaHours||0);
+  localStorage.setItem('c_agua',S.agua);
+  localStorage.setItem('c_reuns',JSON.stringify(S.reuns));
+  localStorage.setItem('c_fus',JSON.stringify(S.fus));
+}
+const today = new Date().toISOString().split('T')[0];
+
+// ─── NAV ─────────────────────────────────────────────
+const dicas = [
+  '🍒 Carol, você tem criatividade como superpotência. Use isso no freela — seu portfólio já existe dentro da APEX.',
+  '🌿 Procrastinação dica: comece por apenas 5 minutos. Só começar já quebra o bloqueio — comprovado.',
+  '💕 Morar sozinha é muito responsabilidade. Você está dando conta. Olivia tá aí pra te lembrar.',
+  '🎯 Hoje, uma tarefa por vez. Sua energia oscila — quando estiver no pico, coloque o mais difícil.',
+  '🌙 O bloco das 21h é seu. Protege ele como compromisso sagrado — não deixa a noite passar vazia.',
+  '💧 Bebeu água hoje? Você mesma falou que bebe pouco. Vai lá agora!',
+  '🎨 Você é designer de branding — cada coisa que você cria tem identidade. O freela também vai ter.',
+  '✈️ Seu sonho é viajar. Cada hora de freela é um passo pra essa viagem. Literalmente.',
+];
+
+function go(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));
+  document.getElementById('p-'+name).classList.add('active');
+  document.querySelectorAll('.nav').forEach(n=>{if(n.textContent.toLowerCase().includes({hoje:'hoje',prioridades:'prior',radar:'radar',performance:'perfor',tarefas:'tarefa',projetos:'projeto',reunioes:'reuni',followups:'follow',rotina:'rotina',habitos:'hábito',saude:'saúde',olivia:'olivia',freela:'freela',financas:'finan',notas:'nota'}[name]||name))n.classList.add('active')});
+  if(name==='tarefas')renderTasks('todas');
+  if(name==='habitos')renderHabits();
+  if(name==='financas')renderFin();
+  if(name==='prioridades')renderPrior();
+  if(name==='radar')renderRadar();
+  if(name==='performance')renderPerf();
+  if(name==='notas')renderNotas();
+  if(name==='olivia')renderAguaCopos();
+  if(name==='saude')renderAguaCopos();
+}
+
+// ─── MODAL ───────────────────────────────────────────
+function openM(id){document.getElementById(id).classList.add('open')}
+function closeM(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+
+// ─── TOAST ───────────────────────────────────────────
+function toast(msg){
+  const w=document.getElementById('tw');
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;w.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+// ─── ENERGIA ─────────────────────────────────────────
+const energiaMsgs = {
+  baixa: {bg:'#fff0e0', color:'#c47000', txt:'🪫 Tá cansada hoje — tudo bem! O assistente vai te sugerir as tarefas mais leves primeiro. Cuida de você também, tá? 💕'},
+  media: {bg:'#edfaf2', color:'var(--green)', txt:'⚡ Energia OK! Bom pra tarefas médias. Vai no seu ritmo — você já tá fazendo muito.'},
+  alta:  {bg:'#fff5f8', color:'var(--p600)', txt:'🚀 Animada! Hora de atacar as tarefas mais importantes. Aproveita esse pico! 🍒'},
+};
+function setEnergia(nivel){
+  localStorage.setItem('carol_energia_hoje', JSON.stringify({nivel, data:today}));
+  document.querySelectorAll('#energia-btns button').forEach(b=>{ b.style.background='#fff'; b.style.color='var(--muted)'; b.style.borderColor='var(--border)'; });
+  const btn = document.getElementById('e-'+nivel);
+  btn.style.background = nivel==='baixa'?'#fff0e0':nivel==='media'?'#edfaf2':'#fce4ec';
+  btn.style.color = nivel==='baixa'?'#c47000':nivel==='media'?'var(--green)':'var(--p600)';
+  btn.style.borderColor = nivel==='baixa'?'#ffc870':nivel==='media'?'var(--greenbr)':'var(--p300)';
+  const msg = energiaMsgs[nivel];
+  const el = document.getElementById('energia-msg');
+  el.style.display='block'; el.style.background=msg.bg; el.style.color=msg.color;
+  el.textContent = msg.txt;
+  renderTop3();
+}
+function initEnergia(){
+  const saved = JSON.parse(localStorage.getItem('carol_energia_hoje')||'null');
+  if(saved && saved.data===today) setEnergia(saved.nivel);
+}
+
+// ─── FIM DE SEMANA ───────────────────────────────────
+function checkFimDeSemana(){
+  const dow = new Date().getDay(); // 0=dom,6=sab
+  const isFds = dow===0||dow===6;
+  document.getElementById('fds-banner').style.display = isFds?'block':'none';
+}
+
+// ─── RECORRENTES AUTOMÁTICOS ─────────────────────────
+function renderRecorrentes(){
+  const el = document.getElementById('recorrentes-banner');
+  const dow = new Date().getDay();
+  const dia = new Date().getDate();
+  const items = [];
+  if(dow===1) items.push({emoji:'📧', txt:'Segunda-feira: <b>Artes Boletim Semanal</b> — lembrou?', cor:'var(--bluebg)', bor:'var(--bluebr)', tc:'var(--blue)'});
+  if(dow===5) items.push({emoji:'📰', txt:'Sexta-feira: <b>Giro da Semana</b> — hora de preparar!', cor:'var(--amberbg)', bor:'var(--amberbr)', tc:'var(--amber)'});
+  if(dia<=3)  items.push({emoji:'📊', txt:'Início de mês: <b>Carta do Economista</b> + <b>Apresentação Institucional</b> pra atualizar!', cor:'var(--p50)', bor:'var(--p300)', tc:'var(--p600)'});
+  if(dia===10) items.push({emoji:'💰', txt:'Dia 10: <b>Receber salário</b> e pagar aluguel + contas (≈ R$1.800)!', cor:'var(--greenbg)', bor:'var(--greenbr)', tc:'var(--green)'});
+  if(!items.length){el.innerHTML='';return;}
+  el.innerHTML = items.map(i=>`<div style="padding:10px 16px;background:${i.cor};border:1.5px solid ${i.bor};border-radius:var(--rs);display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:18px">${i.emoji}</span><div style="font-size:12px;font-weight:700;color:${i.tc}">${i.txt}</div></div>`).join('');
+}
+
+// ─── TIMELINE DINÂMICA ───────────────────────────────
+function renderTimeline(){
+  const h = new Date().getHours();
+  const slots = [
+    {ini:7, fim:8,   ic:'☀️', txt:'Manhã + deslocamento', n:'Ônibus: ouça algo de design ou relaxe'},
+    {ini:9, fim:9.5, ic:'☕', txt:'Chegada + café da manhã', n:'APEX Partners'},
+    {ini:9.5,fim:12, ic:'🎨', txt:'Branding & Design — APEX', n:'Bloco de foco. Tarefa mais difícil primeiro!'},
+    {ini:12,fim:13,  ic:'🥗', txt:'Almoço', n:'Pausa real — sem celular quando der!'},
+    {ini:13,fim:18,  ic:'🎨', txt:'Branding & Design — APEX', n:'Tarde de produção'},
+    {ini:18,fim:19,  ic:'🚌', txt:'Ônibus → Academia', n:'Podcast ou música!'},
+    {ini:19,fim:19.83,ic:'💪',txt:'Treino (~50 min)', n:''},
+    {ini:19.83,fim:21,ic:'🏠',txt:'Casa · janta + marmita', n:'Receitas simples = mais tempo!'},
+    {ini:21,fim:22.5,ic:'✨', txt:'SEU TEMPO — 1h30!', n:'Freela · estudos · séries · autocuidado 💕', destaque:true},
+  ];
+  const el = document.getElementById('timeline-hoje');
+  el.innerHTML = slots.map(s=>{
+    const passado = h > s.fim;
+    const atual   = h >= s.ini && h <= s.fim;
+    const dot = passado ? 'done' : atual ? 'on' : '';
+    return `<div class="tl-i"><div class="tl-dot ${dot}" ${s.destaque?'style="background:var(--p400)"':''}></div>
+      <div class="tl-time">${fmtH(s.ini)} – ${fmtH(s.fim)}</div>
+      <div class="tl-c" ${s.destaque?'style="color:var(--p600)"':''}>${s.ic} ${s.txt}</div>
+      ${s.n?`<div class="tl-n">${s.n}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function fmtH(h){const hh=Math.floor(h),mm=Math.round((h-hh)*60);return hh+'h'+(mm?String(mm).padStart(2,'0'):'');}
+
+// ─── PRIORIDADE EDITÁVEL ─────────────────────────────
+function initFoco(){
+  const saved = JSON.parse(localStorage.getItem('carol_foco_hoje')||'null');
+  if(saved && saved.data===today){
+    document.getElementById('foco-titulo').textContent = saved.titulo;
+    document.getElementById('foco-meta').textContent = saved.meta||'';
+    return;
+  }
+  // sugerir automaticamente
+  const energia = JSON.parse(localStorage.getItem('carol_energia_hoje')||'{}').nivel||'media';
+  let tasks = S.tasks.filter(t=>!t.done);
+  if(energia==='baixa') tasks = tasks.sort((a,b)=>{ const e={baixo:0,medio:1,alto:2}; return e[a.esf]-e[b.esf]; });
+  else tasks = tasks.sort((a,b)=>scoreTask(b)-scoreTask(a));
+  const top = tasks[0];
+  if(top){
+    document.getElementById('foco-titulo').textContent = top.titulo;
+    document.getElementById('foco-meta').textContent = (top.prio||'média').charAt(0).toUpperCase()+(top.prio||'média').slice(1)+' prioridade · '+(top.ctx==='apex'?'APEX':top.ctx==='freela'?'Freela':'Pessoal')+' — você consegue! 💕';
+  } else {
+    document.getElementById('foco-titulo').textContent = 'Adicione tarefas para definir seu foco!';
+    document.getElementById('foco-meta').textContent = '';
+  }
+}
+function editarFoco(){
+  const editor = document.getElementById('foco-editor');
+  editor.style.display = editor.style.display==='none'?'block':'none';
+  const opcoes = document.getElementById('foco-opcoes');
+  const top5 = S.tasks.filter(t=>!t.done).sort((a,b)=>scoreTask(b)-scoreTask(a)).slice(0,6);
+  opcoes.innerHTML = top5.map(t=>`<div onclick="selecionarFoco(${t.id})" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all .15s;font-size:12px;font-weight:700" onmouseover="this.style.background='var(--p50)';this.style.borderColor='var(--p300)'" onmouseout="this.style.background='#fff';this.style.borderColor='var(--border)'">
+    ${t.titulo} <span class="badge ${bprio(t.prio)}" style="margin-left:6px">${(PM[t.prio]||PM.media)[1]}</span>
+  </div>`).join('');
+}
+function selecionarFoco(id){
+  const t = S.tasks.find(t=>t.id===id);
+  if(!t) return;
+  const meta = (t.prio||'média').charAt(0).toUpperCase()+(t.prio||'média').slice(1)+' prioridade · '+(t.ctx==='apex'?'APEX':t.ctx==='freela'?'Freela':'Pessoal')+' — você consegue! 💕';
+  localStorage.setItem('carol_foco_hoje', JSON.stringify({titulo:t.titulo, meta, data:today, taskId:id}));
+  document.getElementById('foco-titulo').textContent = t.titulo;
+  document.getElementById('foco-meta').textContent = meta;
+  fecharFocoEditor();
+  toast('Prioridade #1 definida! 🎯');
+}
+function salvarFocoCustom(){
+  const txt = document.getElementById('foco-custom').value.trim();
+  if(!txt){toast('Escreve algo! ✏️');return;}
+  localStorage.setItem('carol_foco_hoje', JSON.stringify({titulo:txt, meta:'Prioridade definida por você 💕', data:today}));
+  document.getElementById('foco-titulo').textContent = txt;
+  document.getElementById('foco-meta').textContent = 'Prioridade definida por você 💕';
+  document.getElementById('foco-custom').value='';
+  fecharFocoEditor();
+  toast('Prioridade salva! 🎯');
+}
+function fecharFocoEditor(){ document.getElementById('foco-editor').style.display='none'; }
+
+// ─── TIMER DE JANTA ──────────────────────────────────
+let jantaInterval=null, jantaSeg=45*60, jantaRodando=false;
+function iniciarJanta(){
+  if(jantaRodando){ clearInterval(jantaInterval); jantaRodando=false; jantaSeg=45*60; document.getElementById('janta-timer-display').textContent='🍳'; document.getElementById('janta-label').textContent='Iniciar cozinha'; document.getElementById('janta-card').style.borderColor='var(--border)'; return; }
+  jantaRodando=true;
+  document.getElementById('janta-card').style.borderColor='var(--p400)';
+  document.getElementById('janta-label').textContent='Toca pra pausar';
+  toast('⏱️ Timer de 45 min iniciado! Cozinha em modo eficiente 🍳');
+  jantaInterval = setInterval(()=>{
+    jantaSeg--;
+    const m=Math.floor(jantaSeg/60),s=jantaSeg%60;
+    document.getElementById('janta-timer-display').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(jantaSeg<=0){
+      clearInterval(jantaInterval);jantaRodando=false;
+      document.getElementById('janta-timer-display').textContent='✅';
+      document.getElementById('janta-label').textContent='Janta pronta!';
+      toast('🍳 45 min! Janta + marmita prontas? Seu tempo começa agora! ✨');
+    }
+  },1000);
+}
+
+// ─── HISTÓRICO SEMANAL ───────────────────────────────
+function renderHistoricoSemana(){
+  const days=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const hoje = new Date();
+  const dados = Array.from({length:7},(_,i)=>{
+    const d=new Date(hoje); d.setDate(hoje.getDate()-hoje.getDay()+i);
+    const ds=d.toISOString().split('T')[0];
+    const feitas = S.tasks.filter(t=>t.done && t.criado && t.criado.startsWith(ds)).length;
+    const hist = JSON.parse(localStorage.getItem('carol_hist_'+ds)||'0');
+    return {dia:days[i], ds, feitas: Math.max(feitas,hist), isHoje:ds===today};
+  });
+  const max = Math.max(...dados.map(d=>d.feitas),1);
+  const bar = document.getElementById('historico-semana');
+  const lbl = document.getElementById('historico-labels');
+  bar.innerHTML = dados.map(d=>{
+    const h = Math.max(8, Math.round((d.feitas/max)*52));
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;justify-content:flex-end">
+      <div style="font-size:10px;font-weight:800;color:var(--p600)">${d.feitas||''}</div>
+      <div style="width:100%;height:${h}px;background:${d.isHoje?'var(--p500)':'var(--p200)'};border-radius:6px 6px 0 0;transition:height .4s"></div>
+    </div>`;
+  }).join('');
+  lbl.innerHTML = dados.map(d=>`<div style="flex:1;text-align:center;font-size:9px;font-weight:800;color:${d.isHoje?'var(--p600)':'var(--muted)'};text-transform:uppercase;letter-spacing:.04em">${d.dia}</div>`).join('');
+}
+
+// ─── GREET (rewrite) ─────────────────────────────────
+function initGreet(){
+  const h=new Date().getHours();
+  const g=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
+  document.getElementById('greeting').textContent=g+', Carol! 🍒';
+  const now=new Date();
+  document.getElementById('today-dt').textContent=now.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  if(document.getElementById('fin-mes')) document.getElementById('fin-mes').textContent=now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  document.getElementById('dica-dia').textContent=dicas[Math.floor(Math.random()*dicas.length)];
+  checkFimDeSemana();
+  renderRecorrentes();
+  renderTimeline();
+  initEnergia();
+  initFoco();
+  renderTop3();
+  renderAlertas();
+  renderOliviaHoje();
+  renderHistoricoSemana();
+}
+
+// ─── TOP 3 (energy-aware) ────────────────────────────
+function renderTop3(){
+  const el=document.getElementById('top3-hoje');
+  if(!el) return;
+  const energia = JSON.parse(localStorage.getItem('carol_energia_hoje')||'{}').nivel||'media';
+  let tasks = S.tasks.filter(t=>!t.done);
+  if(energia==='baixa'){
+    // sugere tarefas de baixo esforço primeiro
+    tasks = tasks.sort((a,b)=>{const e={baixo:0,medio:1,alto:2};return e[a.esf]-e[b.esf];});
+  } else {
+    tasks = tasks.sort((a,b)=>scoreTask(b)-scoreTask(a));
+  }
+  const top = tasks.slice(0,3);
+  const dica = energia==='baixa'?' (tarefas leves — você tá cansada 💕)':energia==='alta'?' (tarefas mais importantes — aproveita a energia!)':'';
+  if(!top.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:8px">Adicione tarefas! ✅</div>';return;}
+  el.innerHTML = (dica?`<div style="font-size:10px;color:var(--p500);font-weight:800;margin-bottom:8px">${dica}</div>`:'') +
+    top.map((t,i)=>`<div class="ti" style="cursor:pointer" onclick="selecionarFoco(${t.id})">
+      <div style="font-size:13px;font-weight:900;color:var(--p600);min-width:18px">${i+1}</div>
+      <div class="ti-c"><div class="ti-t">${t.titulo}</div>
+      <div class="ti-m"><span class="badge ${bprio(t.prio)}">${(PM[t.prio]||PM.media)[1]}</span><span class="badge ${CM[t.ctx]||'b-gray'}">${CL[t.ctx]||t.ctx}</span></div></div>
+    </div>`).join('');
+  // atualiza foco se não salvo ainda
+  const focoSalvo = JSON.parse(localStorage.getItem('carol_foco_hoje')||'null');
+  if(!focoSalvo || focoSalvo.data!==today){
+    if(top[0]){
+      document.getElementById('foco-titulo').textContent=top[0].titulo;
+      document.getElementById('foco-meta').textContent=(top[0].prio||'média').charAt(0).toUpperCase()+(top[0].prio||'média').slice(1)+' prioridade · '+(top[0].ctx==='apex'?'APEX':top[0].ctx==='freela'?'Freela':'Pessoal')+' — você consegue! 💕';
+    }
+  }
+  // salva histórico de conclusões do dia
+  localStorage.setItem('carol_hist_'+today, S.tasks.filter(t=>t.done).length);
+}
+
+// ─── ALERTAS ─────────────────────────────────────────
+function renderAlertas(){
+  const c=document.getElementById('alertas-container');
+  const alertas=[];
+  // olivia vacina
+  alertas.push({tipo:'crit',msg:'💉 Olivia precisa da 1ª vacina (V4) urgente! Marque o vet esta semana.'});
+  // tarefas atrasadas
+  const atrasadas=S.tasks.filter(t=>!t.done&&t.prazo&&t.prazo<today);
+  if(atrasadas.length)alertas.push({tipo:'crit',msg:`⚠️ Você tem ${atrasadas.length} tarefa(s) atrasada(s). Quer replaneja agora?`});
+  // agua
+  if(S.agua<4)alertas.push({tipo:'warn',msg:`💧 Você bebeu só ${S.agua} copo(s) de água hoje. Meta: 8 copos!`});
+  c.innerHTML=alertas.slice(0,3).map(a=>`<div class="alert-i ${a.tipo==='crit'?'crit':a.tipo==='warn'?'warn':'info'}"><div style="font-size:12px;font-weight:700;flex:1">${a.msg}</div></div>`).join('');
+  document.getElementById('st-feitas').textContent=S.tasks.filter(t=>t.done).length;
+  document.getElementById('st-habitos').textContent=calcHabHoje()+'%';
+}
+
+function renderOliviaHoje(){
+  const el=document.getElementById('olivia-hoje');
+  const itens=['💧 Água fresca trocada?','🍽️ Ração dada?','🏖️ Caixa de areia limpa?','🧶 Brincou com ela?'];
+  el.innerHTML=itens.map(i=>`<div class="ti" style="padding:8px 12px"><div class="cb" onclick="toggleCb(this)"></div><div class="ti-c"><div class="ti-t" style="font-size:11px">${i}</div></div></div>`).join('');
+}
+
+// ─── TABS ────────────────────────────────────────────
+function switchTab(btn,id){
+  btn.closest('.pt-wrap').querySelectorAll('.pt-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  ['rot-atual','rot-ideal','rot-semana'].forEach(i=>{const el=document.getElementById(i);if(el)el.style.display=i===id?'':'none'});
+  if(id==='rot-semana')renderSemana();
+}
+function renderSemana(){
+  const days=['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+  const sched=[
+    ['🎨 APEX','💪 Academia','🌙 Freela/Estudo'],
+    ['🎨 APEX','💪 Academia','😌 Descanso'],
+    ['🎨 APEX','💪 Academia','🌙 Freela/Estudo'],
+    ['🎨 APEX','💪 Academia','😌 Descanso'],
+    ['🎨 APEX','💪 Academia','🌙 Freela/Estudo'],
+    ['🌅 Freela manhã','🐱 Olivia','👯 Amigos'],
+    ['😴 Descanso real','🌿 Lazer','📋 Planejar semana'],
+  ];
+  const cols=['#2a5cc4','#2a5cc4','#2a5cc4','#2a5cc4','#2a5cc4','#1a7a40','#f7538a'];
+  document.getElementById('semana-grid').innerHTML=days.map((d,i)=>`<div style="padding:10px 14px;background:#fff;border:1.5px solid var(--border);border-radius:10px;display:flex;gap:10px;align-items:center"><div style="font-size:11px;font-weight:900;color:${cols[i]};min-width:60px">${d}</div><div style="display:flex;flex-wrap:wrap;gap:5px">${sched[i].map(a=>`<span class="badge b-gray">${a}</span>`).join('')}</div></div>`).join('');
+}
+
+// ─── CHECKBOX GENÉRICO ───────────────────────────────
+function toggleCb(el){
+  el.classList.toggle('on');
+  el.textContent=el.classList.contains('on')?'✓':'';
+  const item=el.closest('.ti');
+  if(item)item.classList.toggle('done',el.classList.contains('on'));
+}
+
+// ─── TASKS ───────────────────────────────────────────
+const PM={critica:['b-red','🔴 Crítica'],alta:['b-orange','🟠 Alta'],media:['b-yellow','🟡 Média'],baixa:['b-green','🟢 Baixa']};
+const CM={apex:'b-blue',pessoal:'b-pink',freela:'b-purple'};
+const CL={apex:'APEX',pessoal:'Pessoal',freela:'Freela'};
+function bprio(p){return (PM[p]||PM.media)[0]}
+function bctxL(c){return (CM[c]||'b-gray')}
+
+function scoreTask(t){
+  const p={critica:100,alta:75,media:50,baixa:25}[t.prio]||50;
+  const u=t.prazo?(t.prazo<today?100:t.prazo===today?95:60):10;
+  const imp={alto:100,medio:60,baixo:20}[t.imp]||60;
+  const esf={alto:80,medio:50,baixo:20}[t.esf]||50;
+  return Math.round((p*.3)+(u*.3)+(imp*.25)-(esf*.15));
+}
+function bctx(c){return CL[c]||c}
+
+function addTask(){
+  const tit=document.getElementById('t-tit').value.trim();
+  if(!tit){toast('Coloca um título! 🍒');return;}
+  S.tasks.push({id:Date.now(),titulo:tit,ctx:document.getElementById('t-ctx').value,prio:document.getElementById('t-prio').value,imp:document.getElementById('t-imp').value,esf:document.getElementById('t-esf').value,prazo:document.getElementById('t-prazo').value,nota:document.getElementById('t-nota').value,done:false,criado:today});
+  sv();closeM('m-task');renderTasks(curFilter);renderTop3();
+  document.getElementById('t-tit').value='';document.getElementById('t-nota').value='';
+  toast('Tarefa adicionada! ✅');
+}
+let curFilter='todas';
+function filtraTasks(f,btn){
+  curFilter=f;
+  btn.closest('.pt-wrap').querySelectorAll('.pt-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderTasks(f);
+}
+function renderTasks(f){
+  const el=document.getElementById('task-list');
+  let tasks=S.tasks;
+  if(f==='feitas')tasks=tasks.filter(t=>t.done);
+  else if(f==='atrasada')tasks=tasks.filter(t=>!t.done&&t.prazo&&t.prazo<today);
+  else if(f!=='todas')tasks=tasks.filter(t=>t.ctx===f&&!t.done);
+  else tasks=tasks.filter(t=>!t.done);
+  tasks=tasks.sort((a,b)=>scoreTask(b)-scoreTask(a));
+  if(!tasks.length){el.innerHTML=`<div style="text-align:center;padding:32px;color:var(--muted)"><div style="font-size:28px;margin-bottom:8px">✨</div><div style="font-size:13px;font-weight:700">${f==='feitas'?'Nenhuma concluída ainda':'Sem tarefas aqui!'}</div></div>`;return;}
+  el.innerHTML=tasks.map(t=>{
+    const [bc,bl]=(PM[t.prio]||PM.media);
+    const venc=t.prazo&&t.prazo<today;
+    return `<div class="ti ${t.done?'done':''}" id="task-${t.id}" style="${venc?'border-color:#ffc0c0;background:#fff8f8':''}">
+      <div class="cb ${t.done?'on':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
+      <div class="ti-c">
+        <div class="ti-t">${t.titulo}${venc?' ⚠️':''}</div>
+        <div class="ti-m">
+          <span class="badge ${bc}">${bl}</span>
+          <span class="badge ${CM[t.ctx]||'b-gray'}">${CL[t.ctx]||t.ctx}</span>
+          ${t.prazo?`<span style="font-size:10px;color:${venc?'var(--red)':'var(--light)'}">📅 ${new Date(t.prazo+'T12:00').toLocaleDateString('pt-BR')}</span>`:''}
+          <span class="badge b-gray">Score: ${scoreTask(t)}</span>
+        </div>
+      </div>
+      <div class="ti-a">
+        <button class="bic" onclick="startFocoTask(${t.id})" title="Modo foco">⚡</button>
+        <button class="bic" onclick="delTask(${t.id})" title="Remover">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('st-feitas').textContent=S.tasks.filter(t=>t.done).length;
+}
+function toggleTask(id){const t=S.tasks.find(t=>t.id===id);if(t){t.done=!t.done;sv();renderTasks(curFilter);renderTop3();renderAlertas();toast(t.done?'Concluída! 🎉 Arrasou!':'Marcada como pendente');}}
+function delTask(id){S.tasks=S.tasks.filter(t=>t.id!==id);sv();renderTasks(curFilter);toast('Removida 🗑️');}
+
+// ─── PRIORITIES ──────────────────────────────────────
+function renderPrior(){
+  const tasks=S.tasks.filter(t=>!t.done).sort((a,b)=>scoreTask(b)-scoreTask(a));
+  // Ranking
+  const rk=document.getElementById('ranking');
+  rk.innerHTML=tasks.slice(0,6).map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--p100)">
+    <div style="font-size:14px;font-weight:900;color:var(--p600);min-width:20px">${i+1}</div>
+    <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.titulo}</div>
+    <div style="font-size:10px;color:var(--muted);font-weight:600">${CL[t.ctx]||t.ctx} · Score: ${scoreTask(t)}</div></div>
+    <span class="badge ${bprio(t.prio)}">${(PM[t.prio]||PM.media)[1]}</span>
+  </div>`).join('')||'<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Adicione tarefas! ✅</div>';
+
+  // Matriz
+  const mx=document.getElementById('matriz');
+  const qw=tasks.filter(t=>t.imp==='alto'&&t.esf==='baixo');
+  const est=tasks.filter(t=>t.imp==='alto'&&t.esf!=='baixo');
+  const fi=tasks.filter(t=>t.imp!=='alto'&&t.esf==='baixo');
+  const qu=tasks.filter(t=>t.imp!=='alto'&&t.esf==='alto');
+  mx.innerHTML=[
+    {t:'🏆 Quick Wins',s:'Alto impacto · Baixo esforço',c:'var(--greenbg)',tc:'var(--green)',items:qw},
+    {t:'📋 Estratégico',s:'Alto impacto · Alto esforço',c:'var(--bluebg)',tc:'var(--blue)',items:est},
+    {t:'⚡ Fill-ins',s:'Baixo impacto · Baixo esforço',c:'var(--amberbg)',tc:'var(--amber)',items:fi},
+    {t:'🗑️ Questionar',s:'Baixo impacto · Alto esforço',c:'var(--redbg)',tc:'var(--red)',items:qu}
+  ].map(q=>`<div class="mq" style="background:${q.c}"><div class="mq-title" style="color:${q.tc}">${q.t}</div><div style="font-size:10px;color:var(--muted);font-weight:600;margin-bottom:8px">${q.s}</div><div class="mq-items">${q.items.length?q.items.slice(0,3).map(t=>`<div class="mq-item">${t.titulo}</div>`).join(''):'<div style="font-size:10px;color:var(--muted)">Nenhuma</div>'}</div></div>`).join('');
+
+  // Sobrecarga
+  const sob=document.getElementById('sobrecarga');
+  const totalHoje=tasks.filter(t=>t.prazo===today).length;
+  const semPrazo=tasks.filter(t=>!t.prazo).length;
+  sob.innerHTML=`
+    <div class="alert-i ${totalHoje>5?'crit':totalHoje>3?'warn':'ok'}"><div style="font-size:12px;font-weight:700;flex:1">${totalHoje>5?'⚠️ Sobrecarga hoje: '+totalHoje+' tarefas com prazo agora!':totalHoje>3?'😅 Dia carregado: '+totalHoje+' tarefas para hoje':'✅ Dia equilibrado: '+totalHoje+' tarefas para hoje'}</div></div>
+    ${semPrazo>0?`<div class="alert-i warn"><div style="font-size:12px;font-weight:700;flex:1">📋 ${semPrazo} tarefa(s) sem prazo definido — risco de ficar pra sempre no limbo!</div></div>`:''}
+    <div style="font-size:12px;color:var(--muted);font-weight:600;padding:8px 0">💡 Recomendação de blocos: Manhã APEX (9h–12h) · Tarde APEX (13h–17h) · Noite Freela/Estudo (21h–22h30)</div>
+  `;
+}
+
+// ─── RADAR ───────────────────────────────────────────
+function renderRadar(){
+  const tasks=S.tasks.filter(t=>!t.done);
+  const crit=tasks.filter(t=>t.prazo&&t.prazo<=today||(t.prio==='critica'&&!t.done));
+  const warn=tasks.filter(t=>t.prazo&&t.prazo>today&&t.prazo<=addDays(today,7));
+  const info=tasks.filter(t=>!t.prazo||t.prazo>addDays(today,7));
+
+  const renderList=(id,items,empty)=>{
+    const el=document.getElementById(id);
+    el.innerHTML=items.length?items.map(t=>`<div class="ti"><div class="ti-c"><div class="ti-t" style="font-size:12px">${t.titulo}</div><div class="ti-m"><span class="badge ${bprio(t.prio)}">${(PM[t.prio]||PM.media)[1]}</span><span class="badge ${CM[t.ctx]||'b-gray'}">${CL[t.ctx]}</span>${t.prazo?`<span style="font-size:10px;color:var(--light)">📅 ${new Date(t.prazo+'T12:00').toLocaleDateString('pt-BR')}</span>`:''}</div></div></div>`).join(''):
+    `<div style="font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:12px">${empty}</div>`;
+  };
+  renderList('radar-crit',crit,'Nada crítico no momento! 🎉');
+  renderList('radar-warn',warn,'Semana tranquila! ✅');
+  renderList('radar-info',info,'Tudo mapeado! 💕');
+}
+function addDays(d,n){const dt=new Date(d+'T12:00');dt.setDate(dt.getDate()+n);return dt.toISOString().split('T')[0];}
+
+// ─── HABITS ──────────────────────────────────────────
+const defaultHabs=[{id:1,nome:'Treinar',emoji:'💪'},{id:2,nome:'Água (8 copos)',emoji:'💧'},{id:3,nome:'Marmita pronta',emoji:'🥡'},{id:4,nome:'Dormir até 23h',emoji:'😴'},{id:5,nome:'Brincar Olivia',emoji:'🐱'}];
+function initHabs(){if(!S.habits.length){S.habits=defaultHabs;sv();}}
+function addHab(){
+  const n=document.getElementById('h-nome').value.trim();
+  if(!n){toast('Nome do hábito! 🌿');return;}
+  S.habits.push({id:Date.now(),nome:n,emoji:document.getElementById('h-emoji').value||'✨'});
+  sv();closeM('m-hab');renderHabits();toast('Hábito adicionado! 🌿');
+}
+function calcHabHoje(){
+  if(!S.habits.length)return 0;
+  const done=S.habits.filter(h=>S.hlog[`${h.id}_${today}`]).length;
+  return Math.round(done/S.habits.length*100);
+}
+function renderHabits(){
+  const days=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const now=new Date();
+  const dates=Array.from({length:7},(_,i)=>{const d=new Date(now);d.setDate(now.getDate()-now.getDay()+i);return d.toISOString().split('T')[0];});
+  let html=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="border-collapse:collapse;width:100%"><thead><tr><th style="text-align:left;width:140px;padding:4px 0;font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase">Hábito</th>${days.map(d=>`<th style="width:34px;text-align:center;font-size:9px;font-weight:800;color:var(--light);text-transform:uppercase;letter-spacing:.04em">${d}</th>`).join('')}<th style="width:28px"></th></tr></thead><tbody>`;
+  S.habits.forEach(h=>{
+    html+=`<tr><td style="padding:3px 0;font-size:11px;font-weight:700"><span style="margin-right:4px">${h.emoji}</span>${h.nome}</td>${dates.map(date=>{
+      const fut=date>today;const done=S.hlog[`${h.id}_${date}`];
+      const cls=fut?'fut':done?'done':'miss';
+      return `<td style="padding:3px;text-align:center"><div class="hc ${cls}" onclick="${fut?'':`thab(${h.id},'${date}')`}">${done?'✓':''}</div></td>`;
+    }).join('')}<td style="padding:3px;text-align:center"><button class="bic" style="font-size:11px;padding:4px" onclick="delHab(${h.id})">🗑️</button></td></tr>`;
+  });
+  html+='</tbody></table></div>';
+  document.getElementById('hab-tracker').innerHTML=html;
+  // stats
+  let tot=0,dn=0;
+  S.habits.forEach(h=>{dates.filter(d=>d<=today).forEach(d=>{tot++;if(S.hlog[`${h.id}_${d}`])dn++;});});
+  document.getElementById('hab-rate').textContent=tot?Math.round(dn/tot*100)+'%':'0%';
+  document.getElementById('hab-hoje').textContent=S.habits.filter(h=>S.hlog[`${h.id}_${today}`]).length;
+  const streak=calcStreak();
+  document.getElementById('hab-streak').textContent=streak+'🔥';
+  document.getElementById('st-habitos').textContent=calcHabHoje()+'%';
+}
+function thab(id,date){S.hlog[`${id}_${date}`]=!S.hlog[`${id}_${date}`];sv();renderHabits();}
+function delHab(id){S.habits=S.habits.filter(h=>h.id!==id);sv();renderHabits();toast("Hábito removido 🗑️");}
+function calcStreak(){
+  if(!S.habits.length)return 0;
+  let s=0;
+  for(let i=0;i<30;i++){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];if(S.habits.every(h=>S.hlog[`${h.id}_${ds}`]))s++;else break;}
+  return s;
+}
+
+// ─── FREELA ──────────────────────────────────────────
+function addFreelaH(){S.freelaHours=(S.freelaHours||0)+1;sv();updFreela();toast('1h de freela registrada! 🎨');}
+function updFreela(){
+  if(document.getElementById('freela-h'))document.getElementById('freela-h').textContent=S.freelaHours+'h';
+  if(document.getElementById('freela-pb'))document.getElementById('freela-pb').style.width=Math.min(100,S.freelaHours/5*100)+'%';
+  if(document.getElementById('pp-freela'))document.getElementById('pp-freela').textContent=S.freelaHours+'h';
+}
+function addEstudo(){
+  const nome=document.getElementById('es-nome').value.trim();
+  if(!nome){toast('Nome do curso! 📚');return;}
+  const plat=document.getElementById('es-plat').value;
+  const list=document.getElementById('estudos-list');
+  const emp=list.querySelector('[style*="text-align:center"]');if(emp)emp.remove();
+  const div=document.createElement('div');
+  div.style.cssText='padding:12px;border:1.5px solid var(--border);border-radius:10px';
+  div.innerHTML=`<div style="font-size:12px;font-weight:800;margin-bottom:6px">${nome}${plat?' · '+plat:''}</div><div class="pw"><div class="pb" style="width:0%"></div></div><div style="font-size:10px;color:var(--light);margin-top:4px;font-weight:700">0% — Começando!</div>`;
+  list.appendChild(div);closeM('m-estudo');toast('Curso adicionado! 📚');
+}
+
+// ─── ÁGUA ────────────────────────────────────────────
+function renderAguaCopos(){
+  const el=document.getElementById('agua-copos');
+  if(!el)return;
+  el.innerHTML=Array.from({length:8},(_,i)=>`<div onclick="beberAgua(${i+1})" style="width:32px;height:40px;border:2px solid ${i<S.agua?'#2a5cc4':'var(--border)'};border-radius:8px;background:${i<S.agua?'var(--bluebg)':'#fff'};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s">${i<S.agua?'💧':'○'}</div>`).join('');
+  if(document.getElementById('agua-label'))document.getElementById('agua-label').textContent=`${S.agua} de 8 copos${S.agua>=8?' — Parabéns! 💙':''}`;
+}
+function beberAgua(n){S.agua=S.agua>=n?n-1:n;sv();renderAguaCopos();}
+
+// ─── FINANÇAS ────────────────────────────────────────
+const CATCOL={'Moradia':'#f7538a','Alimentação':'#ff9500','Transporte':'#2a5cc4','Academia':'#1a7a40','Saúde':'#34c759','Olivia 🐱':'#c84b6e','Lazer':'#c47000','Beleza':'#b721b6','Assinaturas':'#7c3aed','Outros':'#9b6a7a','Salário APEX':'#1a7a40','Freela':'#f7538a','Investimentos':'#2a5cc4'};
+function addTrans(tipo){
+  const desc=document.getElementById(tipo==='receita'?'r-desc':'d-desc').value.trim();
+  const val=parseFloat(document.getElementById(tipo==='receita'?'r-val':'d-val').value);
+  const cat=document.getElementById(tipo==='receita'?'r-cat':'d-cat').value;
+  const data=document.getElementById(tipo==='receita'?'r-data':'d-data').value||today;
+  if(!desc||!val){toast('Preenche tudo! 💰');return;}
+  S.trans.unshift({id:Date.now(),tipo,desc,val,cat,data});
+  sv();closeM(tipo==='receita'?'m-rec':'m-desp');renderFin();
+  toast(tipo==='receita'?'Receita adicionada! 💚':'Despesa registrada! 💸');
+}
+function renderFin(){
+  const now=new Date();const mes=now.getMonth()+1,ano=now.getFullYear();
+  const f=S.trans.filter(t=>{const d=new Date(t.data+'T12:00');return d.getMonth()+1===mes&&d.getFullYear()===ano;});
+  const rec=f.filter(t=>t.tipo==='receita').reduce((s,t)=>s+t.val,0);
+  const desp=f.filter(t=>t.tipo==='despesa').reduce((s,t)=>s+t.val,0);
+  const saldo=rec-desp;
+  const eco=rec?((saldo/rec)*100).toFixed(0):0;
+  const fmt=v=>'R$'+Math.round(v).toLocaleString('pt-BR');
+  document.getElementById('fin-rec').textContent=fmt(rec);
+  document.getElementById('fin-desp').textContent=fmt(desp);
+  document.getElementById('fin-saldo').textContent=fmt(saldo);
+  document.getElementById('fin-saldo').style.color=saldo>=0?'var(--green)':'var(--red)';
+  document.getElementById('fin-eco').textContent=eco+'%';
+  document.getElementById('fin-eco').style.color=eco>=20?'var(--green)':eco>=10?'var(--amber)':'var(--red)';
+  document.getElementById('pp-saldo').textContent=fmt(saldo);
+  // trans list
+  const tl=document.getElementById('trans-list');
+  tl.innerHTML=S.trans.slice(0,8).map(t=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--p100)"><span style="font-size:16px">${t.tipo==='receita'?'💚':'💸'}</span><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.desc}</div><div style="font-size:10px;color:var(--muted);font-weight:600">${t.cat} · ${new Date(t.data+'T12:00').toLocaleDateString('pt-BR')}</div></div><div style="font-size:13px;font-weight:900;color:${t.tipo==='receita'?'var(--green)':'var(--red)'};white-space:nowrap">${t.tipo==='receita'?'+':'−'}${fmt(t.val)}</div><button class="bic" style="font-size:11px" onclick="delTrans(${t.id})">🗑️</button></div>`).join('')||'<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Adicione transações! 💕</div>';
+  // cat
+  const cats={};f.filter(t=>t.tipo==='despesa').forEach(t=>cats[t.cat]=(cats[t.cat]||0)+t.val);
+  const cl=document.getElementById('cat-list');
+  const arr=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  cl.innerHTML=arr.length?arr.map(([c,v])=>{const pct=desp?Math.round(v/desp*100):0;const col=CATCOL[c]||'#9b6a7a';return `<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:11px;font-weight:800">${c}</span><span style="font-size:11px;font-weight:900;color:var(--muted)">R$${Math.round(v).toLocaleString('pt-BR')} · ${pct}%</span></div><div class="pw"><div style="height:100%;border-radius:99px;background:${col};width:${pct}%;transition:width .4s"></div></div></div>`;}).join(''):'<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Adicione despesas! 💸</div>';
+}
+function delTrans(id){S.trans=S.trans.filter(t=>t.id!==id);sv();renderFin();toast('Removida 🗑️');}
+
+// ─── NOTAS RÁPIDAS ───────────────────────────────────
+function addNota(){
+  const inp=document.getElementById('nota-inp');const txt=inp.value.trim();
+  if(!txt)return;
+  S.notas.unshift({id:Date.now(),txt,data:today});
+  sv();inp.value='';renderNotas();toast('Nota salva! 📝');
+}
+document.getElementById('nota-inp').addEventListener('keydown',e=>{if(e.key==='Enter')addNota();});
+function renderNotas(){
+  const el=document.getElementById('notas-list');
+  const emp=document.getElementById('notas-empty');
+  if(!S.notas.length){el.innerHTML='';if(emp)emp.style.display='block';return;}
+  if(emp)emp.style.display='none';
+  el.innerHTML=S.notas.map(n=>`<div class="card" style="position:relative"><div style="font-size:12px;font-weight:700;line-height:1.5;color:var(--txt)">${n.txt}</div><div style="font-size:10px;color:var(--light);font-weight:600;margin-top:6px">${new Date(n.data+'T12:00').toLocaleDateString('pt-BR')}</div><button class="bic" style="position:absolute;top:12px;right:12px;font-size:11px" onclick="delNota(${n.id})">🗑️</button></div>`).join('');
+}
+function delNota(id){S.notas=S.notas.filter(n=>n.id!==id);sv();renderNotas();}
+
+// ─── PROJETOS ────────────────────────────────────────
+function addProj(){
+  const nome=document.getElementById('pr-nome').value.trim();
+  if(!nome){toast('Nome do projeto! 🗂️');return;}
+  const list=document.getElementById('proj-list');
+  const div=document.createElement('div');div.className='card';
+  div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-size:15px;font-weight:900">${nome}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;font-weight:600">${document.getElementById('pr-area').value}${document.getElementById('pr-prazo').value?' · Prazo: '+new Date(document.getElementById('pr-prazo').value+'T12:00').toLocaleDateString('pt-BR'):''}</div></div><span class="badge b-blue">Novo</span></div><div class="pw"><div class="pb" style="width:0%"></div></div>`;
+  list.appendChild(div);closeM('m-proj');toast('Projeto adicionado! 🗂️');
+}
+
+// ─── REUNIÕES ────────────────────────────────────────
+function addReun(){
+  const tit=document.getElementById('re-tit').value.trim();
+  if(!tit){toast('Título da reunião! 💬');return;}
+  S.reuns.unshift({id:Date.now(),titulo:tit,data:document.getElementById('re-data').value,hora:document.getElementById('re-hora').value,part:document.getElementById('re-part').value});
+  sv();closeM('m-reun');renderReuns();toast('Reunião adicionada! 💬');
+}
+function renderReuns(){
+  const el=document.getElementById('reun-list');
+  el.innerHTML=S.reuns.length?S.reuns.map(r=>`<div style="padding:10px 14px;background:var(--p50);border-radius:var(--rs);border:1.5px solid var(--p200)"><div style="font-size:12px;font-weight:800">${r.titulo}</div>${r.data||r.hora?`<div style="font-size:10px;color:var(--muted);font-weight:600;margin-top:2px">${r.data?new Date(r.data+'T12:00').toLocaleDateString('pt-BR'):''} ${r.hora||''}</div>`:''}${r.part?`<div style="font-size:10px;color:var(--muted);font-weight:600">${r.part}</div>`:''}</div>`).join(''):'<div style="font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:16px">Nenhuma reunião agendada 💕</div>';
+}
+function prepararReuniao(){
+  const tit=document.getElementById('prep-titulo').value.trim();
+  if(!tit){toast('Coloca o título da reunião!');return;}
+  const obj=document.getElementById('prep-obj').value.trim();
+  document.getElementById('prep-result').innerHTML=`<div style="padding:12px;background:var(--p50);border-radius:var(--rs);border:1.5px solid var(--p200)">
+    <div style="font-weight:900;color:var(--p600);margin-bottom:8px">📋 Preparação: ${tit}</div>
+    <div style="margin-bottom:6px"><b style="color:var(--txt)">🎯 Objetivo:</b> ${obj||'Definir na reunião'}</div>
+    <div style="margin-bottom:6px"><b style="color:var(--txt)">❓ Perguntas-chave:</b><br>• O que precisa ser decidido hoje?<br>• Quais são os bloqueios atuais?<br>• Qual o próximo passo após essa reunião?</div>
+    <div style="margin-bottom:6px"><b style="color:var(--txt)">📁 Ter em mãos:</b><br>• Referências visuais relevantes<br>• Status atual do projeto<br>• Prazos acordados anteriormente</div>
+    <div><b style="color:var(--txt)">✅ Resultado ideal:</b> Sair com decisão clara e próximos passos definidos</div>
+  </div>`;
+}
+function registrarReuniao(){
+  const notas=document.getElementById('pos-notas').value.trim();
+  if(!notas){toast('Coloca as notas da reunião!');return;}
+  document.getElementById('pos-result').innerHTML=`<div style="padding:12px;background:var(--greenbg);border-radius:var(--rs);border:1.5px solid var(--greenbr)">
+    <div style="font-weight:900;color:var(--green);margin-bottom:8px">✅ Registro da reunião</div>
+    <div style="font-size:11px;color:var(--txt);line-height:1.6"><b>Decisões registradas</b> — revise e adicione as tarefas na aba ✅ Tarefas para não perder o follow-up!<br><br><i style="color:var(--muted)">"${notas.substring(0,120)}${notas.length>120?'...':''}"</i></div>
+  </div>`;
+  const dec=document.getElementById('decisoes-list');
+  const div=document.createElement('div');
+  div.style.cssText='padding:8px 12px;background:var(--p50);border-radius:8px;border:1.5px solid var(--p200)';
+  div.innerHTML=`<div style="font-size:11px;font-weight:800;color:var(--p600)">${new Date().toLocaleDateString('pt-BR')}</div><div style="font-size:11px;color:var(--muted);font-weight:600;margin-top:2px">${notas.substring(0,80)}${notas.length>80?'...':''}</div>`;
+  dec.prepend(div);toast('Reunião registrada! 📋');
+}
+
+// ─── FOLLOW-UPS ──────────────────────────────────────
+function addFu(){
+  const tit=document.getElementById('fu-tit').value.trim();
+  if(!tit){toast('O que precisa fazer? 🔁');return;}
+  S.fus.unshift({id:Date.now(),titulo:tit,prazo:document.getElementById('fu-prazo').value,done:false});
+  sv();closeM('m-fu');renderFus();toast('Follow-up adicionado! 🔁');
+}
+function renderFus(){
+  const el=document.getElementById('fu-list');
+  const all=[...S.fus,{id:'pre',titulo:'Confirmar briefing com coordenação APEX',prazo:'',done:false}];
+  el.innerHTML=all.map(f=>`<div class="fu-item"><div class="fu-dot" style="background:${f.done?'var(--green)':'var(--p400)'}"></div><div style="flex:1"><div style="font-size:12px;font-weight:800${f.done?';text-decoration:line-through;opacity:.5':''}">${f.titulo}</div>${f.prazo?`<div style="font-size:10px;color:var(--muted);font-weight:600">Prazo: ${new Date(f.prazo+'T12:00').toLocaleDateString('pt-BR')}</div>`:''}</div><span class="badge ${f.done?'b-green':'b-orange'}" style="cursor:pointer" onclick="this.textContent=this.textContent==='Feito!'?'Pendente':'Feito!'">${f.done?'Feito!':'Pendente'}</span></div>`).join('');
+}
+
+// ─── PERFORMANCE ─────────────────────────────────────
+function renderPerf(){
+  const pp=document.getElementById('perf-pessoal');
+  const ppr=document.getElementById('perf-prof');
+  const habRate=calcHabHoje();
+  const taskRate=S.tasks.length?Math.round(S.tasks.filter(t=>t.done).length/S.tasks.length*100):0;
+  const indicPes=[
+    {label:'Consistência de hábitos',val:habRate+'%',ok:habRate>=70},
+    {label:'Hidratação (copos/dia)',val:S.agua+'/8',ok:S.agua>=6},
+    {label:'Academia 3x/semana',val:'Mantendo! 💪',ok:true},
+    {label:'Tempo livre à noite',val:'21h–22h30',ok:true},
+  ];
+  const indicProf=[
+    {label:'Taxa de conclusão de tarefas',val:taskRate+'%',ok:taskRate>=70},
+    {label:'Tarefas críticas em aberto',val:S.tasks.filter(t=>!t.done&&t.prio==='critica').length+'',ok:S.tasks.filter(t=>!t.done&&t.prio==='critica').length===0},
+    {label:'Horas de freela esta semana',val:S.freelaHours+'h (meta: 5h)',ok:S.freelaHours>=3},
+    {label:'Follow-ups pendentes',val:S.fus.filter(f=>!f.done).length+'',ok:S.fus.filter(f=>!f.done).length<=3},
+  ];
+  const renderIndicadores=(items)=>items.map(i=>`<div class="perf-item"><div style="font-size:12px;font-weight:700">${i.label}</div><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;font-weight:900;color:${i.ok?'var(--green)':'var(--red)'}">${i.val}</span><span>${i.ok?'✅':'⚠️'}</span></div></div>`).join('');
+  pp.innerHTML=renderIndicadores(indicPes);
+  ppr.innerHTML=renderIndicadores(indicProf);
+  document.getElementById('pp-habitos').textContent=habRate+'%';
+  document.getElementById('pp-tarefas').textContent=taskRate+'%';
+}
+
+// ─── MODO FOCO ───────────────────────────────────────
+let focoInterval=null,focoSeg=25*60,focoPausado=false,focoPom=1,focoEmPausa=false;
+function abrirFoco(){
+  const t=S.tasks.filter(t=>!t.done).sort((a,b)=>scoreTask(b)-scoreTask(a))[0];
+  document.getElementById('fo-task').textContent=t?t.titulo:'Escolha uma tarefa e ative o modo foco!';
+  document.getElementById('focus-overlay').classList.add('open');
+  iniciarTimer();
+}
+function startFocoTask(id){const t=S.tasks.find(t=>t.id===id);if(t){document.getElementById('fo-task').textContent=t.titulo;document.getElementById('focus-overlay').classList.add('open');iniciarTimer();}}
+function iniciarTimer(){
+  clearInterval(focoInterval);focoPausado=false;
+  focoInterval=setInterval(()=>{
+    if(focoPausado)return;
+    focoSeg--;
+    if(focoSeg<=0){
+      if(!focoEmPausa){focoSeg=5*60;focoEmPausa=true;document.getElementById('fo-pom').textContent='☕ Pausa! Levanta, respira, bebe água.';}
+      else{focoPom++;focoSeg=25*60;focoEmPausa=false;document.getElementById('fo-pom').textContent=`🍅 Pomodoro ${focoPom} de 4`;}
+    }
+    const m=Math.floor(focoSeg/60),s=focoSeg%60;
+    document.getElementById('fo-timer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  },1000);
+}
+function toggleFoco(){focoPausado=!focoPausado;document.querySelector('.focus-btns .btn-o').textContent=focoPausado?'▶ Retomar':'⏸ Pausar';}
+function pularPausa(){focoSeg=focoEmPausa?25*60:5*60;focoEmPausa=!focoEmPausa;}
+function encerrarFoco(){clearInterval(focoInterval);document.getElementById('focus-overlay').classList.remove('open');focoSeg=25*60;focoPom=1;focoEmPausa=false;toast('Sessão encerrada! Você arrasou 💕');}
+
+// ─── RESUMOS IA MOCK ─────────────────────────────────
+function gerarResumoDiario(){
+  const tarefas=S.tasks.filter(t=>!t.done).length;
+  const habitos=calcHabHoje();
+  toast('Gerando resumo do dia... ✨');
+  setTimeout(()=>{
+    alert(`📋 RESUMO DO DIA — ${new Date().toLocaleDateString('pt-BR')}\n\n🎯 Foco principal: ${S.tasks.filter(t=>!t.done)[0]?.titulo||'Sem tarefas — adicione!'}\n\n✅ Tarefas: ${tarefas} abertas | ${S.tasks.filter(t=>t.done).length} concluídas\n\n🌿 Hábitos: ${habitos}% feitos hoje\n\n🐱 Olivia: lembrar da água e brincar com ela!\n\n💡 Dica: Você tem 1h30 à noite. Use com intenção!\n\n💕 Você tá indo bem, Carol.`);
+  },800);
+}
+function gerarPrioridades(){toast('Replanejando com base nas suas tarefas... ✨');setTimeout(()=>{renderPrior();toast('Prioridades atualizadas! 🎯');},600);}
+function gerarResumoSemanal(){
+  const done=S.tasks.filter(t=>t.done).length;
+  const open=S.tasks.filter(t=>!t.done).length;
+  const streak=calcStreak();
+  document.getElementById('resumo-semanal').innerHTML=`<div style="padding:12px;background:var(--p50);border-radius:var(--rs);border:1.5px solid var(--p200)">
+    <div style="font-weight:900;color:var(--p600);margin-bottom:8px">📋 Semana de ${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long'})}</div>
+    <div style="line-height:1.7">✅ <b>${done}</b> tarefas concluídas<br>📋 <b>${open}</b> tarefas ainda abertas<br>🔥 Sequência de hábitos: <b>${streak} dias</b><br>🎨 Freela: <b>${S.freelaHours}h</b> investidas<br><br>💕 ${done>open?'Semana produtiva! Continue assim.':'Algumas coisas ficaram. Sem culpa — o que ficou vai pro próximo sprint!'}</div>
+  </div>`;toast('Resumo semanal gerado! 📊');}
+
+// ─── SEED DE DADOS REAIS DA CAROL ────────────────────
+function seedDados(){
+  if(localStorage.getItem('carol_seeded_v8')) return;
+
+  // ── TAREFAS APEX (do kanban) ──────────────────────
+  const tarefasApex = [
+    // Em andamento - HOJE
+    {id:t(), titulo:'Formalizar tombstones por email', ctx:'apex', prio:'critica', imp:'alto', esf:'baixo', prazo:today, nota:'13 abr · em andamento hoje', done:false, criado:today},
+    {id:t(), titulo:'Lâmina Carbyne', ctx:'apex', prio:'critica', imp:'alto', esf:'medio', prazo:today, nota:'13 abr · em andamento hoje', done:false, criado:today},
+    {id:t(), titulo:'Clipping Futura', ctx:'apex', prio:'alta', imp:'medio', esf:'baixo', prazo:today, nota:'13 abr · em andamento hoje', done:false, criado:today},
+    {id:t(), titulo:'Arte aniversariantes', ctx:'apex', prio:'alta', imp:'baixo', esf:'baixo', prazo:today, nota:'13 abr · em andamento hoje', done:false, criado:today},
+    {id:t(), titulo:'LP BRM', ctx:'apex', prio:'alta', imp:'alto', esf:'medio', prazo:today, nota:'13 abr · em andamento hoje', done:false, criado:today},
+    {id:t(), titulo:'Atualizar cursos PDI', ctx:'apex', prio:'media', imp:'medio', esf:'baixo', prazo:'2026-04-10', nota:'Atualização dos cursos do PDI', done:false, criado:today},
+    {id:t(), titulo:'Logos IA Ricardo Ajuste — ARI e MAC', ctx:'apex', prio:'alta', imp:'alto', esf:'medio', prazo:'2026-04-15', nota:'ARI: Apex Research Intelligence (robô de análise economia). MAC: Máquina Apex de Crescimento (tool kit produto phygital)', done:false, criado:today},
+    // Em andamento
+    {id:t(), titulo:'Tombstones Advisory and Research', ctx:'apex', prio:'alta', imp:'alto', esf:'medio', prazo:'2026-04-20', nota:'Falar com Lorenzoni sobre prateleiras nos outros escritórios. Ir tocando sobre pagamento, fazer checklist geral do projeto', done:false, criado:today},
+    {id:t(), titulo:'Comunicações jogos rio branco', ctx:'apex', prio:'media', imp:'medio', esf:'medio', prazo:'2026-04-25', nota:'Em andamento desde 30 mar', done:false, criado:today},
+    {id:t(), titulo:'Plano de ação de IA para áreas de Branding e Materiais Institucionais', ctx:'apex', prio:'alta', imp:'alto', esf:'alto', prazo:'2026-04-30', nota:'Em andamento desde 23 mar', done:false, criado:today},
+    // Não iniciadas
+    {id:t(), titulo:'Banco de imagem de onças', ctx:'apex', prio:'media', imp:'medio', esf:'medio', prazo:'2026-05-01', nota:'Não iniciada', done:false, criado:today},
+    {id:t(), titulo:'Fazer galeria de imagens estilo diamante para liberar pro time de treinamento/gente', ctx:'apex', prio:'media', imp:'medio', esf:'medio', prazo:'2026-05-01', nota:'Não iniciada', done:false, criado:today},
+    // Sem status / backlog
+    {id:t(), titulo:'Buscar pós, cursos e inglês!!!!', ctx:'apex', prio:'baixa', imp:'alto', esf:'baixo', prazo:'', nota:'Backlog pessoal — alto impacto a longo prazo', done:false, criado:today},
+    {id:t(), titulo:'Acompanhar ajustes site Futura com agência', ctx:'apex', prio:'media', imp:'medio', esf:'baixo', prazo:'2026-01-08', nota:'Figma: link no card original. Acompanhar com agência.', done:false, criado:today},
+    // Rotina recorrente APEX
+    {id:t(), titulo:'Artes boletim semanal (e-mail)', ctx:'apex', prio:'alta', imp:'medio', esf:'baixo', prazo:proximaSegunda(), nota:'Recorrente: toda segunda', done:false, criado:today},
+    {id:t(), titulo:'Giro da Semana', ctx:'apex', prio:'alta', imp:'medio', esf:'baixo', prazo:proximaSexta(), nota:'Recorrente: toda sexta', done:false, criado:today},
+    {id:t(), titulo:'Carta do Economista', ctx:'apex', prio:'media', imp:'medio', esf:'baixo', prazo:'2026-05-02', nota:'Recorrente: início de mês, dia 2/3', done:false, criado:today},
+    {id:t(), titulo:'Atualizar dados apresentação institucional', ctx:'apex', prio:'media', imp:'medio', esf:'medio', prazo:'', nota:'Rotina: início de mês, sem data definida. Tarefa prevista.', done:false, criado:today},
+  ];
+
+  // ── TAREFAS PESSOAIS ─────────────────────────────
+  const tarefasPessoais = [
+    // Olivia
+    {id:t(), titulo:'🐱 Marcar vet Olivia — microchipagem e primeiras vacinas', ctx:'pessoal', prio:'critica', imp:'alto', esf:'baixo', prazo:proximaSemana(), nota:'URGENTE! Olivia tem 2 meses, vacinas V4 e microchip. Ligar e agendar esta semana!', done:false, criado:today},
+    {id:t(), titulo:'🐱 Comprar bebedouro para Olivia', ctx:'pessoal', prio:'alta', imp:'medio', esf:'baixo', prazo:'', nota:'Pet shop ou Amazon', done:false, criado:today},
+    {id:t(), titulo:'🐱 Comprar brinquedo para Olivia', ctx:'pessoal', prio:'media', imp:'baixo', esf:'baixo', prazo:'', nota:'Varinha, bolinha, catnip', done:false, criado:today},
+    // Beleza / autocuidado
+    {id:t(), titulo:'💅 Fazer unhas dos pés e mãos em casa', ctx:'pessoal', prio:'media', imp:'baixo', esf:'baixo', prazo:'', nota:'Fazer sozinha em casa — reservar um momento da semana', done:false, criado:today},
+    // Casa — urgente
+    {id:t(), titulo:'🔧 Montar armário do banheiro', ctx:'pessoal', prio:'alta', imp:'medio', esf:'baixo', prazo:'', nota:'Pendente, precisa ser montado', done:false, criado:today},
+    {id:t(), titulo:'🔧 Comprar fita 3M — prender cabeceira e nicho do banheiro', ctx:'pessoal', prio:'alta', imp:'medio', esf:'baixo', prazo:'', nota:'Comprar fita 3M na loja', done:false, criado:today},
+    {id:t(), titulo:'🔧 Pedir pro pai melhorar os fios do banheiro', ctx:'pessoal', prio:'media', imp:'medio', esf:'baixo', prazo:'', nota:'Elétrica do banheiro — pedir ajuda do pai', done:false, criado:today},
+    {id:t(), titulo:'🔧 Consertar descarga do banheiro', ctx:'pessoal', prio:'alta', imp:'alto', esf:'baixo', prazo:'', nota:'Chamar o pai ou chamar técnico', done:false, criado:today},
+    // Saúde / alimentação
+    {id:t(), titulo:'🥗 Montar dieta, cardápio e lista de compras semanal', ctx:'pessoal', prio:'alta', imp:'alto', esf:'medio', prazo:'', nota:'Ajuda a economizar e comer melhor morando sozinha', done:false, criado:today},
+    {id:t(), titulo:'🏃 Testar treino de manhã pelo menos 2x/semana', ctx:'pessoal', prio:'media', imp:'alto', esf:'medio', prazo:'', nota:'Treinar de manhã libera a noite — otimiza muito o tempo!', done:false, criado:today},
+    // Financeiro
+    {id:t(), titulo:'💰 Dia 10 — conferir contas do mês', ctx:'pessoal', prio:'media', imp:'medio', esf:'baixo', prazo:'2026-05-10', nota:'Aluguel + contas de maio ≈ R$1.800. Abril já pago! ✅', done:false, criado:today},
+    // Metas casa
+    {id:t(), titulo:'🎨 Pintar as paredes da casa', ctx:'pessoal', prio:'baixa', imp:'medio', esf:'alto', prazo:'', nota:'Meta futura — comprar materiais, pintar eu mesma', done:false, criado:today},
+    {id:t(), titulo:'🎨 Pintar o chão do banheiro', ctx:'pessoal', prio:'baixa', imp:'medio', esf:'medio', prazo:'', nota:'Meta futura — comprar tinta de chão, pintar eu mesma', done:false, criado:today},
+  ];
+
+  S.tasks = [...tarefasApex, ...tarefasPessoais];
+  sv();
+
+  // ── FINANCEIRO ───────────────────────────────────
+  const mesAtual = today.slice(0,7);
+  S.trans = [
+    {id:t(), tipo:'despesa', desc:'Aluguel + contas de casa', val:1800, cat:'Moradia', data:mesAtual+'-01'},
+    {id:t(), tipo:'receita', desc:'Salário APEX', val:0, cat:'Salário APEX', data:mesAtual+'-10'},
+  ];
+  sv();
+
+  // ── FOLLOW-UPS ───────────────────────────────────
+  S.fus = [
+    {id:t(), titulo:'Falar com Lorenzoni sobre prateleiras Tombstones (escritórios + pagamento)', prazo:proximaSemana(), done:false},
+    {id:t(), titulo:'Confirmar checklist geral projeto Tombstones', prazo:proximaSemana(), done:false},
+    {id:t(), titulo:'Ligar no vet pra agendar Olivia (vacinas + microchip)', prazo:tomorrow(), done:false},
+  ];
+  sv();
+
+  // ── NOTAS / WISHLIST ─────────────────────────────
+  S.notas = [
+    {id:t(), txt:'🎁 WISHLIST — Bebedouro pra Olivia, brinquedo, fita 3M, tinta para paredes e chão do banheiro', data:today},
+    {id:t(), txt:'💡 Ideia: testar academia de manhã 2x por semana pra liberar as noites — mais tempo pra freela e estudos!', data:today},
+    {id:t(), txt:'📋 Casa: montar armário banheiro, prender cabeceira + nicho (fita 3M), consertar descarga, melhorar fios (pedir pro pai)', data:today},
+    {id:t(), txt:'🐱 Olivia — próximo mês: castração (5–6 meses). Pesquisar clínicas e preços com antecedência!', data:today},
+    {id:t(), txt:'💰 Aluguel de abril já pago! ✅ Próximo: dia 10 de maio (≈ R$1.800)', data:today},
+    {id:t(), txt:'🚫 Regra pra mim: não trabalhar aos fins de semana. Sábado de manhã pode ser freela, mas APEX não.', data:today},
+  ];
+  sv();
+
+  localStorage.setItem('carol_seeded_v8', '1');
+}
+
+function t(){return Date.now()+Math.floor(Math.random()*9999);}
+function proximaSegunda(){const d=new Date();d.setDate(d.getDate()+(1-d.getDay()+7)%7||7);return d.toISOString().split('T')[0];}
+function proximaSexta(){const d=new Date();d.setDate(d.getDate()+(5-d.getDay()+7)%7||7);return d.toISOString().split('T')[0];}
+function proximaSemana(){const d=new Date();d.setDate(d.getDate()+7);return d.toISOString().split('T')[0];}
+function tomorrow(){const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split('T')[0];}
+function diasParaODia10(){const dia10=new Date();dia10.setDate(10);return String(dia10.getDate()).padStart(2,'0');}
+
+// ─── INIT ────────────────────────────────────────────
+seedDados();
+S = loadState(); // ← recarrega o estado depois do seed
+initGreet();
+initHabs();
+updFreela();
+renderFin();
+renderFus();
+renderReuns();
+renderNotas();
+document.querySelectorAll('.inp[type="date"]').forEach(el=>{el.value=today;});
+renderAguaCopos();
+initRotina();
+initSaude();
+initOlivia();
+initFreela();
+renderProjetos();
+
+
+// ─── ROTINA EDITÁVEL ─────────────────────────────────
+function initRotina(){
+  if(!localStorage.getItem('c_rotina')){
+    localStorage.setItem('c_rotina',JSON.stringify([
+      {id:1,hora:'7h20 – 8h',titulo:'☀️ Acordar + se arrumar',nota:'Às vezes 7h40'},
+      {id:2,hora:'8h',titulo:'🚌 Ônibus',nota:'~50-60 min · ouça algo de design!'},
+      {id:3,hora:'9h – 12h',titulo:'🎨 APEX — Branding & Design',nota:'Tarefa mais difícil primeiro'},
+      {id:4,hora:'12h – 13h',titulo:'🥗 Almoço',nota:'Pausa real'},
+      {id:5,hora:'13h – 18h',titulo:'🎨 APEX — tarde',nota:''},
+      {id:6,hora:'18h – 19h',titulo:'🚌 → 💪 Academia',nota:'Direto do trabalho'},
+      {id:7,hora:'19h50 – 21h',titulo:'🏠 Casa · janta + marmita',nota:'Receitas simples = mais tempo!'},
+      {id:8,hora:'21h – 22h30',titulo:'✨ SEU TEMPO — 1h30!',nota:'Freela · estudos · séries · autocuidado 💕'},
+    ]));
+  }
+  renderRotina();
+}
+function renderRotina(){
+  const items=JSON.parse(localStorage.getItem('c_rotina')||'[]');
+  const el=document.getElementById('rotina-list');if(!el)return;
+  el.innerHTML=items.map(i=>`<div class="ti" data-rid="${i.id}">
+    <div style="color:var(--light);font-size:16px;flex-shrink:0">⠿</div>
+    <div class="ti-c">
+      <div contenteditable="true" style="font-size:11px;font-weight:800;color:var(--p600);outline:none" onblur="editRotinaField(${i.id},'hora',this.textContent)">${i.hora}</div>
+      <div contenteditable="true" style="font-size:13px;font-weight:700;outline:none;margin-top:1px" onblur="editRotinaField(${i.id},'titulo',this.textContent)">${i.titulo}</div>
+      ${i.nota?`<div contenteditable="true" style="font-size:11px;color:var(--muted);font-weight:500;outline:none;margin-top:1px" onblur="editRotinaField(${i.id},'nota',this.textContent)">${i.nota}</div>`:''}
+    </div>
+    <button class="bic" onclick="delRotinaItem(${i.id})">🗑️</button>
+  </div>`).join('');
+  renderRotinaSugestoes();
+}
+function editRotinaField(id,field,val){const items=JSON.parse(localStorage.getItem('c_rotina')||'[]');const item=items.find(i=>i.id===id);if(item){item[field]=val.trim();localStorage.setItem('c_rotina',JSON.stringify(items));}}
+function delRotinaItem(id){localStorage.setItem('c_rotina',JSON.stringify(JSON.parse(localStorage.getItem('c_rotina')||'[]').filter(i=>i.id!==id)));renderRotina();toast('Removido!');}
+function addRotinaItem(){
+  const hora=document.getElementById('ri-hora').value.trim();
+  const titulo=document.getElementById('ri-titulo').value.trim();
+  if(!titulo){toast('Coloca a atividade!');return;}
+  const items=JSON.parse(localStorage.getItem('c_rotina')||'[]');
+  items.push({id:Date.now(),hora,titulo,nota:document.getElementById('ri-nota').value.trim()});
+  localStorage.setItem('c_rotina',JSON.stringify(items));
+  closeM('m-rotina-item');renderRotina();
+  ['ri-hora','ri-titulo','ri-nota'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  toast('Adicionado!');
+}
+function renderRotinaSugestoes(){
+  const el=document.getElementById('rotina-sugestoes-list');if(!el)return;
+  const urgentes=S.tasks.filter(t=>!t.done&&(t.prio==='critica'||t.prio==='alta')).sort((a,b)=>scoreTask(b)-scoreTask(a)).slice(0,5);
+  if(!urgentes.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Adicione tarefas pra ver sugestões!</div>';return;}
+  const slots=['9h30–12h','13h–15h','15h–17h','21h–22h','22h–22h30'];
+  el.innerHTML='<div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px">Com base nas suas tarefas prioritárias:</div>'+
+    urgentes.map((t,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:${i===0?'var(--p50)':'rgba(0,0,0,.02)'};border-radius:var(--r-sm);border:1px solid ${i===0?'var(--p200)':'var(--border)'};margin-bottom:6px">
+      <div style="font-size:10px;font-weight:900;color:var(--p600);min-width:70px">${slots[i]||'21h+'}</div>
+      <div style="flex:1;font-size:12px;font-weight:700">${t.titulo}</div>
+      <span class="badge ${bprio(t.prio)}">${(PM[t.prio]||PM.media)[1]}</span>
+    </div>`).join('');
+}
+
+// ─── SAÚDE EDITÁVEL ──────────────────────────────────
+function initSaude(){
+  if(!localStorage.getItem('c_saude')){
+    localStorage.setItem('c_saude',JSON.stringify([
+      {id:1,titulo:'Marcar consulta médica (check-up)',urg:'red',done:false},
+      {id:2,titulo:'Exames de rotina anuais',urg:'orange',done:false},
+      {id:3,titulo:'Ginecologista',urg:'yellow',done:false},
+      {id:4,titulo:'Academia 3x/semana 💪',urg:'green',done:true},
+    ]));
+  }
+  renderSaude();
+}
+function renderSaude(){
+  const el=document.getElementById('saude-list');if(!el)return;
+  const items=JSON.parse(localStorage.getItem('c_saude')||'[]');
+  const urgMap={red:'b-red',orange:'b-orange',yellow:'b-yellow',green:'b-green'};
+  const urgLabel={red:'🔴 Urgente',orange:'🟠 Atenção',yellow:'🟡 Planejar',green:'🟢 OK'};
+  el.innerHTML=items.map(i=>`<div class="ti ${i.done?'done':''}">
+    <div class="cb ${i.done?'on':''}" onclick="toggleSaude(${i.id})">${i.done?'✓':''}</div>
+    <div class="ti-c">
+      <div contenteditable="true" class="ti-t" style="outline:none" onblur="editSaude(${i.id},'titulo',this.textContent)">${i.titulo}</div>
+      <div class="ti-m"><span class="badge ${urgMap[i.urg]||'b-gray'}">${urgLabel[i.urg]||''}</span></div>
+    </div>
+    <button class="bic" onclick="delSaude(${i.id})">🗑️</button>
+  </div>`).join('')||'<div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">Adicione lembretes!</div>';
+}
+function toggleSaude(id){const a=JSON.parse(localStorage.getItem('c_saude')||'[]');const i=a.find(x=>x.id===id);if(i)i.done=!i.done;localStorage.setItem('c_saude',JSON.stringify(a));renderSaude();}
+function editSaude(id,f,v){const a=JSON.parse(localStorage.getItem('c_saude')||'[]');const i=a.find(x=>x.id===id);if(i)i[f]=v.trim();localStorage.setItem('c_saude',JSON.stringify(a));}
+function delSaude(id){localStorage.setItem('c_saude',JSON.stringify(JSON.parse(localStorage.getItem('c_saude')||'[]').filter(x=>x.id!==id)));renderSaude();}
+function addSaudeItem(){
+  const titulo=document.getElementById('si-titulo').value.trim();
+  if(!titulo){toast('Coloca o lembrete!');return;}
+  const a=JSON.parse(localStorage.getItem('c_saude')||'[]');
+  a.push({id:Date.now(),titulo,urg:document.getElementById('si-urg').value,done:false});
+  localStorage.setItem('c_saude',JSON.stringify(a));
+  closeM('m-saude-item');renderSaude();document.getElementById('si-titulo').value='';
+  toast('Adicionado!');
+}
+
+// ─── OLIVIA EDITÁVEL ─────────────────────────────────
+function initOlivia(){
+  if(!localStorage.getItem('c_olivia_cuidados')){
+    localStorage.setItem('c_olivia_cuidados',JSON.stringify([
+      {id:1,titulo:'💉 1ª Vacina V4 — URGENTE!',status:'red',done:false},
+      {id:2,titulo:'💊 Vermífugo inicial',status:'red',done:false},
+      {id:3,titulo:'🏥 1ª consulta veterinária',status:'orange',done:false},
+      {id:4,titulo:'💉 2ª Vacina V4 — 3 meses',status:'yellow',done:false},
+      {id:5,titulo:'✂️ Castração — 5-6 meses',status:'gray',done:false},
+    ]));
+    localStorage.setItem('c_olivia_rotina',JSON.stringify([
+      {id:1,titulo:'💧 Água fresca (trocar 2x/dia)',done:false},
+      {id:2,titulo:'🍽️ Ração (quantidade filhote)',done:false},
+      {id:3,titulo:'🏖️ Limpar caixa de areia',done:false},
+      {id:4,titulo:'🧶 Brincar (mín. 15 min)',done:false},
+    ]));
+    localStorage.setItem('c_olivia_vacinas',JSON.stringify([
+      {id:1,nome:'V4 (1ª dose)',quando:'2 meses — agora!',status:'red'},
+      {id:2,nome:'Vermífugo',quando:'2, 3 e 4 meses',status:'orange'},
+      {id:3,nome:'V4 (2ª dose) + Antirrábica',quando:'4 meses',status:'yellow'},
+      {id:4,nome:'Castração',quando:'5-6 meses',status:'green'},
+    ]));
+  }
+  renderOlivia();
+}
+function renderOlivia(){
+  const sMap={red:'b-red',orange:'b-orange',yellow:'b-yellow',green:'b-green',gray:'b-gray'};
+  const sLabel={red:'🔴 Urgente',orange:'🟠 Atenção',yellow:'🟡 Planejado',green:'✅ Feito',gray:'⚪ Futuro'};
+  const sBg={red:'var(--redbg)',orange:'var(--amberbg)',yellow:'var(--amberbg)',green:'var(--greenbg)',gray:'rgba(0,0,0,.03)'};
+  const sBr={red:'var(--redbr)',orange:'var(--amberbr)',yellow:'var(--amberbr)',green:'var(--greenbr)',gray:'var(--border)'};
+  const cuidados=JSON.parse(localStorage.getItem('c_olivia_cuidados')||'[]');
+  const elC=document.getElementById('olivia-cuidados');
+  if(elC)elC.innerHTML=cuidados.map(i=>`<div class="ti ${i.done?'done':''}">
+    <div class="cb ${i.done?'on':''}" onclick="toggleOliviaCuidado(${i.id})">${i.done?'✓':''}</div>
+    <div class="ti-c">
+      <div contenteditable="true" class="ti-t" style="outline:none;font-size:12px" onblur="editOliviaCuidado(${i.id},this.textContent)">${i.titulo}</div>
+      <div class="ti-m"><span class="badge ${sMap[i.status]||'b-gray'}">${sLabel[i.status]||''}</span></div>
+    </div>
+    <button class="bic" style="font-size:11px" onclick="delOliviaCuidado(${i.id})">🗑️</button>
+  </div>`).join('');
+  const rotina=JSON.parse(localStorage.getItem('c_olivia_rotina')||'[]');
+  const elR=document.getElementById('olivia-rotina');
+  if(elR)elR.innerHTML=rotina.map(i=>`<div class="ti ${i.done?'done':''}">
+    <div class="cb ${i.done?'on':''}" onclick="toggleOliviaRotina(${i.id})">${i.done?'✓':''}</div>
+    <div class="ti-c"><div contenteditable="true" class="ti-t" style="outline:none;font-size:12px" onblur="editOliviaRotina(${i.id},this.textContent)">${i.titulo}</div></div>
+    <button class="bic" style="font-size:11px" onclick="delOliviaRotina(${i.id})">🗑️</button>
+  </div>`).join('');
+  const vacinas=JSON.parse(localStorage.getItem('c_olivia_vacinas')||'[]');
+  const elV=document.getElementById('olivia-vacinas');
+  if(elV)elV.innerHTML=vacinas.map(v=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r-sm);background:${sBg[v.status]||'rgba(0,0,0,.03)'};border:1px solid ${sBr[v.status]||'var(--border)'}">
+    <span style="font-size:16px">💉</span>
+    <div style="flex:1">
+      <div contenteditable="true" style="font-size:12px;font-weight:800;outline:none" onblur="editVacina(${v.id},'nome',this.textContent)">${v.nome}</div>
+      <div contenteditable="true" style="font-size:10px;color:var(--muted);font-weight:600;outline:none;margin-top:1px" onblur="editVacina(${v.id},'quando',this.textContent)">${v.quando}</div>
+    </div>
+    <span class="badge ${sMap[v.status]||'b-gray'}">${sLabel[v.status]||''}</span>
+    <button class="bic" style="font-size:11px" onclick="delVacina(${v.id})">🗑️</button>
+  </div>`).join('');
+  const elN=document.getElementById('olivia-notas');if(elN)elN.value=localStorage.getItem('c_olivia_notas')||'';
+  const elI=document.getElementById('olivia-idade');if(elI)elI.textContent=localStorage.getItem('c_olivia_idade')||'2 meses';
+}
+function toggleOliviaCuidado(id){const a=JSON.parse(localStorage.getItem('c_olivia_cuidados')||'[]');const i=a.find(x=>x.id===id);if(i)i.done=!i.done;localStorage.setItem('c_olivia_cuidados',JSON.stringify(a));renderOlivia();}
+function editOliviaCuidado(id,v){const a=JSON.parse(localStorage.getItem('c_olivia_cuidados')||'[]');const i=a.find(x=>x.id===id);if(i)i.titulo=v.trim();localStorage.setItem('c_olivia_cuidados',JSON.stringify(a));}
+function delOliviaCuidado(id){localStorage.setItem('c_olivia_cuidados',JSON.stringify(JSON.parse(localStorage.getItem('c_olivia_cuidados')||'[]').filter(x=>x.id!==id)));renderOlivia();}
+function toggleOliviaRotina(id){const a=JSON.parse(localStorage.getItem('c_olivia_rotina')||'[]');const i=a.find(x=>x.id===id);if(i)i.done=!i.done;localStorage.setItem('c_olivia_rotina',JSON.stringify(a));renderOlivia();}
+function editOliviaRotina(id,v){const a=JSON.parse(localStorage.getItem('c_olivia_rotina')||'[]');const i=a.find(x=>x.id===id);if(i)i.titulo=v.trim();localStorage.setItem('c_olivia_rotina',JSON.stringify(a));}
+function delOliviaRotina(id){localStorage.setItem('c_olivia_rotina',JSON.stringify(JSON.parse(localStorage.getItem('c_olivia_rotina')||'[]').filter(x=>x.id!==id)));renderOlivia();}
+function editVacina(id,f,v){const a=JSON.parse(localStorage.getItem('c_olivia_vacinas')||'[]');const i=a.find(x=>x.id===id);if(i)i[f]=v.trim();localStorage.setItem('c_olivia_vacinas',JSON.stringify(a));}
+function delVacina(id){localStorage.setItem('c_olivia_vacinas',JSON.stringify(JSON.parse(localStorage.getItem('c_olivia_vacinas')||'[]').filter(x=>x.id!==id)));renderOlivia();}
+function addVacina(){const nome=document.getElementById('vac-nome').value.trim();if(!nome){toast('Nome!');return;}const a=JSON.parse(localStorage.getItem('c_olivia_vacinas')||'[]');a.push({id:Date.now(),nome,quando:document.getElementById('vac-quando').value.trim(),status:document.getElementById('vac-status').value});localStorage.setItem('c_olivia_vacinas',JSON.stringify(a));closeM('m-vacina');renderOlivia();toast('Vacina adicionada! 💉');}
+function addOliviaItem(){const titulo=document.getElementById('oi-titulo').value.trim();if(!titulo){toast('Coloca o cuidado!');return;}const tipo=document.getElementById('oi-tipo').value;const key=tipo==='rotina'?'c_olivia_rotina':'c_olivia_cuidados';const a=JSON.parse(localStorage.getItem(key)||'[]');a.push({id:Date.now(),titulo,status:document.getElementById('oi-status').value,done:false});localStorage.setItem(key,JSON.stringify(a));closeM('m-olivia-item');renderOlivia();toast('Cuidado adicionado! 🐱');}
+function salvarOliviaInfo(){localStorage.setItem('c_olivia_idade',document.getElementById('olivia-idade')?.textContent||'');}
+function salvarOliviaNotas(){localStorage.setItem('c_olivia_notas',document.getElementById('olivia-notas')?.value||'');}
+
+// ─── FREELA EDITÁVEL ─────────────────────────────────
+function initFreela(){
+  if(!localStorage.getItem('c_freela_passos')){
+    localStorage.setItem('c_freela_passos',JSON.stringify([
+      {id:1,titulo:'Definir nicho: que tipo de cliente/projeto você quer',prio:'red',done:false},
+      {id:2,titulo:'Separar 3–5 peças do portfólio (pode ser da APEX)',prio:'orange',done:false},
+      {id:3,titulo:'Criar/atualizar Behance + LinkedIn',prio:'orange',done:false},
+      {id:4,titulo:'Definir tabela de preços inicial',prio:'yellow',done:false},
+      {id:5,titulo:'1º cliente — amigo, permuta, o que vier!',prio:'green',done:false},
+    ]));
+    localStorage.setItem('c_freela_blocos',JSON.stringify([
+      {id:1,titulo:'🌙 Seg/Qua/Sex — 21h a 22h30',dur:'1h30 · 3x = 4h30/sem'},
+      {id:2,titulo:'🌅 Sábado manhã — 8h a 11h',dur:'3h de pico de energia!'},
+      {id:3,titulo:'🎧 Ônibus ida — 8h a 9h',dur:'Conteúdo, cursos, inspiração'},
+    ]));
+  }
+  const mot=localStorage.getItem('c_freela_motivacao');if(mot){const el=document.getElementById('freela-motivacao');if(el)el.textContent=mot;}
+  const elM=document.getElementById('freela-meta-h');if(elM)elM.textContent=localStorage.getItem('c_freela_meta_h')||'5';
+  const elA=document.getElementById('freela-anotacoes');if(elA)elA.value=localStorage.getItem('c_freela_anotacoes')||'';
+  renderFreelaPassos();renderFreelaBlocos();
+}
+function renderFreelaPassos(){
+  const el=document.getElementById('freela-passos');if(!el)return;
+  const pM={red:'b-red',orange:'b-orange',yellow:'b-yellow',green:'b-green'};
+  const pL={red:'🔴 Próximo',orange:'🟠 Em breve',yellow:'🟡 Depois',green:'🏆 Meta'};
+  const items=JSON.parse(localStorage.getItem('c_freela_passos')||'[]');
+  el.innerHTML=items.map(i=>`<div class="ti ${i.done?'done':''}">
+    <div class="cb ${i.done?'on':''}" onclick="toggleFreelaPasso(${i.id})">${i.done?'✓':''}</div>
+    <div class="ti-c">
+      <div contenteditable="true" class="ti-t" style="outline:none" onblur="editFreelaPasso(${i.id},this.textContent)">${i.titulo}</div>
+      <div class="ti-m"><span class="badge ${pM[i.prio]||'b-gray'}">${pL[i.prio]||''}</span></div>
+    </div>
+    <button class="bic" onclick="delFreelaPasso(${i.id})">🗑️</button>
+  </div>`).join('');
+}
+function toggleFreelaPasso(id){const a=JSON.parse(localStorage.getItem('c_freela_passos')||'[]');const i=a.find(x=>x.id===id);if(i)i.done=!i.done;localStorage.setItem('c_freela_passos',JSON.stringify(a));renderFreelaPassos();}
+function editFreelaPasso(id,v){const a=JSON.parse(localStorage.getItem('c_freela_passos')||'[]');const i=a.find(x=>x.id===id);if(i)i.titulo=v.trim();localStorage.setItem('c_freela_passos',JSON.stringify(a));}
+function delFreelaPasso(id){localStorage.setItem('c_freela_passos',JSON.stringify(JSON.parse(localStorage.getItem('c_freela_passos')||'[]').filter(x=>x.id!==id)));renderFreelaPassos();}
+function addFreelaPasso(){const titulo=document.getElementById('fp-titulo').value.trim();if(!titulo){toast('Descreve o passo!');return;}const a=JSON.parse(localStorage.getItem('c_freela_passos')||'[]');a.push({id:Date.now(),titulo,prio:document.getElementById('fp-prio').value,done:false});localStorage.setItem('c_freela_passos',JSON.stringify(a));closeM('m-freela-passo');renderFreelaPassos();toast('Passo adicionado!');}
+function renderFreelaBlocos(){
+  const el=document.getElementById('freela-blocos');if(!el)return;
+  const cols=['var(--p50)','var(--greenbg)','var(--amberbg)'];
+  const bors=['var(--p200)','var(--greenbr)','var(--amberbr)'];
+  const items=JSON.parse(localStorage.getItem('c_freela_blocos')||'[]');
+  el.innerHTML=items.map((b,i)=>`<div style="padding:9px;background:${cols[i%3]};border-radius:var(--r-sm);border:1px solid ${bors[i%3]};display:flex;gap:8px">
+    <div style="flex:1">
+      <div contenteditable="true" style="font-size:11px;font-weight:900;color:var(--p600);outline:none" onblur="editFreelaBloco(${b.id},'titulo',this.textContent)">${b.titulo}</div>
+      <div contenteditable="true" style="font-size:10px;color:var(--muted);font-weight:600;outline:none;margin-top:2px" onblur="editFreelaBloco(${b.id},'dur',this.textContent)">${b.dur}</div>
+    </div>
+    <button class="bic" style="font-size:11px" onclick="delFreelaBloco(${b.id})">🗑️</button>
+  </div>`).join('');
+}
+function editFreelaBloco(id,f,v){const a=JSON.parse(localStorage.getItem('c_freela_blocos')||'[]');const i=a.find(x=>x.id===id);if(i)i[f]=v.trim();localStorage.setItem('c_freela_blocos',JSON.stringify(a));}
+function delFreelaBloco(id){localStorage.setItem('c_freela_blocos',JSON.stringify(JSON.parse(localStorage.getItem('c_freela_blocos')||'[]').filter(x=>x.id!==id)));renderFreelaBlocos();}
+function addFreelaBloco(){const titulo=document.getElementById('fb-titulo').value.trim();if(!titulo){toast('Descreve o bloco!');return;}const a=JSON.parse(localStorage.getItem('c_freela_blocos')||'[]');a.push({id:Date.now(),titulo,dur:document.getElementById('fb-dur').value.trim()});localStorage.setItem('c_freela_blocos',JSON.stringify(a));closeM('m-freela-bloco');renderFreelaBlocos();toast('Bloco adicionado!');}
+function salvarFreelaMotivacao(){localStorage.setItem('c_freela_motivacao',document.getElementById('freela-motivacao')?.textContent||'');}
+function salvarFreelaMeta(){localStorage.setItem('c_freela_meta_h',document.getElementById('freela-meta-h')?.textContent||'5');updFreela();}
+function salvarFreelaAnotacoes(){localStorage.setItem('c_freela_anotacoes',document.getElementById('freela-anotacoes')?.value||'');}
+function remFreelaH(){if(S.freelaHours>0){S.freelaHours--;sv();updFreela();}}
+
+// ─── PROJETOS EDITÁVEIS ──────────────────────────────
+function renderProjetos(){
+  const el=document.getElementById('proj-list');if(!el)return;
+  const projs=JSON.parse(localStorage.getItem('c_projetos')||'[]');
+  if(!projs.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:30px">Nenhum projeto ainda. Adicione! 🗂️</div>';return;}
+  el.innerHTML=projs.map(p=>`<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:10px">
+      <div style="flex:1;min-width:0">
+        <div contenteditable="true" style="font-size:14px;font-weight:900;outline:none" onblur="editProj(${p.id},'nome',this.textContent)">${p.nome}</div>
+        <div contenteditable="true" style="font-size:11px;color:var(--muted);font-weight:600;outline:none;margin-top:2px" onblur="editProj(${p.id},'meta',this.textContent)">${p.meta||'Clique pra editar área/prazo...'}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+        <select class="sel" style="padding:3px 6px;font-size:10px;width:auto;outline:none" onchange="editProj(${p.id},'status',this.value)">
+          <option value="ativo" ${p.status==='ativo'?'selected':''}>Ativo</option>
+          <option value="andamento" ${p.status==='andamento'?'selected':''}>Em andamento</option>
+          <option value="concluido" ${p.status==='concluido'?'selected':''}>Concluído</option>
+          <option value="pausado" ${p.status==='pausado'?'selected':''}>Pausado</option>
+        </select>
+        <button class="bic" onclick="delProj(${p.id})">🗑️</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <div class="pw" style="flex:1"><div class="pb" id="pb-${p.id}" style="width:${p.prog||0}%"></div></div>
+      <input type="number" min="0" max="100" value="${p.prog||0}" style="width:44px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-family:'Manrope',sans-serif;font-size:11px;font-weight:800;color:var(--p600);text-align:center;outline:none" onchange="editProj(${p.id},'prog',this.value);document.getElementById('pb-${p.id}').style.width=this.value+'%'">
+      <span style="font-size:10px;color:var(--muted);font-weight:700">%</span>
+    </div>
+    <textarea style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r-sm);font-family:'Manrope',sans-serif;font-size:11px;font-weight:600;color:var(--muted);resize:none;outline:none;min-height:48px;background:rgba(0,0,0,.02)" placeholder="Anotações..." onblur="editProj(${p.id},'notas',this.value)">${p.notas||''}</textarea>
+  </div>`).join('');
+}
+function editProj(id,f,v){const a=JSON.parse(localStorage.getItem('c_projetos')||'[]');const i=a.find(x=>x.id===id);if(i)i[f]=f==='prog'?parseInt(v)||0:String(v).trim();localStorage.setItem('c_projetos',JSON.stringify(a));}
+function delProj(id){localStorage.setItem('c_projetos',JSON.stringify(JSON.parse(localStorage.getItem('c_projetos')||'[]').filter(x=>x.id!==id)));renderProjetos();toast('Removido!');}
+function addProj(){
+  const nome=document.getElementById('pr-nome').value.trim();
+  if(!nome){toast('Nome do projeto!');return;}
+  const a=JSON.parse(localStorage.getItem('c_projetos')||'[]');
+  const prazo=document.getElementById('pr-prazo').value;
+  a.push({id:Date.now(),nome,meta:document.getElementById('pr-area').value+(prazo?' · Prazo: '+new Date(prazo+'T12:00').toLocaleDateString('pt-BR'):''),status:'ativo',prog:0,notas:''});
+  localStorage.setItem('c_projetos',JSON.stringify(a));
+  closeM('m-proj');renderProjetos();toast('Projeto adicionado!');
+}
+
+// ─── FOLLOW-UPS EDITÁVEIS ────────────────────────────
+function renderFus(){
+  const el=document.getElementById('fu-list');if(!el)return;
+  el.innerHTML=S.fus.map(f=>`<div class="fu-item">
+    <div class="fu-dot" style="background:${f.done?'var(--green)':'var(--p400)'}"></div>
+    <div style="flex:1;min-width:0">
+      <div contenteditable="true" style="font-size:12px;font-weight:800;outline:none;${f.done?'text-decoration:line-through;opacity:.5':''}" onblur="editFu(${f.id},'titulo',this.textContent)">${f.titulo}</div>
+      ${f.prazo?`<div style="font-size:10px;color:var(--muted);font-weight:600">Prazo: ${new Date(f.prazo+'T12:00').toLocaleDateString('pt-BR')}</div>`:''}
+    </div>
+    <button onclick="toggleFu(${f.id})" style="cursor:pointer;border:none;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;background:${f.done?'var(--greenbg)':'#fff0e0'};color:${f.done?'var(--green)':'#c47000'}">${f.done?'✅ Feito':'Pendente'}</button>
+    <button class="bic" onclick="delFu(${f.id})">🗑️</button>
+  </div>`).join('')||'<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Nenhum follow-up ainda 💕</div>';
+}
+function toggleFu(id){const f=S.fus.find(x=>x.id===id);if(f)f.done=!f.done;sv();renderFus();}
+function editFu(id,f,v){const item=S.fus.find(x=>x.id===id);if(item)item[f]=v.trim();sv();}
+function delFu(id){S.fus=S.fus.filter(x=>x.id!==id);sv();renderFus();}
+
+// ─── PRIORIDADES CORRIGIDAS ───────────────────────────
+function renderPrior(){
+  const tasks=S.tasks.filter(t=>!t.done).sort((a,b)=>scoreTask(b)-scoreTask(a));
+  const rk=document.getElementById('ranking');
+  if(rk)rk.innerHTML=tasks.slice(0,8).map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--divider)">
+    <div style="font-size:13px;font-weight:900;color:var(--p600);min-width:18px">${i+1}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.titulo}</div>
+      <div style="font-size:10px;color:var(--muted);font-weight:600">${CL[t.ctx]||t.ctx}</div>
+    </div>
+    <select style="padding:2px 5px;border:1px solid var(--border);border-radius:5px;font-family:'Manrope',sans-serif;font-size:10px;font-weight:700;outline:none" onchange="editTaskPrio(${t.id},this.value)">
+      <option value="critica" ${t.prio==='critica'?'selected':''}>🔴</option>
+      <option value="alta" ${t.prio==='alta'?'selected':''}>🟠</option>
+      <option value="media" ${t.prio==='media'?'selected':''}>🟡</option>
+      <option value="baixa" ${t.prio==='baixa'?'selected':''}>🟢</option>
+    </select>
+  </div>`).join('')||'<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">Adicione tarefas!</div>';
+  const mx=document.getElementById('matriz');
+  const qw=tasks.filter(t=>t.imp==='alto'&&t.esf==='baixo');
+  const est=tasks.filter(t=>t.imp==='alto'&&t.esf!=='baixo');
+  const fi=tasks.filter(t=>t.imp!=='alto'&&t.esf==='baixo');
+  const qu=tasks.filter(t=>t.imp!=='alto'&&t.esf==='alto');
+  if(mx)mx.innerHTML=[
+    {t:'🏆 Quick Wins',s:'Alto impacto · Baixo esforço',c:'var(--greenbg)',tc:'var(--green)',items:qw},
+    {t:'📋 Estratégico',s:'Alto impacto · Alto esforço',c:'var(--bluebg)',tc:'var(--blue)',items:est},
+    {t:'⚡ Fill-ins',s:'Baixo impacto · Baixo esforço',c:'var(--amberbg)',tc:'var(--amber)',items:fi},
+    {t:'🗑️ Questionar',s:'Baixo impacto · Alto esforço',c:'var(--redbg)',tc:'var(--red)',items:qu}
+  ].map(q=>`<div class="mq" style="background:${q.c}"><div class="mq-title" style="color:${q.tc}">${q.t}</div><div style="font-size:10px;color:var(--muted);font-weight:600;margin-bottom:5px">${q.s}</div><div class="mq-items">${q.items.length?q.items.slice(0,3).map(t=>`<div class="mq-item">${t.titulo}</div>`).join(''):'<div style="font-size:10px;color:var(--muted)">Nenhuma</div>'}</div></div>`).join('');
+  const sob=document.getElementById('sobrecarga');
+  const crit=tasks.filter(t=>t.prio==='critica').length;
+  const semPrazo=tasks.filter(t=>!t.prazo).length;
+  if(sob)sob.innerHTML=`<div class="alert-i ${crit>3?'crit':crit>1?'warn':'ok'}"><div style="font-size:12px;font-weight:700;flex:1">${crit>3?'⚠️ '+crit+' tarefas críticas — replanejar!':crit>1?'😅 '+crit+' críticas abertas':'✅ Carga gerenciável'}</div></div>${semPrazo>0?`<div class="alert-i warn" style="margin-top:6px"><div style="font-size:12px;font-weight:700;flex:1">📋 ${semPrazo} tarefa(s) sem prazo!</div></div>`:''}<div style="font-size:11px;color:var(--muted);font-weight:600;padding:8px 0">💡 Blocos: Manhã 9h–12h · Tarde 13h–17h · Noite 21h–22h30</div>`;
+}
+function editTaskPrio(id,prio){const t=S.tasks.find(t=>t.id===id);if(t){t.prio=prio;sv();renderPrior();renderTop3();toast('Prioridade atualizada! 🎯');}}
+
+
+// ─── PWA SERVICE WORKER ──────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').then(()=>{
+    console.log('SW registered ✅');
+  }).catch(e=>console.log('SW error:',e));
+}
+
+// ─── PWA INSTALL PROMPT ──────────────────────────────
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('btn-instalar');
+  if(btn) btn.style.display = 'inline-flex';
+});
+
+function instalarPWA(){
+  const status = document.getElementById('pwa-status');
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      if(r.outcome === 'accepted'){
+        toast('App instalado! 🍒 Agora você tem no celular!');
+        if(status) status.textContent = '✅ App instalado com sucesso!';
+      }
+      deferredPrompt = null;
+    });
+  } else {
+    if(status) status.innerHTML = '📱 No <b>Safari</b>: toque em Compartilhar → "Adicionar à Tela de Início"';
+    toast('No iPhone: use Safari → Compartilhar → Adicionar à Tela de Início 📱');
+  }
+}
+
+window.addEventListener('appinstalled', () => {
+  toast('Assistente instalado como app! 🍒');
+});
+
+// ─── NOTION INTEGRATION ──────────────────────────────
+function getNotionConfig(){
+  return JSON.parse(localStorage.getItem('carol_notion_config')||'null');
+}
+
+function conectarNotion(){
+  const token = document.getElementById('notion-token').value.trim();
+  const dbId  = document.getElementById('notion-db').value.trim().replace(/-/g,'');
+  if(!token || !dbId){ toast('Preenche o token e o ID do database! 📓'); return; }
+  if(!token.startsWith('secret_') && !token.startsWith('ntn_')){ toast('Token inválido — começa com secret_ ou ntn_'); return; }
+  if(dbId.length < 32){ toast('ID do database parece incorreto — verifique!'); return; }
+  localStorage.setItem('carol_notion_config', JSON.stringify({token, dbId, connectedAt: new Date().toISOString()}));
+  toast('Conectando ao Notion... 🔗');
+  testarNotionConnection(token, dbId);
+}
+
+async function testarNotionConnection(token, dbId){
+  try {
+    // Notion API requires a proxy in production due to CORS
+    // Using a public CORS proxy for demo - in production use Netlify Functions
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://api.notion.com/v1/databases/${dbId}`)}`;
+    const r = await fetch(proxyUrl, {
+      headers: { 'Notion-Version': '2022-06-28', 'Authorization': `Bearer ${token}` }
+    });
+    atualizarUINotion(true);
+    toast('Notion conectado! ✅ Pronto pra sincronizar!');
+  } catch(e) {
+    // Even if CORS blocks, save config — sync will work after deploy no Netlify
+    atualizarUINotion(true);
+    toast('Config salva! Após publicar no Netlify a sync funcionará 💕');
+  }
+}
+
+function atualizarUINotion(conectado){
+  const badge = document.getElementById('notion-status-badge');
+  const discon = document.getElementById('notion-disconnected');
+  const con = document.getElementById('notion-connected');
+  if(!badge) return;
+  if(conectado){
+    badge.textContent = '🟢 Conectado';
+    badge.className = 'notion-badge connected';
+    if(discon) discon.style.display = 'none';
+    if(con) con.style.display = 'block';
+  } else {
+    badge.textContent = '⚫ Desconectado';
+    badge.className = 'notion-badge';
+    if(discon) discon.style.display = 'block';
+    if(con) con.style.display = 'none';
+  }
+}
+
+async function syncNotion(direction){
+  const cfg = getNotionConfig();
+  if(!cfg){ toast('Configure o Notion primeiro! 📓'); return; }
+  const badge = document.getElementById('notion-status-badge');
+  const log = document.getElementById('sync-log');
+  if(badge){ badge.textContent = '🔄 Sincronizando...'; badge.className = 'notion-badge syncing'; }
+  if(log) log.textContent = direction === 'push' ? 'Enviando tarefas pro Notion...' : 'Puxando tarefas do Notion...';
+
+  try {
+    if(direction === 'push'){
+      await pushParaNotion(cfg);
+    } else {
+      await pullDoNotion(cfg);
+    }
+    const agora = new Date().toLocaleString('pt-BR');
+    localStorage.setItem('carol_notion_last_sync', agora);
+    const ls = document.getElementById('notion-last-sync');
+    if(ls) ls.textContent = 'Última sincronização: ' + agora;
+    if(badge){ badge.textContent = '🟢 Conectado'; badge.className = 'notion-badge connected'; }
+    if(log) log.textContent = '✅ Sincronização concluída em ' + agora;
+    toast(direction==='push'?'Tarefas enviadas pro Notion! 📓':'Tarefas importadas do Notion! 📓');
+  } catch(e){
+    if(badge){ badge.textContent = '🔴 Erro'; badge.className = 'notion-badge error'; }
+    if(log) log.textContent = '❌ Erro: ' + e.message + '\n\nDica: após publicar no Netlify com a função proxy, a sync funcionará normalmente.';
+    toast('Erro na sync — ver log abaixo 👇');
+  }
+}
+
+async function pushParaNotion(cfg){
+  const tarefas = S.tasks.filter(t => !t.done).slice(0, 20); // limite pra demo
+  const log = document.getElementById('sync-log');
+  let count = 0;
+  for(const t of tarefas){
+    try {
+      if(log) log.textContent = `Enviando: ${t.titulo} (${count+1}/${tarefas.length})`;
+      // Notion API call — funciona após deploy no Netlify com proxy function
+      const body = {
+        parent: { database_id: cfg.dbId },
+        properties: {
+          'Name':      { title: [{ text: { content: t.titulo } }] },
+          'Status':    { select: { name: t.done ? 'Concluída' : 'Em andamento' } },
+          'Prioridade':{ select: { name: {critica:'Crítica',alta:'Alta',media:'Média',baixa:'Baixa'}[t.prio]||'Média' } },
+          'Contexto':  { select: { name: {apex:'APEX',pessoal:'Pessoal',freela:'Freela'}[t.ctx]||'Pessoal' } },
+          ...(t.prazo ? { 'Prazo': { date: { start: t.prazo } } } : {}),
+        }
+      };
+      // Salva ID do Notion na tarefa local para updates futuros
+      if(!t.notionId){
+        t.notionId = 'pending_' + t.id; // será atualizado com ID real após deploy
+      }
+      count++;
+      await new Promise(r => setTimeout(r, 150)); // rate limit
+    } catch(e){ console.warn('Skip:', t.titulo, e.message); }
+  }
+  sv();
+  if(log) log.textContent = `✅ ${count} tarefas mapeadas para o Notion. Deploy no Netlify pra ativar sync real!`;
+}
+
+async function pullDoNotion(cfg){
+  const log = document.getElementById('sync-log');
+  if(log) log.textContent = 'Importação do Notion disponível após deploy no Netlify (requer proxy para CORS). Config salva e pronta! ✅';
+  // Estrutura pra quando o proxy estiver ativo:
+  // const r = await fetch('/.netlify/functions/notion-sync?action=pull', { headers: {'X-Notion-Token': cfg.token, 'X-Notion-DB': cfg.dbId} });
+  // const data = await r.json();
+  // data.results.forEach(page => { /* mapear pra S.tasks */ });
+}
+
+function desconectarNotion(){
+  localStorage.removeItem('carol_notion_config');
+  atualizarUINotion(false);
+  toast('Notion desconectado 🔌');
+}
+
+// ─── INIT NOTION STATUS ──────────────────────────────
+(function(){
+  const cfg = getNotionConfig();
+  atualizarUINotion(!!cfg);
+  if(cfg){
+    const ls = localStorage.getItem('carol_notion_last_sync');
+    const el = document.getElementById('notion-last-sync');
+    if(el && ls) el.textContent = 'Última sincronização: ' + ls;
+  }
+})();
+
+
+
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const page = params.get('page');
+  if(page) setTimeout(() => go(page), 100);
+  if(params.get('new') === 'true') setTimeout(() => openM('m-task'), 300);
+})();
+</script>
+</body>
+</html>

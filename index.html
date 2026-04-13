@@ -2195,7 +2195,7 @@ function editTaskPrio(id,prio){const t=S.tasks.find(t=>t.id===id);if(t){t.prio=p
 
 // ─── SUPABASE SYNC ───────────────────────────────────
 const SB_URL = 'https://ociznwaqwhhqlqfqmbiz.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jaXpud2Fxd2hoaWxxZnFtYml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1NjY5NzIsImV4cCI6MjA2MDE0Mjk3Mn0.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jaXpud2Fxd2hocWxxZnFtYml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwODU0OTQsImV4cCI6MjA5MTY2MTQ5NH0.uyhWj9_mBSpNJLxgYp7GrT0U9bpZ_EfBe1ypL1eKuzU';
 
 const sbHeaders = {
   'Content-Type': 'application/json',
@@ -2291,12 +2291,12 @@ async function syncFromSupabase(){
 }
 
 // Sobrescreve sv() pra sincronizar automaticamente após cada save
-const svOriginal = sv;
-function sv(){
-  svOriginal();
+const _svOrig = sv;
+sv = function(){
+  _svOrig();
   clearTimeout(sv._timer);
-  sv._timer = setTimeout(syncToSupabase, 1500); // debounce 1.5s
-}
+  sv._timer = setTimeout(syncToSupabase, 1500);
+};
 
 // Sincroniza ao abrir o app
 window.addEventListener('load', ()=>{

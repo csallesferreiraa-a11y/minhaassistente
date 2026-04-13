@@ -2193,6 +2193,123 @@ function renderPrior(){
 function editTaskPrio(id,prio){const t=S.tasks.find(t=>t.id===id);if(t){t.prio=prio;sv();renderPrior();renderTop3();toast('Prioridade atualizada! 🎯');}}
 
 
+// ─── SUPABASE SYNC ───────────────────────────────────
+const SB_URL = 'https://ociznwaqwhhqlqfqmbiz.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jaXpud2Fxd2hoaWxxZnFtYml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1NjY5NzIsImV4cCI6MjA2MDE0Mjk3Mn0.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
+
+const sbHeaders = {
+  'Content-Type': 'application/json',
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY,
+  'Prefer': 'resolution=merge-duplicates'
+};
+
+async function sbUpsert(table, rows){
+  if(!rows.length) return;
+  try{
+    await fetch(`${SB_URL}/rest/v1/${table}`, {
+      method:'POST', headers:sbHeaders,
+      body: JSON.stringify(rows)
+    });
+  } catch(e){ console.warn('Supabase upsert error:', e); }
+}
+
+async function sbSelect(table){
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/${table}?select=*`, { headers:sbHeaders });
+    return await r.json();
+  } catch(e){ console.warn('Supabase select error:', e); return []; }
+}
+
+async function sbUpsertMisc(key, val){
+  try{
+    await fetch(`${SB_URL}/rest/v1/carol_misc`, {
+      method:'POST', headers:sbHeaders,
+      body: JSON.stringify({key, val: String(val), updated_at: new Date().toISOString()})
+    });
+  } catch(e){}
+}
+
+async function syncToSupabase(){
+  try {
+    // Tasks
+    await sbUpsert('carol_tasks', S.tasks.map(t=>({id:t.id, data:t, updated_at:new Date().toISOString()})));
+    // Habits
+    await sbUpsert('carol_habits', S.habits.map(h=>({id:h.id, data:h, updated_at:new Date().toISOString()})));
+    // Hlog
+    const hlogRows = Object.entries(S.hlog).map(([k,v])=>({key:k, val:v, updated_at:new Date().toISOString()}));
+    if(hlogRows.length) await sbUpsert('carol_hlog', hlogRows);
+    // Trans
+    await sbUpsert('carol_trans', S.trans.map(t=>({id:t.id, data:t, updated_at:new Date().toISOString()})));
+    // Notas
+    await sbUpsert('carol_notas', S.notas.map(n=>({id:n.id, data:n, updated_at:new Date().toISOString()})));
+    // Fus
+    await sbUpsert('carol_fus', S.fus.map(f=>({id:f.id, data:f, updated_at:new Date().toISOString()})));
+    // Reuns
+    await sbUpsert('carol_reuns', S.reuns.map(r=>({id:r.id, data:r, updated_at:new Date().toISOString()})));
+    // Misc
+    await sbUpsertMisc('agua', S.agua);
+    await sbUpsertMisc('freela', S.freelaHours||0);
+    console.log('☁️ Sync OK');
+  } catch(e){ console.warn('Sync error:', e); }
+}
+
+async function syncFromSupabase(){
+  try {
+    toast('☁️ Sincronizando...');
+    const [tasks, habits, hlog, trans, notas, fus, reuns, misc] = await Promise.all([
+      sbSelect('carol_tasks'),
+      sbSelect('carol_habits'),
+      sbSelect('carol_hlog'),
+      sbSelect('carol_trans'),
+      sbSelect('carol_notas'),
+      sbSelect('carol_fus'),
+      sbSelect('carol_reuns'),
+      sbSelect('carol_misc'),
+    ]);
+    if(tasks?.length)  S.tasks  = tasks.map(r=>r.data);
+    if(habits?.length) S.habits = habits.map(r=>r.data);
+    if(hlog?.length)   S.hlog   = Object.fromEntries(hlog.map(r=>[r.key, r.val]));
+    if(trans?.length)  S.trans  = trans.map(r=>r.data);
+    if(notas?.length)  S.notas  = notas.map(r=>r.data);
+    if(fus?.length)    S.fus    = fus.map(r=>r.data);
+    if(reuns?.length)  S.reuns  = reuns.map(r=>r.data);
+    if(misc?.length){
+      const agua = misc.find(m=>m.key==='agua'); if(agua) S.agua = parseInt(agua.val)||0;
+      const freela = misc.find(m=>m.key==='freela'); if(freela) S.freelaHours = parseFloat(freela.val)||0;
+    }
+    sv();
+    // Re-render tudo
+    initGreet(); renderTasks('todas'); renderHabits(); renderFin();
+    renderFus(); renderReuns(); renderNotas(); renderAguaCopos();
+    renderProjetos(); initRotina(); initSaude(); initOlivia(); initFreela();
+    toast('✅ Dados atualizados de todos os dispositivos!');
+  } catch(e){
+    console.warn('Sync from error:', e);
+    toast('❌ Erro ao sincronizar');
+  }
+}
+
+// Sobrescreve sv() pra sincronizar automaticamente após cada save
+const svOriginal = sv;
+function sv(){
+  svOriginal();
+  clearTimeout(sv._timer);
+  sv._timer = setTimeout(syncToSupabase, 1500); // debounce 1.5s
+}
+
+// Sincroniza ao abrir o app
+window.addEventListener('load', ()=>{
+  setTimeout(syncFromSupabase, 2000);
+});
+
+// Sincroniza ao voltar pro app (ex: iPhone sai do background)
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible'){
+    syncFromSupabase();
+  }
+});
+
 // ─── PWA SERVICE WORKER ──────────────────────────────
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').then(()=>{

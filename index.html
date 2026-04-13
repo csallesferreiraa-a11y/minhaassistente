@@ -262,6 +262,7 @@ main{padding-bottom:68px}
   <button class="nav" onclick="go('performance')" data-page="performance"><span class="nav-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="12" width="4" height="6" rx="1"/><rect x="8" y="7" width="4" height="11" rx="1"/><rect x="14" y="3" width="4" height="15" rx="1"/></svg></span>Performance</button>
 
   <button class="nav" onclick="go('calendario')" data-page="calendario"><span class="nav-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="14" rx="2"/><path d="M6 2v4M14 2v4M2 9h16"/><circle cx="7" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="10" cy="13" r=".8" fill="currentColor" stroke="none"/><circle cx="13" cy="13" r=".8" fill="currentColor" stroke="none"/></svg></span>Calendário</button>
+  <button class="nav" onclick="go('chat')" data-page="chat"><span class="nav-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h12a2 2 0 012 2v6a2 2 0 01-2 2H8l-4 3v-3H4a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg></span>Assistente IA</button>
 
   <div class="sb-section">Trabalho</div>
   <button class="nav" onclick="go('tarefas')" data-page="tarefas"><span class="nav-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h12M4 10h8M4 15h10"/><path d="M14 13l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Tarefas</button>
@@ -730,33 +731,6 @@ main{padding-bottom:68px}
     <div class="card"><div class="ct">por categoria</div><div id="cat-list" class="col"></div></div>
   </div>
 </div>
-
-<!-- ════ CALENDÁRIO ════ -->
-<div id="p-calendario" class="page">
-  <div class="ph">
-    <div><div class="pt">Calendário</div><div class="ps">Prazos, reuniões e datas importantes</div></div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="btn btn-g btn-sm" onclick="navMes(-1)">← Anterior</button>
-      <span id="cal-mes-label" style="font-size:13px;font-weight:800;color:var(--p600)"></span>
-      <button class="btn btn-g btn-sm" onclick="navMes(1)">Próximo →</button>
-      <button class="btn btn-o btn-sm" onclick="openM('m-evento')">+ Evento</button>
-    </div>
-  </div>
-
-  <!-- Mini calendário -->
-  <div class="card" style="margin-bottom:14px">
-    <div id="cal-grid"></div>
-  </div>
-
-  <!-- Eventos do dia selecionado -->
-  <div class="card" style="margin-bottom:14px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div class="ct" style="margin-bottom:0">📋 <span id="cal-dia-label">Selecione um dia</span></div>
-    </div>
-    <div id="cal-dia-eventos" class="col">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:12px">Clique em um dia para ver os eventos</div>
-    </div>
-  </div>
 
 <!-- ════ CHAT IA ════ -->
 <div id="p-chat" class="page">
@@ -1895,7 +1869,6 @@ function seedDados(){
   sv();
 
   localStorage.setItem('carol_seeded_v10', '1');
-  localStorage.setItem('_seedJustRan', '1');
 }
 
 function t(){return Date.now()+Math.floor(Math.random()*9999);}
@@ -2300,6 +2273,7 @@ function editTaskPrazo(id,prazo){const t=S.tasks.find(t=>t.id===id);if(t){t.praz
 
 // ─── SUPABASE SYNC ───────────────────────────────────
 const SB_URL = 'https://ociznwaqwhhqlqfqmbiz.supabase.co';
+const _svOrig = sv; // salva referência original antes de sobrescrever
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jaXpud2Fxd2hocWxxZnFtYml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwODU0OTQsImV4cCI6MjA5MTY2MTQ5NH0.uyhWj9_mBSpNJLxgYp7GrT0U9bpZ_EfBe1ypL1eKuzU';
 
 const sbHeaders = {
@@ -2361,7 +2335,6 @@ async function syncToSupabase(){
 
 async function syncFromSupabase(){
   try {
-    toast('☁️ Sincronizando...');
     const [tasks, habits, hlog, trans, notas, fus, reuns, misc] = await Promise.all([
       sbSelect('carol_tasks'),
       sbSelect('carol_habits'),
@@ -2372,31 +2345,36 @@ async function syncFromSupabase(){
       sbSelect('carol_reuns'),
       sbSelect('carol_misc'),
     ]);
-    if(tasks?.length)  S.tasks  = tasks.map(r=>r.data);
-    if(habits?.length) S.habits = habits.map(r=>r.data);
-    if(hlog?.length)   S.hlog   = Object.fromEntries(hlog.map(r=>[r.key, r.val]));
-    if(trans?.length)  S.trans  = trans.map(r=>r.data);
-    if(notas?.length)  S.notas  = notas.map(r=>r.data);
-    if(fus?.length)    S.fus    = fus.map(r=>r.data);
-    if(reuns?.length)  S.reuns  = reuns.map(r=>r.data);
+
+    // Só atualiza se Supabase tiver dados — nunca sobrescreve com vazio
+    let temDados = false;
+    if(tasks?.length)  { S.tasks  = tasks.map(r=>r.data); temDados=true; }
+    if(habits?.length) { S.habits = habits.map(r=>r.data); }
+    if(hlog?.length)   { S.hlog   = Object.fromEntries(hlog.map(r=>[r.key, r.val])); }
+    if(trans?.length)  { S.trans  = trans.map(r=>r.data); }
+    if(notas?.length)  { S.notas  = notas.map(r=>r.data); }
+    if(fus?.length)    { S.fus    = fus.map(r=>r.data); }
+    if(reuns?.length)  { S.reuns  = reuns.map(r=>r.data); }
     if(misc?.length){
       const agua = misc.find(m=>m.key==='agua'); if(agua) S.agua = parseInt(agua.val)||0;
       const freela = misc.find(m=>m.key==='freela'); if(freela) S.freelaHours = parseFloat(freela.val)||0;
     }
-    sv();
-    // Re-render tudo
+
+    // Salva localmente sem disparar novo syncToSupabase
+    _svOrig();
+
+    // Re-renderiza tudo
     initGreet(); renderTasks('todas'); renderHabits(); renderFin();
     renderFus(); renderReuns(); renderNotas(); renderAguaCopos();
-    renderProjetos(); renderRotina(); renderSaude(); renderOlivia(); renderFreelaPassos(); renderFreelaBlocos();
-    toast('✅ Dados atualizados de todos os dispositivos!');
+    renderProjetos();
+
+    if(temDados) toast('☁️ Sincronizado!');
   } catch(e){
     console.warn('Sync from error:', e);
-    toast('❌ Erro ao sincronizar');
   }
 }
 
 // Sobrescreve sv() pra sincronizar automaticamente após cada save
-const _svOrig = sv;
 sv = function(){
   _svOrig();
   clearTimeout(sv._timer);
@@ -2404,16 +2382,8 @@ sv = function(){
 };
 
 // Sincroniza ao abrir o app
-window.addEventListener('load', async ()=>{
-  // Se acabou de fazer seed, manda os dados pro Supabase primeiro
-  if(localStorage.getItem('_seedJustRan')){
-    localStorage.removeItem('_seedJustRan');
-    await syncToSupabase();
-    toast('✅ Dados iniciais salvos na nuvem!');
-  } else {
-    // Já tem dados — puxa do Supabase
-    setTimeout(syncFromSupabase, 1500);
-  }
+window.addEventListener('load', ()=>{
+  setTimeout(syncFromSupabase, 2000);
 });
 
 // Sincroniza ao voltar pro app (ex: iPhone sai do background)
@@ -2422,6 +2392,130 @@ document.addEventListener('visibilitychange', ()=>{
     syncFromSupabase();
   }
 });
+
+// ─── CHAT IA ────────────────────────────────────────────
+function getChatEls(){
+  return {
+    msgs: document.getElementById('chat-msgs'),
+    inp: document.getElementById('chat-inp'),
+    cfg: document.getElementById('chat-config')
+  };
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch] || ch));
+}
+
+function nl2br(str){
+  return escapeHtml(str).replace(/\n/g,'<br>');
+}
+
+function addChatMsg(role, html){
+  const els = getChatEls();
+  if(!els.msgs) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-msg' + (role==='user' ? ' user' : '');
+  wrap.innerHTML = `
+    <div class="chat-avatar ${role==='user'?'user':'ai'}">${role==='user'?'👤':'<svg viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="1.5" width="14" height="14"><path d="M10 17c-2 0-3.5-1.2-3.5-3.5 0-1.2.6-2.4 1.6-3.2L10 8l1.9 2.3c1 .8 1.6 2 1.6 3.2C13.5 15.8 12 17 10 17z"/><path d="M10 10c.4-1.6 1.6-3.2 3.2-4.4" stroke-linecap="round"/><path d="M13.2 5.6c0-1.6-.8-2.4-1.6-3.2" stroke-linecap="round"/></svg>'}</div>
+    <div class="chat-bubble ${role==='user'?'user':'ai'}">${html}</div>`;
+  els.msgs.appendChild(wrap);
+  els.msgs.scrollTop = els.msgs.scrollHeight;
+}
+
+function setChatLoading(on){
+  const ic = document.getElementById('chat-send-ic');
+  if(ic) ic.textContent = on ? '…' : '↑';
+}
+
+function updateChatConfig(){
+  const els = getChatEls();
+  if(!els.cfg) return;
+  const saved = localStorage.getItem('openai_api_key') || '';
+  els.cfg.style.display = saved ? 'none' : 'block';
+}
+
+function salvarChaveOpenAI(){
+  const inp = document.getElementById('openai-key-input');
+  if(!inp) return;
+  const key = inp.value.trim();
+  if(!key){ toast('Cole uma chave primeiro 🔑'); return; }
+  localStorage.setItem('openai_api_key', key);
+  inp.value='';
+  updateChatConfig();
+  toast('Chave salva no seu dispositivo 🔒');
+}
+
+function limparChat(){
+  const msgs = document.getElementById('chat-msgs');
+  if(!msgs) return;
+  msgs.innerHTML = `
+    <div class="chat-msg">
+      <div class="chat-avatar ai"><svg viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="1.5" width="14" height="14"><path d="M10 17c-2 0-3.5-1.2-3.5-3.5 0-1.2.6-2.4 1.6-3.2L10 8l1.9 2.3c1 .8 1.6 2 1.6 3.2C13.5 15.8 12 17 10 17z"/><path d="M10 10c.4-1.6 1.6-3.2 3.2-4.4" stroke-linecap="round"/><path d="M13.2 5.6c0-1.6-.8-2.4-1.6-3.2" stroke-linecap="round"/></svg></div>
+      <div class="chat-bubble ai">Oi Carol! 💕 Sou sua assistente pessoal. Posso resumir seu dia, listar atrasadas, te motivar e acompanhar a Olivia.</div>
+    </div>`;
+  toast('Chat limpo ✨');
+}
+
+function resumoDoDia(){
+  const pend = S.tasks.filter(t=>!t.done).length;
+  const feitas = S.tasks.filter(t=>t.done).length;
+  const atras = S.tasks.filter(t=>!t.done && t.prazo && t.prazo < today).length;
+  const hab = calcHabHoje();
+  return `Hoje você concluiu <b>${feitas}</b> tarefa(s), ainda tem <b>${pend}</b> pendente(s), <b>${atras}</b> atrasada(s) e seu progresso de hábitos está em <b>${hab}%</b>.`;
+}
+
+function topPrioridadesTexto(){
+  const top = S.tasks.filter(t=>!t.done).sort((a,b)=>scoreTask(b)-scoreTask(a)).slice(0,3);
+  if(!top.length) return 'Você não tem tarefas pendentes agora. Belo momento para descansar ou planejar o próximo passo. 💕';
+  return top.map((t,i)=>`${i+1}. <b>${escapeHtml(t.titulo)}</b> — ${(PM[t.prio]||PM.media)[1]} · ${escapeHtml(CL[t.ctx]||t.ctx)}`).join('<br>');
+}
+
+function replyChat(msg){
+  const m = msg.toLowerCase();
+  if(m.includes('prioriz')) return `Seu top 3 agora é:<br><br>${topPrioridadesTexto()}`;
+  if(m.includes('resumo') || m.includes('meu dia')) return resumoDoDia();
+  if(m.includes('atrasad')){
+    const atras = S.tasks.filter(t=>!t.done && t.prazo && t.prazo < today);
+    return atras.length ? 'Tarefas atrasadas:<br><br>' + atras.map(t=>`• <b>${escapeHtml(t.titulo)}</b> — prazo ${new Date(t.prazo+'T12:00').toLocaleDateString('pt-BR')}`).join('<br>') : 'Nenhuma tarefa atrasada no momento. ✅';
+  }
+  if(m.includes('olivia')){
+    const vac = (S.oliviaVacinas||[]).filter(v=>v.status!=='green').length;
+    const cuidados = (S.olivia||[]).filter(i=>i.tipo==='cuidado' && i.status!=='green').length;
+    return `Sobre a Olivia: há <b>${cuidados}</b> cuidado(s) em aberto e <b>${vac}</b> vacina(s)/procedimento(s) pendente(s). Dá uma olhada na aba dela para marcar o que já foi feito. 🐱`;
+  }
+  if(m.includes('motiva') || m.includes('desanim')) return 'Você já construiu muita coisa enquanto segura trabalho, casa, rotina e a Olivia. Não precisa fazer tudo hoje — só o próximo passo. 💕';
+  if(m.includes('semana')){
+    const semana = S.tasks.filter(t=>t.criado && t.criado >= addDays(today,-6));
+    const concl = semana.filter(t=>t.done).length;
+    return `Nesta janela dos últimos 7 dias você registrou <b>${semana.length}</b> tarefa(s) e concluiu <b>${concl}</b>. Continua avançando, mesmo nos dias puxados. ✨`;
+  }
+  return 'Posso te ajudar com prioridades, resumo do dia, tarefas atrasadas, motivação ou cuidados da Olivia. 💕';
+}
+
+function enviarChat(msg){
+  const texto = (msg || '').trim();
+  if(!texto) return;
+  addChatMsg('user', nl2br(texto));
+  setChatLoading(true);
+  setTimeout(()=>{
+    addChatMsg('ai', replyChat(texto));
+    setChatLoading(false);
+  }, 250);
+}
+
+function enviarChatInput(){
+  const inp = document.getElementById('chat-inp');
+  if(!inp) return;
+  const texto = inp.value.trim();
+  if(!texto) return;
+  inp.value='';
+  inp.style.height='44px';
+  enviarChat(texto);
+}
+
+function initChat(){
+  updateChatConfig();
+}
 
 // ─── CALENDÁRIO ──────────────────────────────────────
 let calMes = new Date().getMonth();

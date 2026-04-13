@@ -1644,10 +1644,11 @@ function addNota(){
   S.notas.unshift({id:Date.now(),txt,data:today});
   sv();inp.value='';renderNotas();toast('Nota salva! 📝');
 }
-document.getElementById('nota-inp').addEventListener('keydown',e=>{if(e.key==='Enter')addNota();});
+{ const notaInp = document.getElementById('nota-inp'); if(notaInp){ notaInp.addEventListener('keydown', e=>{ if(e.key==='Enter') addNota(); }); } }
 function renderNotas(){
   const el=document.getElementById('notas-list');
   const emp=document.getElementById('notas-empty');
+  if(!el) return;
   if(!S.notas.length){el.innerHTML='';if(emp)emp.style.display='block';return;}
   if(emp)emp.style.display='none';
   el.innerHTML=S.notas.map(n=>`<div class="card" style="position:relative"><div style="font-size:12px;font-weight:700;line-height:1.5;color:var(--txt)">${n.txt}</div><div style="font-size:10px;color:var(--light);font-weight:600;margin-top:6px">${new Date(n.data+'T12:00').toLocaleDateString('pt-BR')}</div><button class="bic" style="position:absolute;top:12px;right:12px;font-size:11px" onclick="delNota(${n.id})">🗑️</button></div>`).join('');

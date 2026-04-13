@@ -276,9 +276,7 @@ main{padding-bottom:68px}
   <button class="nav" onclick="go('olivia')" data-page="olivia"><span class="nav-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3l2 4H5a7 7 0 1010 0h-1L16 3l-3 3a7 7 0 00-6 0L4 3z"/><circle cx="8" cy="11" r=".8" fill="currentColor" stroke="none"/><circle cx="12" cy="11" r=".8" fill="currentColor" stroke="none"/></svg></span>Olivia</button>
   <button class="nav" onclick="go('freela')" data-page="freela"><span class="nav-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 3a4 4 0 010 8 4 4 0 01-4-4"/><circle cx="10" cy="10" r="2"/></svg></span>Freela & Estudos</button>
   <button class="nav" onclick="go('financas')" data-page="financas"><span class="nav-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="16" height="12" rx="2"/><path d="M2 9h16"/><circle cx="10" cy="14" r="1.5"/></svg></span>Finanças</button>
-  <button class="nav" onclick="go('notas')" data-page="notas"><span class="nav-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h9l3 3v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M13 4v3h3M7 9h6M7 12h6M7 15h3"/></svg></span>Notas & Insights</button>
 
-  <button class="nav" onclick="go('chat')" data-page="chat"><span class="nav-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="14" height="10" rx="3"/><path d="M7 10h.01M10 10h.01M13 10h.01" stroke-width="2" stroke-linecap="round"/><path d="M7 3h6M10 3v3"/></svg></span>IA Assistente</button>
 
   <div class="sb-foot">🍒 feito pra você</div>
 </aside>
@@ -818,17 +816,6 @@ main{padding-bottom:68px}
   </div>
 </div>
 
-<!-- ════ NOTAS ════ -->
-<div id="p-notas" class="page">
-  <div class="ph"><div class="pt">Notas</div><div class="ps">Capture tudo — a mente criativa não pode perder ideias</div></div>
-  <div id="notas-list" class="col"></div>
-  <div id="notas-empty" style="text-align:center;padding:40px 20px">
-    <div style="font-size:32px;margin-bottom:12px;opacity:.3">📝</div>
-    <div style="font-size:13px;font-weight:600;color:var(--muted)">Nenhuma nota ainda</div>
-    <div style="font-size:12px;color:var(--light);margin-top:4px;font-weight:500">Use a barra abaixo pra capturar ideias, links e lembretes</div>
-  </div>
-</div>
-
 <!-- ════ CALENDÁRIO ════ -->
 <div id="p-calendario" class="page">
   <div class="ph">
@@ -1090,13 +1077,6 @@ main{padding-bottom:68px}
   <div style="margin-top:20px;font-size:12px;color:var(--muted);font-weight:600">Respirа. Uma coisa por vez. Você consegue 💕</div>
 </div>
 
-<!-- NOTA RÁPIDA -->
-<div class="nota-bar">
-  <span style="font-size:14px">📝</span>
-  <input class="nota-inp" id="nota-inp" placeholder="Capturar ideia, tarefa ou lembrete rápido... (Enter pra salvar)">
-  <button class="btn btn-p btn-sm" onclick="addNota()">+ Salvar</button>
-</div>
-
 <!-- TOAST -->
 <div class="tw" id="tw"></div>
 
@@ -1154,10 +1134,10 @@ function go(name){
   if(name==='prioridades')renderPrior();
   if(name==='radar')renderRadar();
   if(name==='performance')renderPerf();
-  if(name==='notas')renderNotas();
+  
   if(name==='olivia')renderAguaCopos();
   if(name==='calendario'){calMes=new Date().getMonth();calAno=new Date().getFullYear();renderCalendario();}
-  if(name==='chat'){initChat();}
+  
 }
 
 // ─── MODAL ───────────────────────────────────────────
@@ -1832,7 +1812,7 @@ function gerarResumoSemanal(){
 
 // ─── SEED DE DADOS REAIS DA CAROL ────────────────────
 function seedDados(){
-  if(localStorage.getItem('carol_seeded_v8')) return;
+  if(localStorage.getItem('carol_seeded_v9')) return;
 
   // ── TAREFAS APEX (do kanban) ──────────────────────
   const tarefasApex = [
@@ -1914,7 +1894,7 @@ function seedDados(){
   ];
   sv();
 
-  localStorage.setItem('carol_seeded_v8', '1');
+  localStorage.setItem('carol_seeded_v9', '1');
 }
 
 function t(){return Date.now()+Math.floor(Math.random()*9999);}
@@ -2652,200 +2632,6 @@ function renderProximosEventos(){
     :`<div style="font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:20px">Sem eventos nos próximos 30 dias 💕</div>`;
 }
 
-// ─── CHAT IA ─────────────────────────────────────────
-let chatHistory = [];
-
-function getOpenAIKey(){return localStorage.getItem('carol_openai_key')||'';}
-function salvarChaveOpenAI(){
-  const k=document.getElementById('openai-key-input').value.trim();
-  if(!k.startsWith('sk-')){toast('Chave inválida — começa com sk-');return;}
-  localStorage.setItem('carol_openai_key',k);
-  document.getElementById('chat-config').style.display='none';
-  toast('Chave salva! Pode começar a conversar 🤖');
-}
-
-function initChat(){
-  const key=getOpenAIKey();
-  const config=document.getElementById('chat-config');
-  if(config) config.style.display=key?'none':'block';
-}
-
-function buildContexto(){
-  const tarefasPendentes=S.tasks.filter(t=>!t.done).sort((a,b)=>scoreTask(b)-scoreTask(a)).slice(0,10);
-  const tarefasAtrasadas=S.tasks.filter(t=>!t.done&&t.prazo&&t.prazo<today);
-  const habitosHoje=S.habits.map(h=>({nome:h.nome,feito:!!S.hlog[`${h.id}_${today}`]}));
-  const saldoMes=S.trans.filter(t=>{const m=new Date().toISOString().slice(0,7);return t.data&&t.data.startsWith(m);}).reduce((s,t)=>t.tipo==='receita'?s+t.valor:s-t.valor,0);
-  const agua=S.agua;
-  const diaSemana=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'][new Date().getDay()];
-  const hora=new Date().getHours();
-  const periodo=hora<12?'manhã':hora<18?'tarde':'noite';
-
-  return `Você é a assistente pessoal da Carol, uma designer de 20 e poucos anos que trabalha na APEX Partners (empresa de branding e design) em São Paulo. Ela mora sozinha com a gatinha Olivia (2 meses). É criativa, ansiosa, procrastina às vezes, mas muito talentosa. Quer fazer freela de design e sonha em viajar.
-
-DADOS ATUAIS (hoje é ${diaSemana}, ${new Date().toLocaleDateString('pt-BR')}, ${periodo}):
-
-📋 TAREFAS PENDENTES (${tarefasPendentes.length} no total):
-${tarefasPendentes.map((t,i)=>`${i+1}. ${t.titulo} [${t.prio}] [${t.ctx}]${t.prazo?' prazo:'+new Date(t.prazo+'T12:00').toLocaleDateString('pt-BR'):''}`).join('\n')}
-
-${tarefasAtrasadas.length?`⚠️ ATRASADAS (${tarefasAtrasadas.length}): ${tarefasAtrasadas.map(t=>t.titulo).join(', ')}`:''}
-
-🌿 HÁBITOS HOJE:
-${habitosHoje.map(h=>`${h.feito?'✅':'❌'} ${h.nome}`).join(' | ')}
-
-💧 Água: ${agua}/8 copos
-💰 Saldo do mês: R$${saldoMes.toFixed(2)}
-
-🐱 Olivia: 2 meses, precisa de vacinas e vet urgente.
-
-PERSONALIDADE DA ASSISTENTE:
-- Fala como uma amiga próxima, calorosa, direta e encorajadora
-- Usa emojis com moderação
-- Conhece a rotina da Carol de cor
-- Quando Carol pede pra adicionar tarefa/nota, responde confirmando E retorna um JSON de ação
-- É objetiva mas afetuosa
-
-AÇÕES DISPONÍVEIS:
-Quando Carol pedir pra adicionar algo, inclua no fim da resposta um JSON assim (invisível pro usuário):
-[[ACAO:{"tipo":"tarefa","titulo":"...","ctx":"apex|pessoal|freela","prio":"critica|alta|media|baixa","prazo":"YYYY-MM-DD ou vazio"}]]
-[[ACAO:{"tipo":"nota","texto":"..."}]]
-[[ACAO:{"tipo":"fu","titulo":"...","prazo":"YYYY-MM-DD ou vazio"}]]
-
-Responda sempre em português, de forma natural e pessoal.`;
-}
-
-async function enviarChat(msg){
-  if(!msg.trim())return;
-  const key=getOpenAIKey();
-  if(!key){
-    document.getElementById('chat-config').style.display='block';
-    toast('Configure sua chave OpenAI primeiro! ⚙️');
-    return;
-  }
-
-  // Esconde sugestões após primeira mensagem
-  const sug=document.getElementById('chat-sugestoes');
-  if(sug)sug.style.display='none';
-
-  // Adiciona mensagem do usuário
-  adicionarMensagem('user',msg);
-  chatHistory.push({role:'user',content:msg});
-
-  // Mostra typing
-  const typingId='typing-'+Date.now();
-  adicionarTyping(typingId);
-
-  const sendBtn=document.getElementById('chat-send-ic');
-  if(sendBtn)sendBtn.textContent='⏳';
-
-  try {
-    const res=await fetch('https://api.openai.com/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body:JSON.stringify({
-        model:'gpt-4o-mini',
-        max_tokens:600,
-        messages:[
-          {role:'system',content:buildContexto()},
-          ...chatHistory.slice(-10) // últimas 10 mensagens de contexto
-        ]
-      })
-    });
-
-    const data=await res.json();
-
-    if(data.error){
-      removerTyping(typingId);
-      adicionarMensagem('ai','❌ Erro: '+data.error.message);
-      if(sendBtn)sendBtn.textContent='↑';
-      return;
-    }
-
-    let resposta=data.choices?.[0]?.message?.content||'Não entendi, pode repetir?';
-    chatHistory.push({role:'assistant',content:resposta});
-
-    // Processa ações
-    const acoes=resposta.match(/\[\[ACAO:(.*?)\]\]/g);
-    if(acoes){
-      acoes.forEach(a=>{
-        try{
-          const json=JSON.parse(a.replace('[[ACAO:','').replace(']]',''));
-          executarAcaoIA(json);
-        }catch(e){}
-      });
-      resposta=resposta.replace(/\[\[ACAO:.*?\]\]/g,'').trim();
-    }
-
-    removerTyping(typingId);
-    adicionarMensagem('ai',resposta);
-
-  } catch(e){
-    removerTyping(typingId);
-    adicionarMensagem('ai','❌ Erro de conexão. Verifique sua chave e tente novamente.');
-  }
-
-  if(sendBtn)sendBtn.textContent='↑';
-}
-
-function executarAcaoIA(acao){
-  if(acao.tipo==='tarefa'){
-    S.tasks.push({
-      id:Date.now(),titulo:acao.titulo,ctx:acao.ctx||'pessoal',
-      prio:acao.prio||'media',imp:'medio',esf:'medio',
-      prazo:acao.prazo||'',nota:'Adicionada pela IA 🤖',done:false,criado:today
-    });
-    sv();renderTasks(curFilter||'todas');
-    toast('✅ Tarefa "'+acao.titulo+'" adicionada!');
-  } else if(acao.tipo==='nota'){
-    S.notas.unshift({id:Date.now(),txt:acao.texto,data:today});
-    sv();renderNotas();
-    toast('📝 Nota salva!');
-  } else if(acao.tipo==='fu'){
-    S.fus.unshift({id:Date.now(),titulo:acao.titulo,prazo:acao.prazo||'',done:false});
-    sv();renderFus();
-    toast('🔁 Follow-up adicionado!');
-  }
-}
-
-function adicionarMensagem(tipo,texto){
-  const el=document.getElementById('chat-msgs');if(!el)return;
-  const div=document.createElement('div');
-  div.className=`chat-msg ${tipo}`;
-  const textoFormatado=texto
-    .replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')
-    .replace(/\n/g,'<br>');
-  div.innerHTML=`
-    <div class="chat-avatar ${tipo}">${tipo==='ai'?'🍒':'👤'}</div>
-    <div class="chat-bubble ${tipo}">${textoFormatado}</div>`;
-  el.appendChild(div);
-  el.scrollTop=el.scrollHeight;
-}
-
-function adicionarTyping(id){
-  const el=document.getElementById('chat-msgs');if(!el)return;
-  const div=document.createElement('div');
-  div.className='chat-msg';div.id=id;
-  div.innerHTML=`<div class="chat-avatar ai"><svg viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="1.5" width="14" height="14"><path d="M10 17c-2 0-3.5-1.2-3.5-3.5 0-1.2.6-2.4 1.6-3.2L10 8l1.9 2.3c1 .8 1.6 2 1.6 3.2C13.5 15.8 12 17 10 17z"/><path d="M10 10c.4-1.6 1.6-3.2 3.2-4.4" stroke-linecap="round"/><path d="M13.2 5.6c0-1.6-.8-2.4-1.6-3.2" stroke-linecap="round"/></svg></div><div class="chat-bubble ai"><div class="chat-typing"><div class="chat-dot"></div><div class="chat-dot"></div><div class="chat-dot"></div></div></div>`;
-  el.appendChild(div);el.scrollTop=el.scrollHeight;
-}
-
-function removerTyping(id){document.getElementById(id)?.remove();}
-
-function enviarChatInput(){
-  const inp=document.getElementById('chat-inp');
-  const msg=inp?.value.trim();
-  if(!msg)return;
-  inp.value='';inp.style.height='auto';
-  enviarChat(msg);
-}
-
-function limparChat(){
-  chatHistory=[];
-  const el=document.getElementById('chat-msgs');
-  if(el)el.innerHTML=`<div class="chat-msg"><div class="chat-avatar ai"><svg viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="1.5" width="14" height="14"><path d="M10 17c-2 0-3.5-1.2-3.5-3.5 0-1.2.6-2.4 1.6-3.2L10 8l1.9 2.3c1 .8 1.6 2 1.6 3.2C13.5 15.8 12 17 10 17z"/><path d="M10 10c.4-1.6 1.6-3.2 3.2-4.4" stroke-linecap="round"/><path d="M13.2 5.6c0-1.6-.8-2.4-1.6-3.2" stroke-linecap="round"/></svg></div><div class="chat-bubble ai">Chat limpo! Como posso te ajudar? 💕</div></div>`;
-  const sug=document.getElementById('chat-sugestoes');
-  if(sug)sug.style.display='block';
-}
-
 // ─── NOTIFICAÇÕES PUSH ───────────────────────────────
 function pedirPermissaoNotificacoes(){
   if(!('Notification' in window)){toast('Seu navegador não suporta notificações 😢');return;}
@@ -2919,7 +2705,6 @@ function agendarNotificacoes(){
 }
 
 // ─── INIT CHAT + NOTIFICAÇÕES ────────────────────────
-initChat();
 if(localStorage.getItem('carol_notif')==='1'){
   agendarNotificacoes();
 }

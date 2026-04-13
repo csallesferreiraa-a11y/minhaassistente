@@ -1812,7 +1812,7 @@ function gerarResumoSemanal(){
 
 // ─── SEED DE DADOS REAIS DA CAROL ────────────────────
 function seedDados(){
-  if(localStorage.getItem('carol_seeded_v9')) return;
+  if(localStorage.getItem('carol_seeded_v10')) return;
 
   // ── TAREFAS APEX (do kanban) ──────────────────────
   const tarefasApex = [
@@ -1894,7 +1894,8 @@ function seedDados(){
   ];
   sv();
 
-  localStorage.setItem('carol_seeded_v9', '1');
+  localStorage.setItem('carol_seeded_v10', '1');
+  localStorage.setItem('_seedJustRan', '1');
 }
 
 function t(){return Date.now()+Math.floor(Math.random()*9999);}
@@ -2403,8 +2404,16 @@ sv = function(){
 };
 
 // Sincroniza ao abrir o app
-window.addEventListener('load', ()=>{
-  setTimeout(syncFromSupabase, 2000);
+window.addEventListener('load', async ()=>{
+  // Se acabou de fazer seed, manda os dados pro Supabase primeiro
+  if(localStorage.getItem('_seedJustRan')){
+    localStorage.removeItem('_seedJustRan');
+    await syncToSupabase();
+    toast('✅ Dados iniciais salvos na nuvem!');
+  } else {
+    // Já tem dados — puxa do Supabase
+    setTimeout(syncFromSupabase, 1500);
+  }
 });
 
 // Sincroniza ao voltar pro app (ex: iPhone sai do background)

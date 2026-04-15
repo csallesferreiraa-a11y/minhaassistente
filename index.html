@@ -11,7 +11,25 @@
 <meta name="apple-mobile-web-app-title" content="Minha Assistente">
 <meta name="theme-color" content="#e8306e">
 <title>Minha Assistente 🍒</title>
-<link rel="manifest" href="/manifest.json">
+<!-- manifest inline -->
+<script>
+if(typeof navigator !== "undefined"){
+  const manifestData = {
+    name: "Minha Assistente 🍒",
+    short_name: "Assistente",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#f4f2f6",
+    theme_color: "#e8306e",
+    icons: []
+  };
+  const blob = new Blob([JSON.stringify(manifestData)], {type:"application/manifest+json"});
+  const url = URL.createObjectURL(blob);
+  const el = document.createElement("link");
+  el.rel = "manifest"; el.href = url;
+  document.head.appendChild(el);
+}
+</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='bg' cx='50%25' cy='35%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ff6b8a'/%3E%3Cstop offset='100%25' stop-color='%23c0103a'/%3E%3C/radialGradient%3E%3CradialGradient id='bg2' cx='50%25' cy='35%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ff8fa8'/%3E%3Cstop offset='100%25' stop-color='%23d01545'/%3E%3C/radialGradient%3E%3CradialGradient id='shine' cx='38%25' cy='28%25' r='38%25'%3E%3Cstop offset='0%25' stop-color='white' stop-opacity='0.72'/%3E%3Cstop offset='100%25' stop-color='white' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='shine2' cx='38%25' cy='28%25' r='38%25'%3E%3Cstop offset='0%25' stop-color='white' stop-opacity='0.72'/%3E%3Cstop offset='100%25' stop-color='white' stop-opacity='0'/%3E%3C/radialGradient%3E%3Cfilter id='shadow'%3E%3CfeDropShadow dx='0' dy='2' stdDeviation='2.5' flood-color='%23800020' flood-opacity='0.45'/%3E%3C/filter%3E%3C/defs%3E%3C!-- left cherry --%3E%3Ccircle cx='22' cy='40' r='14' fill='url(%23bg)' filter='url(%23shadow)'/%3E%3Ccircle cx='22' cy='40' r='14' fill='url(%23shine)'/%3E%3C!-- right cherry --%3E%3Ccircle cx='40' cy='43' r='13' fill='url(%23bg2)' filter='url(%23shadow)'/%3E%3Ccircle cx='40' cy='43' r='13' fill='url(%23shine2)'/%3E%3C!-- stems --%3E%3Cpath d='M22 26 Q24 16 32 12 Q36 10 40 14 Q42 18 40 30' fill='none' stroke='%232d6e2d' stroke-width='2.2' stroke-linecap='round'/%3E%3C!-- leaf --%3E%3Cellipse cx='33' cy='13' rx='5' ry='3' fill='%2338a038' transform='rotate(-30 33 13)'/%3E%3Cellipse cx='33' cy='13' rx='5' ry='3' fill='none' stroke='%232d6e2d' stroke-width='.6' transform='rotate(-30 33 13)'/%3E%3C!-- glass overlay --%3E%3Ccircle cx='22' cy='40' r='14' fill='none' stroke='rgba(255,255,255,0.25)' stroke-width='1'/%3E%3Ccircle cx='40' cy='43' r='13' fill='none' stroke='rgba(255,255,255,0.2)' stroke-width='1'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='bg' cx='50%25' cy='35%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ff6b8a'/%3E%3Cstop offset='100%25' stop-color='%23c0103a'/%3E%3C/radialGradient%3E%3CradialGradient id='bg2' cx='50%25' cy='35%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23ff8fa8'/%3E%3Cstop offset='100%25' stop-color='%23d01545'/%3E%3C/radialGradient%3E%3CradialGradient id='shine' cx='38%25' cy='28%25' r='38%25'%3E%3Cstop offset='0%25' stop-color='white' stop-opacity='0.72'/%3E%3Cstop offset='100%25' stop-color='white' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='shine2' cx='38%25' cy='28%25' r='38%25'%3E%3Cstop offset='0%25' stop-color='white' stop-opacity='0.72'/%3E%3Cstop offset='100%25' stop-color='white' stop-opacity='0'/%3E%3C/radialGradient%3E%3Cfilter id='shadow'%3E%3CfeDropShadow dx='0' dy='2' stdDeviation='2.5' flood-color='%23800020' flood-opacity='0.45'/%3E%3C/filter%3E%3C/defs%3E%3Ccircle cx='22' cy='40' r='14' fill='url(%23bg)' filter='url(%23shadow)'/%3E%3Ccircle cx='22' cy='40' r='14' fill='url(%23shine)'/%3E%3Ccircle cx='40' cy='43' r='13' fill='url(%23bg2)' filter='url(%23shadow)'/%3E%3Ccircle cx='40' cy='43' r='13' fill='url(%23shine2)'/%3E%3Cpath d='M22 26 Q24 16 32 12 Q36 10 40 14 Q42 18 40 30' fill='none' stroke='%232d6e2d' stroke-width='2.2' stroke-linecap='round'/%3E%3Cellipse cx='33' cy='13' rx='5' ry='3' fill='%2338a038' transform='rotate(-30 33 13)'/%3E%3Ccircle cx='22' cy='40' r='14' fill='none' stroke='rgba(255,255,255,0.25)' stroke-width='1'/%3E%3Ccircle cx='40' cy='43' r='13' fill='none' stroke='rgba(255,255,255,0.2)' stroke-width='1'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -4471,8 +4489,7 @@ function notif(titulo,corpo,icone='🍒'){
   try{
     new Notification(titulo,{
       body:corpo,
-      icon:'/icons/icon-192.png',
-      badge:'/icons/favicon-32.png',
+      // ícones omitidos (paths relativos não garantidos em todos os hosts)
       tag:titulo,
     });
   }catch(e){}
@@ -4598,7 +4615,7 @@ function agendarNotifLembrete(item){
   setTimeout(() => {
     new Notification('📌 Lembrete — Minha Assistente', {
       body: item.texto,
-      icon: '/favicon.ico'
+      // icon omitido
     });
   }, diff);
 }
@@ -4689,9 +4706,11 @@ window.addEventListener('storage', e => {
   }
 });
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js').then(()=>{
-    console.log('SW registered ✅');
-  }).catch(e=>console.log('SW error:',e));
+  // Detecta o base path automaticamente para funcionar em GitHub Pages
+  const swBase = location.pathname.replace(/\/[^\/]*$/, '') + '/sw.js';
+  navigator.serviceWorker.register(swBase)
+    .then(()=>console.log('SW registered ✅'))
+    .catch(()=>{}); // sem sw.js no repo = silencioso
 }
 
 // ─── PWA INSTALL PROMPT ──────────────────────────────

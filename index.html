@@ -3790,75 +3790,170 @@ const sbHeaders = {
   'Prefer': 'resolution=merge-duplicates'
 };
 
+// Upsert genérico para tabelas com coluna "id"
 async function sbUpsert(table, rows){
-  if(!rows.length) return;
+  if(!rows || !rows.length) return;
   try{
-    await fetch(`${SB_URL}/rest/v1/${table}`, {
-      method:'POST', headers:sbHeaders,
-      body: JSON.stringify(rows)
+    const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+      method:'POST', headers:sbHeaders, body:JSON.stringify(rows)
     });
-  } catch(e){ console.warn('Supabase upsert error:', e); }
+    if(!r.ok){ const t=await r.text(); console.warn(`sbUpsert ${table}:`, t); }
+  } catch(e){ console.warn('sbUpsert error:', table, e); }
 }
 
-async function sbSelect(table){
-  try{
-    const r = await fetch(`${SB_URL}/rest/v1/${table}?select=*`, { headers:sbHeaders });
-    return await r.json();
-  } catch(e){ console.warn('Supabase select error:', e); return []; }
-}
-
+// Upsert para carol_misc (key/val)
 async function sbUpsertMisc(key, val){
   try{
-    await fetch(`${SB_URL}/rest/v1/carol_misc`, {
+    const r = await fetch(`${SB_URL}/rest/v1/carol_misc`, {
       method:'POST', headers:sbHeaders,
-      body: JSON.stringify({key, val: String(val), updated_at: new Date().toISOString()})
+      body: JSON.stringify({key, val: typeof val === 'string' ? val : JSON.stringify(val), updated_at: new Date().toISOString()})
     });
-  } catch(e){}
+    if(!r.ok){ const t=await r.text(); console.warn(`sbUpsertMisc ${key}:`, t); }
+  } catch(e){ console.warn('sbUpsertMisc error:', e); }
+}
+
+// Upsert para carol_hlog (key/val, sem coluna id)
+async function sbUpsertHlog(rows){
+  if(!rows || !rows.length) return;
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/carol_hlog`, {
+      method:'POST', headers:sbHeaders, body:JSON.stringify(rows)
+    });
+    if(!r.ok){ const t=await r.text(); console.warn('sbUpsertHlog:', t); }
+  } catch(e){ console.warn('sbUpsertHlog error:', e); }
+}
+
+// Select genérico (tabelas com "id")
+async function sbSelect(table){
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/${table}?select=*`, {headers:sbHeaders});
+    if(!r.ok) return [];
+    return await r.json();
+  } catch(e){ console.warn('sbSelect error:', table, e); return []; }
+}
+
+// Select para carol_misc por key prefix ou tudo
+async function sbSelectMisc(keyFilter){
+  try{
+    const qs = keyFilter ? `?key=like.${encodeURIComponent(keyFilter+'*')}&select=*` : '?select=*';
+    const r = await fetch(`${SB_URL}/rest/v1/carol_misc${qs}`, {headers:sbHeaders});
+    if(!r.ok) return [];
+    return await r.json();
+  } catch(e){ console.warn('sbSelectMisc error:', e); return []; }
+}
+
+// Select para carol_hlog (key/val sem id)
+async function sbSelectHlog(){
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/carol_hlog?select=key,val`, {headers:sbHeaders});
+    if(!r.ok) return [];
+    return await r.json();
+  } catch(e){ console.warn('sbSelectHlog error:', e); return []; }
 }
 
 async function syncToSupabase(){
   try {
-    await sbUpsert('carol_tasks', S.tasks.map(t=>({id:t.id, data:t, updated_at:new Date().toISOString()})));
-    await sbUpsert('carol_habits', S.habits.map(h=>({id:h.id, data:h, updated_at:new Date().toISOString()})));
-    const hlogRows = Object.entries(S.hlog).map(([k,v])=>({key:k, val:v, updated_at:new Date().toISOString()}));
-    if(hlogRows.length) await sbUpsert('carol_hlog', hlogRows);
-    await sbUpsert('carol_trans', S.trans.map(t=>({id:t.id, data:t, updated_at:new Date().toISOString()})));
-    await sbUpsert('carol_notas', S.notas.map(n=>({id:n.id, data:n, updated_at:new Date().toISOString()})));
-    await sbUpsert('carol_fus', S.fus.map(f=>({id:f.id, data:f, updated_at:new Date().toISOString()})));
-    await sbUpsert('carol_reuns', S.reuns.map(r=>({id:r.id, data:r, updated_at:new Date().toISOString()})));
-    if((S.lixo||[]).length) await sbUpsert('carol_lixo', S.lixo.map(t=>({id:t.id, data:t, updated_at:new Date().toISOString()})));
-    await sbUpsertMisc('agua', S.agua);
-    await sbUpsertMisc('freela', S.freelaHours||0);
+    const ts = new Date().toISOString();
+
+    // Tabelas com id próprio
+    if(S.tasks.length)  await sbUpsert('carol_tasks',  S.tasks.map(t=>({id:t.id, data:t, updated_at:ts})));
+    if(S.habits.length) await sbUpsert('carol_habits', S.habits.map(h=>({id:h.id, data:h, updated_at:ts})));
+    if(S.trans.length)  await sbUpsert('carol_trans',  S.trans.map(t=>({id:t.id, data:t, updated_at:ts})));
+    if(S.notas.length)  await sbUpsert('carol_notas',  S.notas.map(n=>({id:n.id, data:n, updated_at:ts})));
+    if(S.fus.length)    await sbUpsert('carol_fus',    S.fus.map(f=>({id:f.id, data:f, updated_at:ts})));
+    if(S.reuns.length)  await sbUpsert('carol_reuns',  S.reuns.map(r=>({id:r.id, data:r, updated_at:ts})));
+
+    // carol_hlog (key/val, sem id)
+    const hlogRows = Object.entries(S.hlog).map(([k,v])=>({key:k, val:v, updated_at:ts}));
+    if(hlogRows.length) await sbUpsertHlog(hlogRows);
+
+    // Tudo que não tem tabela própria → carol_misc como KV store
+    await sbUpsertMisc('agua', String(S.agua));
+    await sbUpsertMisc('freela', String(S.freelaHours||0));
+
+    // Lixo (array inteiro como JSON string)
+    const lixo = S.lixo || [];
+    await sbUpsertMisc('lixo', JSON.stringify(lixo));
+
+    // Lembretes
+    const lems = getLembretes ? getLembretes() : [];
+    await sbUpsertMisc('lembretes', JSON.stringify(lems));
+
+    // Eventos do calendário
+    const evs = getEventos ? getEventos() : [];
+    await sbUpsertMisc('eventos', JSON.stringify(evs));
+
+    // Foco do dia
+    const focoHoje = localStorage.getItem('carol_foco_hoje');
+    if(focoHoje) await sbUpsertMisc('foco_hoje_' + today, focoHoje);
+
+    // Energia do dia
+    const energia = localStorage.getItem('carol_energia_hoje');
+    if(energia) await sbUpsertMisc('energia_hoje', energia);
+
+    // Checklist Olivia hoje
+    const oliviaHoje = localStorage.getItem(getOliviaHojeKey());
+    if(oliviaHoje) await sbUpsertMisc('olivia_hoje_' + today, oliviaHoje);
+
     console.log('☁️ Sync OK');
   } catch(e){ console.warn('Sync error:', e); }
 }
 
 async function syncFromSupabase(){
   try {
-    const [tasks, habits, hlog, trans, notas, fus, reuns, lixo, misc] = await Promise.all([
+    // Busca tudo em paralelo
+    const [tasks, habits, hlogArr, trans, notas, fus, reuns, miscAll] = await Promise.all([
       sbSelect('carol_tasks'),
       sbSelect('carol_habits'),
-      sbSelect('carol_hlog'),
+      sbSelectHlog(),
       sbSelect('carol_trans'),
       sbSelect('carol_notas'),
       sbSelect('carol_fus'),
       sbSelect('carol_reuns'),
-      sbSelect('carol_lixo'),
-      sbSelect('carol_misc'),
+      sbSelectMisc(''),
     ]);
 
     let temDados = false;
-    if(tasks?.length)  { S.tasks  = tasks.map(r=>r.data); temDados=true; }
+
+    if(tasks?.length)  { S.tasks  = tasks.map(r=>r.data);  temDados=true; }
     if(habits?.length) { S.habits = habits.map(r=>r.data); }
-    if(hlog?.length)   { S.hlog   = Object.fromEntries(hlog.map(r=>[r.key, r.val])); }
-    if(trans?.length)  { S.trans  = trans.map(r=>r.data); }
-    if(notas?.length)  { S.notas  = notas.map(r=>r.data); }
-    if(fus?.length)    { S.fus    = fus.map(r=>r.data); }
-    if(reuns?.length)  { S.reuns  = reuns.map(r=>r.data); }
-    if(lixo?.length)   { S.lixo   = lixo.map(r=>r.data); }
-    if(misc?.length){
-      const agua = misc.find(m=>m.key==='agua'); if(agua) S.agua = parseInt(agua.val)||0;
-      const freela = misc.find(m=>m.key==='freela'); if(freela) S.freelaHours = parseFloat(freela.val)||0;
+    if(hlogArr?.length){ S.hlog   = Object.fromEntries(hlogArr.map(r=>[r.key, r.val])); }
+    if(trans?.length)  { S.trans  = trans.map(r=>r.data);  }
+    if(notas?.length)  { S.notas  = notas.map(r=>r.data);  }
+    if(fus?.length)    { S.fus    = fus.map(r=>r.data);    }
+    if(reuns?.length)  { S.reuns  = reuns.map(r=>r.data);  }
+
+    // Processa carol_misc
+    if(miscAll?.length){
+      const get = key => miscAll.find(m=>m.key===key);
+      const parse = (key, fallback) => { const m=get(key); if(!m) return fallback; try{ return JSON.parse(m.val); }catch{ return m.val||fallback; }};
+
+      const agua = get('agua');   if(agua)   S.agua        = parseInt(agua.val)||0;
+      const freela = get('freela'); if(freela) S.freelaHours = parseFloat(freela.val)||0;
+
+      // Lixo
+      const lixoData = parse('lixo', null);
+      if(Array.isArray(lixoData)) S.lixo = lixoData;
+
+      // Lembretes
+      const lemsData = parse('lembretes', null);
+      if(Array.isArray(lemsData)) localStorage.setItem('c_lembretes', JSON.stringify(lemsData));
+
+      // Eventos
+      const evsData = parse('eventos', null);
+      if(Array.isArray(evsData)) localStorage.setItem('c_eventos', JSON.stringify(evsData));
+
+      // Foco do dia
+      const focoHoje = get('foco_hoje_' + today);
+      if(focoHoje) localStorage.setItem('carol_foco_hoje', focoHoje.val);
+
+      // Energia do dia
+      const energiaHoje = get('energia_hoje');
+      if(energiaHoje) localStorage.setItem('carol_energia_hoje', energiaHoje.val);
+
+      // Checklist Olivia hoje
+      const oliviaHoje = get('olivia_hoje_' + today);
+      if(oliviaHoje) localStorage.setItem(getOliviaHojeKey(), oliviaHoje.val);
     }
 
     // Salva localmente sem disparar novo syncToSupabase
@@ -3874,6 +3969,8 @@ async function syncFromSupabase(){
     initEnergia(); syncFocoCard(); renderTop3(); renderAlertas();
     renderOliviaHoje(); renderHistoricoSemana();
     renderHomeDashboard(); renderHomeInsights();
+    if(typeof renderDashLembretes==='function') renderDashLembretes();
+    if(typeof renderCalendario==='function') renderCalendario();
 
     // Atualiza status de sync
     const sbStatus = document.getElementById('sb-status');
@@ -3883,6 +3980,8 @@ async function syncFromSupabase(){
     if(temDados) toast('☁️ Sincronizado com a nuvem!');
   } catch(e){
     console.warn('Sync from error:', e);
+    const sbStatus = document.getElementById('sb-status');
+    if(sbStatus) sbStatus.textContent = '⚠️ Erro na sincronização — verifique conexão';
   }
 }
 

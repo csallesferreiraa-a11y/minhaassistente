@@ -362,6 +362,9 @@ body{
 
 /* ── GRID 2 COLUNAS INTERNO ── */
 .home-grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--grid-gap);min-width:0;align-items:start;}
+.home-dash-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;}
+.home-sub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.home-foco-grid{display:grid;grid-template-columns:100px minmax(0,1fr);gap:14px;align-items:start;}
 .home-grid-2>*{min-width:0;overflow:hidden;}
 
 /* ── PANEL SOFT ── */
@@ -456,7 +459,13 @@ body{
   .energia-row,.soft-actions{justify-content:flex-start;}
   .hero-metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
   .home-shell,.home-col-right,.home-grid-2,.home-grid-2-balanced,.g2,.g3,.g4{grid-template-columns:1fr;}
-  [style*='grid-template-columns:repeat(3']{grid-template-columns:1fr !important;}
+  .home-dash-grid{grid-template-columns:1fr !important;}
+  .home-sub-grid{grid-template-columns:1fr !important;}
+  .home-foco-grid{grid-template-columns:80px minmax(0,1fr) !important;gap:10px !important;}
+  .home-ring{width:78px !important;height:78px !important;}
+  .home-foco-btn{margin-top:6px !important;}
+  .home-ring-content b{font-size:20px !important;}
+  .home-ring-content span{font-size:9px !important;}
   .card{border-radius:20px;padding:16px;}
   .pt{font-size:20px;}
   .ph{flex-direction:column;align-items:flex-start;gap:10px;}
@@ -1338,19 +1347,19 @@ body{
 
   <!-- GRID 3 COLUNAS -->
   <!-- GRID 2 COLUNAS ALINHADAS -->
-  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start">
+  <div class="home-dash-grid">
 
     <!-- ── COL 1: Foco + Pendências + Semana + Histórico ── -->
     <div style="display:flex;flex-direction:column;gap:14px">
 
       <!-- Hoje em números + Prioridade -->
-      <div class="card panel-soft" style="display:grid;grid-template-columns:100px minmax(0,1fr);gap:14px;align-items:start">
+      <div class="card panel-soft home-foco-grid">
         <div>
           <div class="soft-title">Hoje</div>
           <div class="home-ring" id="home-ring">
             <div class="home-ring-content"><b id="home-completed-percent">0%</b><span id="home-completed-text">0 de 0</span></div>
           </div>
-          <button class="btn btn-p" style="width:100%;margin-top:10px;font-size:10px;padding:6px 8px" onclick="editarFoco()">Definir foco</button>
+          <button class="btn btn-p home-foco-btn" style="width:100%;margin-top:10px;font-size:10px;padding:6px 8px" onclick="editarFoco()">Definir foco</button>
         </div>
         <div style="min-width:0;overflow:hidden">
           <div class="soft-title">Prioridade agora</div>
@@ -1390,7 +1399,7 @@ body{
     <div style="display:flex;flex-direction:column;gap:14px">
 
       <!-- Olivia + Top 3 lado a lado -->
-      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px">
+      <div class="home-sub-grid">
         <div class="card side-card">
           <div class="soft-title">Olivia hoje</div>
           <div id="olivia-hoje" class="list-clean"></div>
@@ -1425,7 +1434,7 @@ body{
       </div>
 
       <!-- Semana por área + Tarefas por dia -->
-      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px">
+      <div class="home-sub-grid">
         <div class="card panel-soft">
           <div class="soft-title">Semana por área</div>
           <div id="home-week-bars" class="bar-group"></div>

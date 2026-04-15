@@ -456,6 +456,7 @@ body{
   .energia-row,.soft-actions{justify-content:flex-start;}
   .hero-metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
   .home-shell,.home-col-right,.home-grid-2,.home-grid-2-balanced,.g2,.g3,.g4{grid-template-columns:1fr;}
+  [style*='grid-template-columns:repeat(3']{grid-template-columns:1fr !important;}
   .card{border-radius:20px;padding:16px;}
   .pt{font-size:20px;}
   .ph{flex-direction:column;align-items:flex-start;gap:10px;}
@@ -1336,101 +1337,111 @@ body{
   </div>
 
   <!-- GRID 3 COLUNAS -->
-  <div class="home-shell">
+  <!-- GRID 2 COLUNAS ALINHADAS -->
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start">
 
-    <!-- COL A: foco + pendências + semana -->
-    <div class="home-stack">
+    <!-- ── COL 1: Foco + Pendências + Semana + Histórico ── -->
+    <div style="display:flex;flex-direction:column;gap:14px">
 
-      <!-- foco: ring + prioridade lado a lado -->
-      <div class="card panel-soft" style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:16px;align-items:start;overflow:hidden">
-        <div style="min-width:0">
-          <div class="soft-title">Hoje em números</div>
+      <!-- Hoje em números + Prioridade -->
+      <div class="card panel-soft" style="display:grid;grid-template-columns:100px minmax(0,1fr);gap:14px;align-items:start">
+        <div>
+          <div class="soft-title">Hoje</div>
           <div class="home-ring" id="home-ring">
             <div class="home-ring-content"><b id="home-completed-percent">0%</b><span id="home-completed-text">0 de 0</span></div>
           </div>
-          <button class="btn btn-p" style="width:100%;margin-top:12px;font-size:10px;padding:7px 10px" onclick="editarFoco()">Definir foco</button>
+          <button class="btn btn-p" style="width:100%;margin-top:10px;font-size:10px;padding:6px 8px" onclick="editarFoco()">Definir foco</button>
         </div>
         <div style="min-width:0;overflow:hidden">
-          <div class="soft-title">Sua prioridade agora</div>
-          <div class="focus-bar" id="foco-bar" style="margin-bottom:12px">
+          <div class="soft-title">Prioridade agora</div>
+          <div class="focus-bar" id="foco-bar" style="margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
               <div class="fb-label">prioridade #1</div>
-              <button onclick="editarFoco()" style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 10px;font-family:'Manrope',sans-serif;font-size:10px;font-weight:800;color:#fff;cursor:pointer">Editar</button>
+              <button onclick="editarFoco()" style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:3px 9px;font-family:'Manrope',sans-serif;font-size:10px;font-weight:800;color:#fff;cursor:pointer">Editar</button>
             </div>
             <div class="fb-title" id="foco-titulo">Carregando...</div>
             <div class="fb-meta" id="foco-meta"></div>
           </div>
-          <div id="foco-editor" style="display:none;background:rgba(255,255,255,.82);border:1px solid var(--border-strong);border-radius:22px;padding:16px">
-            <div style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:10px">Escolha sua prioridade #1 de hoje:</div>
+          <div id="foco-editor" style="display:none;background:rgba(255,255,255,.82);border:1px solid var(--border-strong);border-radius:18px;padding:14px">
+            <div style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:10px">Escolha sua prioridade #1:</div>
             <div id="foco-opcoes" class="col"></div>
-            <div style="display:flex;gap:8px;margin-top:12px">
-              <input class="inp" id="foco-custom" placeholder="Ou escreva uma prioridade personalizada..." style="flex:1">
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <input class="inp" id="foco-custom" placeholder="Ou escreva uma prioridade..." style="flex:1">
               <button class="btn btn-p btn-sm" onclick="salvarFocoCustom()">Salvar</button>
             </div>
-            <button class="btn btn-g btn-sm" style="margin-top:8px" onclick="fecharFocoEditor()">Cancelar</button>
+            <button class="btn btn-g btn-sm" style="margin-top:6px" onclick="fecharFocoEditor()">Cancelar</button>
           </div>
-          <div id="dica-dia" style="font-size:12px;color:var(--muted);line-height:1.65;font-weight:600;margin-top:10px"></div>
+          <div id="dica-dia" style="font-size:11px;color:var(--muted);line-height:1.6;font-weight:600;margin-top:8px"></div>
         </div>
       </div>
 
-      <!-- pendências -->
+      <!-- Pendências & agenda -->
       <div class="card panel-soft">
         <div class="soft-title">Pendências & agenda</div>
-        <div class="ct" style="margin-bottom:8px">Hoje</div>
-        <div id="home-agenda-today" class="list-clean" style="margin-bottom:14px"></div>
-        <div class="ct" style="margin-bottom:8px">Próximos dias</div>
+        <div class="ct" style="margin-bottom:6px">Hoje</div>
+        <div id="home-agenda-today" class="list-clean" style="margin-bottom:12px"></div>
+        <div class="ct" style="margin-bottom:6px">Próximos dias</div>
         <div id="home-agenda-upcoming" class="list-clean"></div>
       </div>
 
-      <!-- semana + top3 lado a lado -->
-      <div class="home-grid-2 home-grid-2-balanced">
-        <div class="card panel-soft">
-          <div class="soft-title">Sua semana por área da vida</div>
-          <div id="home-week-bars" class="bar-group"></div>
-          <div style="display:flex;gap:8px;align-items:flex-end;height:56px;padding-top:12px" id="historico-semana"></div>
-          <div style="display:flex;gap:8px;margin-top:6px" id="historico-labels"></div>
-        </div>
-        <div class="card panel-soft" style="display:flex;flex-direction:column">
-          <div class="soft-title">Top 3 de hoje</div>
-          <div id="top3-hoje" class="col" style="flex:1;justify-content:space-evenly"></div>
-        </div>
-      </div>
     </div>
 
-    <!-- COL B + C: lado direito em 2 subcolunas -->
-    <div class="home-col-right">
+    <!-- ── COL 2: Olivia + IA + Top3 + Lembretes + Semana + Histórico ── -->
+    <div style="display:flex;flex-direction:column;gap:14px">
 
-      <!-- SUB-COL B: olivia + perguntas + rotina -->
-      <div class="home-stack">
+      <!-- Olivia + Top 3 lado a lado -->
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px">
         <div class="card side-card">
           <div class="soft-title">Olivia hoje</div>
           <div id="olivia-hoje" class="list-clean"></div>
         </div>
-        <div class="card side-card">
-          <div class="soft-title">Pergunte para sua assistente</div>
-          <div class="ask-grid">
-            <button class="ask-btn" onclick="go('chat');setTimeout(()=>enviarChat('O que eu já fiz até agora nessa semana?'),80)">O que eu já fiz essa semana?</button>
-            <button class="ask-btn" onclick="go('chat');setTimeout(()=>enviarChat('O que eu fiz na semana passada?'),80)">Semana passada</button>
-            <button class="ask-btn" onclick="go('chat');setTimeout(()=>enviarChat('Me mostra minhas tarefas concluídas por área da vida nessa semana'),80)">Resumo por área</button>
-            <button class="ask-btn" onclick="go('chat');setTimeout(()=>enviarChat('O que ficou pendente agora?'),80)">O que ficou pendente?</button>
-          </div>
-        </div>
-        <div class="card side-card">
-          <div class="soft-title">Rotina do dia</div>
-          <div id="home-routine" class="list-clean"></div>
+        <div class="card panel-soft">
+          <div class="soft-title">Top 3 de hoje</div>
+          <div id="top3-hoje" class="col"></div>
         </div>
       </div>
 
-      <!-- SUB-COL C: alertas + timeline -->
-      <div class="home-stack">
+      <!-- Pergunte para a assistente -->
+      <div class="card side-card">
+        <div class="soft-title">Pergunte para sua assistente</div>
+        <div class="ask-grid">
+          <button class="ask-btn" onclick="go('chat');setTimeout(()=>enviarChat('O que eu já fiz até agora nessa semana?'),80)">O que eu já fiz essa semana?</button>
+          <button class="ask-btn" onclick="go('chat');setTimeout(()=>enviarChat('O que eu fiz na semana passada?'),80)">Semana passada</button>
+          <button class="ask-btn" onclick="go('chat');setTimeout(()=>enviarChat('Me mostra minhas tarefas concluídas por área da vida nessa semana'),80)">Resumo por área</button>
+          <button class="ask-btn" onclick="go('chat');setTimeout(()=>enviarChat('O que ficou pendente agora?'),80)">O que ficou pendente?</button>
+        </div>
+      </div>
+
+      <!-- Lembretes compacto -->
+      <div class="card panel-soft" style="padding:12px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">📌 Lembretes</div>
+          <button class="btn btn-p btn-sm" onclick="openM('m-lembrete')" style="font-size:9px;padding:4px 10px">+ Novo</button>
+        </div>
+        <div id="dash-lembretes" class="list-clean"></div>
+        <div id="dash-lembretes-empty" style="font-size:11px;color:var(--light);font-weight:600;text-align:center;padding:6px 0">
+          <b>lembrete:</b> texto na barra abaixo 💕
+        </div>
+      </div>
+
+      <!-- Semana por área + Tarefas por dia -->
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px">
         <div class="card panel-soft">
-          <div class="soft-title">Alertas reais</div>
-          <div id="alertas-container" class="list-clean"></div>
+          <div class="soft-title">Semana por área</div>
+          <div id="home-week-bars" class="bar-group"></div>
         </div>
         <div class="card panel-soft">
-          <div class="soft-title">Linha do tempo de hoje</div>
-          <div id="timeline-hoje" class="tl"></div>
+          <div class="soft-title">Tarefas por dia</div>
+          <div style="display:flex;gap:6px;align-items:flex-end;height:72px;padding-top:16px;overflow:visible" id="historico-semana"></div>
+          <div style="display:flex;gap:6px;margin-top:6px" id="historico-labels"></div>
         </div>
+      </div>
+
+      <!-- IDs fantasmas mantidos para não quebrar JS -->
+      <div style="display:none">
+        <div id="alertas-container"></div>
+        <div id="home-routine"></div>
+        <div id="timeline-hoje"></div>
       </div>
 
     </div>
@@ -1900,6 +1911,23 @@ body{
       <div id="pwa-status" style="font-size:11px;color:var(--green);font-weight:700;margin-top:10px"></div>
     </div>
 
+    <!-- SYNC STATUS -->
+    <div class="card">
+      <div class="ct">☁️ Sincronização com Nuvem</div>
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:16px;line-height:1.6">
+        Seus dados são sincronizados automaticamente entre celular e computador via Supabase.
+      </div>
+      <div id="sb-status" style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px">
+        ☁️ Aguardando sincronização...
+      </div>
+      <button class="btn btn-p" style="width:100%" onclick="syncFromSupabase().then(()=>{}).catch(()=>{})">
+        🔄 Sincronizar agora
+      </button>
+      <div style="font-size:10px;color:var(--light);font-weight:600;margin-top:10px;line-height:1.6">
+        💡 A sync acontece automaticamente a cada alteração e quando você abre o app. Se os dados não aparecerem no celular, toque em "Sincronizar agora".
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1907,6 +1935,37 @@ body{
 </div>
 
 <!-- ════ MODALS ════ -->
+<!-- MODAL LEMBRETE -->
+<div class="mo" id="m-lembrete"><div class="modal">
+  <h3>📌 Novo Lembrete</h3>
+  <div class="col">
+    <div><label class="lbl">Texto</label><input class="inp" id="lem-texto" placeholder="ex: Ligar pra médica, pagar conta..."></div>
+    <div class="form-row">
+      <div>
+        <label class="lbl">Data (opcional)</label>
+        <input class="inp" id="lem-data" type="date">
+      </div>
+      <div>
+        <label class="lbl">Horário (opcional)</label>
+        <input class="inp" id="lem-hora" type="time">
+      </div>
+    </div>
+    <div><label class="lbl">Cor</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button onclick="selLemCor(this,'pink')"  style="width:28px;height:28px;border-radius:50%;background:#f9b8ce;border:2px solid transparent;cursor:pointer" title="Rosa"></button>
+        <button onclick="selLemCor(this,'yellow')" style="width:28px;height:28px;border-radius:50%;background:#fde98a;border:2px solid transparent;cursor:pointer" title="Amarelo"></button>
+        <button onclick="selLemCor(this,'green')"  style="width:28px;height:28px;border-radius:50%;background:#a8e6c0;border:2px solid transparent;cursor:pointer" title="Verde"></button>
+        <button onclick="selLemCor(this,'blue')"   style="width:28px;height:28px;border-radius:50%;background:#a8c8f0;border:2px solid transparent;cursor:pointer" title="Azul"></button>
+        <button onclick="selLemCor(this,'purple')" style="width:28px;height:28px;border-radius:50%;background:#d0b8f4;border:2px solid transparent;cursor:pointer" title="Roxo"></button>
+      </div>
+    </div>
+  </div>
+  <div class="mf">
+    <button class="btn btn-g" onclick="closeM('m-lembrete')">Cancelar</button>
+    <button class="btn btn-p" onclick="addLembrete()">Salvar 📌</button>
+  </div>
+</div></div>
+
 <div class="mo" id="m-evento"><div class="modal">
   <h3>📅 Novo Evento</h3>
   <div class="col">
@@ -2137,7 +2196,7 @@ body{
 
 <!-- NOTA RÁPIDA (barra fixa inferior) -->
 <div class="nota-bar">
-  <input class="nota-inp" id="nota-inp" placeholder="💡 Anotação rápida — pressione Enter para salvar...">
+  <input class="nota-inp" id="nota-inp" placeholder="💡 Anotação rápida · 'nota: texto' · 'lembrete: texto 15:30' — Enter para salvar">
   <button class="btn btn-p btn-sm" onclick="addNota()">Salvar</button>
 </div>
 
@@ -2333,6 +2392,7 @@ function refreshDashboard(){
   try{ renderHomeInsights(); }catch(e){}
   try{ renderHomeDashboard(); }catch(e){}
   try{ renderAguaCopos(); }catch(e){}
+  try{ renderDashLembretes(); }catch(e){}
   try{ renderFin(); }catch(e){}
   try{ renderFus(); }catch(e){}
   try{ renderReuns(); }catch(e){}
@@ -2375,7 +2435,20 @@ function go(name){
   if(pg)pg.classList.add('active');
   syncActiveNav(name);
   closeMobileMenu();
-  if(name==='hoje'){renderHomeDashboard();renderHomeInsights();renderAlertas();renderTimeline();}
+  if(name==='hoje'){
+    checkFimDeSemana();
+    renderRecorrentes();
+    renderTimeline();
+    initEnergia();
+    syncFocoCard();
+    renderTop3();
+    renderAlertas();
+    renderOliviaHoje();
+    renderHistoricoSemana();
+    renderHomeDashboard();
+    renderHomeInsights();
+    renderDashLembretes();
+  }
   if(name==='tarefas')renderTasks('todas');
   if(name==='habitos')renderHabits();
   if(name==='financas')renderFin();
@@ -2383,9 +2456,19 @@ function go(name){
   if(name==='radar')renderRadar();
   if(name==='performance')renderPerf();
   if(name==='notas')renderNotas();
-  if(name==='config'){}
+  if(name==='config'){
+    const sbStatus=document.getElementById('sb-status');
+    if(sbStatus && !sbStatus.textContent.includes('Sincronizado em')) sbStatus.textContent='☁️ Sync automático ativo';
+  }
   if(name==='olivia'){renderAguaCopos();renderOlivia();renderOliviaHoje();}
   if(name==='calendario'){calMes=new Date().getMonth();calAno=new Date().getFullYear();renderCalendario();}
+  if(name==='chat'){updateChatConfig();}
+  if(name==='rotina'){renderRotina();}
+  if(name==='saude'){renderSaude();}
+  if(name==='freela'){renderFreelaPassos();renderFreelaBlocos();updFreela();}
+  if(name==='followups'){renderFus();}
+  if(name==='reunioes'){renderReuns();}
+  if(name==='projetos'){renderProjetos();}
 }
 
 // ─── MODAL ───────────────────────────────────────────
@@ -2476,6 +2559,24 @@ function fmtH(h){const hh=Math.floor(h),mm=Math.round((h-hh)*60);return hh+'h'+(
 
 // ─── PRIORIDADE EDITÁVEL ─────────────────────────────
 function syncFocoCard(){
+  // 1. Verifica se há escolha manual salva HOJE
+  const salvo = JSON.parse(localStorage.getItem('carol_foco_hoje') || 'null');
+  if(salvo && salvo.data === today) {
+    // Escolha manual existe — apenas exibe, NÃO sobrescreve
+    // Garante que a tarefa ainda existe e não foi concluída
+    const taskAinda = salvo.taskId
+      ? S.tasks.find(t => t.id === salvo.taskId && !t.done)
+      : null;
+    if(taskAinda || !salvo.taskId) {
+      document.getElementById('foco-titulo').textContent = salvo.titulo;
+      document.getElementById('foco-meta').textContent = salvo.meta || '';
+      return; // respeita a escolha manual
+    }
+    // Tarefa foi concluída — limpa e cai no auto abaixo
+    localStorage.removeItem('carol_foco_hoje');
+  }
+
+  // 2. Sem escolha manual: usa a tarefa de maior score
   const abertas = S.tasks.filter(t=>!t.done).sort((a,b)=>scoreTask(b)-scoreTask(a));
   const top = abertas[0];
 
@@ -2485,16 +2586,9 @@ function syncFocoCard(){
       ' prioridade · ' +
       (top.ctx==='apex' ? 'APEX' : top.ctx==='freela' ? 'Freela' : 'Pessoal') +
       ' — você consegue! 💕';
-
     document.getElementById('foco-titulo').textContent = top.titulo;
     document.getElementById('foco-meta').textContent = meta;
-
-    localStorage.setItem('carol_foco_hoje', JSON.stringify({
-      titulo: top.titulo,
-      meta,
-      data: today,
-      taskId: top.id
-    }));
+    // NÃO salva no localStorage aqui — só salva quando a usuária escolher manualmente
   } else {
     document.getElementById('foco-titulo').textContent = 'Adicione tarefas para definir seu foco!';
     document.getElementById('foco-meta').textContent = '';
@@ -2815,7 +2909,7 @@ function editTaskTitulo(id, val){
 }
 function editTaskCtx(id, ctx){
   const t=S.tasks.find(t=>t.id===id);
-  if(t){ t.ctx=ctx; sv(); refreshDashboard(); toast('Contexto atualizado!'); }
+  if(t){ t.ctx=ctx; sv(); toast('Contexto atualizado!'); requestAnimationFrame(()=>refreshDashboard()); }
 }
 function toggleTask(id){const t=S.tasks.find(t=>t.id===id);if(t){t.done=!t.done;t.doneAt=t.done?new Date().toISOString():'';sv();refreshDashboard();toast(t.done?'Concluída! 🎉 Arrasou!':'Marcada como pendente');}}
 
@@ -2991,10 +3085,41 @@ function delTrans(id){S.trans=S.trans.filter(t=>t.id!==id);sv();refreshDashboard
 
 // ─── NOTAS RÁPIDAS ───────────────────────────────────
 function addNota(){
-  const inp=document.getElementById('nota-inp');const txt=inp.value.trim();
-  if(!txt)return;
-  S.notas.unshift({id:Date.now(),txt,data:today});
-  sv();inp.value='';renderNotas();toast('Nota salva! 📝');
+  const inp = document.getElementById('nota-inp');
+  const raw = inp.value.trim();
+  if(!raw) return;
+  inp.value = '';
+
+  // Detecta prefixo NOTA:
+  const notaMatch = raw.match(/^nota:\s*(.+)/i);
+  if(notaMatch){
+    const txt = notaMatch[1].trim();
+    S.notas.unshift({id:Date.now(), txt, data:today});
+    sv(); renderNotas(); toast('📝 Nota salva!');
+    return;
+  }
+
+  // Detecta prefixo LEMBRETE: (aceita "lembrete: texto 15:30" ou "lembrete: texto")
+  const lemMatch = raw.match(/^lembrete:\s*(.+)/i);
+  if(lemMatch){
+    const resto = lemMatch[1].trim();
+    // Tenta extrair horário no final: HH:MM
+    const horaMatch = resto.match(/(\d{1,2}:\d{2})\s*$/);
+    const hora = horaMatch ? horaMatch[1].padStart(5,'0') : '';
+    const texto = hora ? resto.slice(0, resto.lastIndexOf(horaMatch[0])).trim() : resto;
+    const arr = getLembretes();
+    const item = {id:Date.now(), texto: texto||resto, data:'', hora, cor:'pink', feito:false, criado:today};
+    arr.unshift(item);
+    saveLembretes(arr);
+    if(hora) agendarNotifLembrete(item);
+    renderDashLembretes();
+    toast('📌 Lembrete salvo' + (hora ? ' às '+hora : '') + '!');
+    return;
+  }
+
+  // Sem prefixo → nota normal
+  S.notas.unshift({id:Date.now(), txt:raw, data:today});
+  sv(); renderNotas(); toast('📝 Nota salva!');
 }
 { const notaInp = document.getElementById('nota-inp'); if(notaInp){ notaInp.addEventListener('keydown', e=>{ if(e.key==='Enter') addNota(); }); } }
 function renderNotas(){
@@ -3241,6 +3366,7 @@ seedDados();
 S = loadState(); // ← recarrega o estado depois do seed
 initGreet();
 initHabs();
+initLembretes();
 updFreela();
 renderNotas();
 document.querySelectorAll('.inp[type="date"]').forEach(el=>{el.value=today;});
@@ -3630,7 +3756,16 @@ function renderPrior(){
   const semPrazo=tasks.filter(t=>!t.prazo).length;
   if(sob)sob.innerHTML=`<div class="alert-i ${crit>3?'crit':crit>1?'warn':'ok'}"><div style="font-size:12px;font-weight:700;flex:1">${crit>3?'⚠️ '+crit+' tarefas críticas — replanejar!':crit>1?'😅 '+crit+' críticas abertas':'✅ Carga gerenciável'}</div></div>${semPrazo>0?`<div class="alert-i warn" style="margin-top:6px"><div style="font-size:12px;font-weight:700;flex:1">📋 ${semPrazo} tarefa(s) sem prazo!</div></div>`:''}<div style="font-size:11px;color:var(--muted);font-weight:600;padding:8px 0">💡 Blocos: Manhã 9h–12h · Tarde 13h–17h · Noite 21h–22h30</div>`;
 }
-function editTaskPrio(id,prio){const t=S.tasks.find(t=>t.id===id);if(t){t.prio=prio;sv();refreshDashboard();toast('Prioridade atualizada! 🎯');}}
+function editTaskPrio(id,prio){
+  const t=S.tasks.find(t=>t.id===id);
+  if(!t) return;
+  t.prio=prio;
+  sv();
+  toast('Prioridade atualizada! 🎯');
+  // Adia o re-render para depois do evento onchange terminar,
+  // evitando que o DOM seja reconstruído enquanto o <select> ainda está ativo
+  requestAnimationFrame(()=>refreshDashboard());
+}
 function editTaskPrazo(id,prazo){const t=S.tasks.find(t=>t.id===id);if(t){t.prazo=prazo;sv();refreshDashboard();try{renderCalendario();}catch(e){}toast('Prazo atualizado! 📅');}}
 
 
@@ -3723,11 +3858,20 @@ async function syncFromSupabase(){
     // Re-renderiza tudo
     initGreet(); renderTasks('todas'); renderHabits(); renderFin();
     renderFus(); renderReuns(); renderNotas(); renderAguaCopos();
-    renderProjetos();
-refreshDashboard();
-initChat();
+    renderProjetos(); refreshDashboard(); initChat();
 
-    if(temDados) toast('☁️ Sincronizado!');
+    // Atualiza tela Hoje completamente após sync
+    checkFimDeSemana(); renderRecorrentes(); renderTimeline();
+    initEnergia(); syncFocoCard(); renderTop3(); renderAlertas();
+    renderOliviaHoje(); renderHistoricoSemana();
+    renderHomeDashboard(); renderHomeInsights();
+
+    // Atualiza status de sync
+    const sbStatus = document.getElementById('sb-status');
+    if(sbStatus) sbStatus.textContent = '☁️ Sincronizado em '
+      + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+    if(temDados) toast('☁️ Sincronizado com a nuvem!');
   } catch(e){
     console.warn('Sync from error:', e);
   }
@@ -4277,7 +4421,165 @@ if(localStorage.getItem('carol_notif')==='1'){
   agendarNotificacoes();
 }
 
-// ─── PWA SERVICE WORKER ──────────────────────────────
+// ─── LEMBRETES DA DASH ──────────────────────────────
+const LEM_CORES = {
+  pink:   {bg:'#fef0f5', border:'#f9b8ce', txt:'#a04060'},
+  yellow: {bg:'#fefbe8', border:'#fde98a', txt:'#7a6010'},
+  green:  {bg:'#edfaf3', border:'#a8e6c0', txt:'#286040'},
+  blue:   {bg:'#eef4fd', border:'#a8c8f0', txt:'#2a508a'},
+  purple: {bg:'#f4effe', border:'#d0b8f4', txt:'#5a30a0'},
+};
+let _lemCor = 'pink';
+
+function selLemCor(btn, cor){
+  _lemCor = cor;
+  btn.closest('.col').querySelectorAll('button').forEach(b => b.style.borderColor = 'transparent');
+  btn.style.borderColor = '#555';
+}
+
+function getLembretes(){ return JSON.parse(localStorage.getItem('c_lembretes') || '[]'); }
+function saveLembretes(arr){ localStorage.setItem('c_lembretes', JSON.stringify(arr)); }
+
+function addLembrete(){
+  const texto = document.getElementById('lem-texto').value.trim();
+  if(!texto){ toast('Escreve o lembrete! 📌'); return; }
+  const arr = getLembretes();
+  const data = document.getElementById('lem-data').value;
+  const hora = document.getElementById('lem-hora').value;
+  const item = {
+    id: Date.now(),
+    texto,
+    data,
+    hora,
+    cor: _lemCor || 'pink',
+    feito: false,
+    criado: today
+  };
+  arr.unshift(item);
+  saveLembretes(arr);
+  // Agenda notificação se tiver horário
+  if(data && hora) agendarNotifLembrete(item);
+  closeM('m-lembrete');
+  document.getElementById('lem-texto').value = '';
+  document.getElementById('lem-data').value = '';
+  document.getElementById('lem-hora').value = '';
+  _lemCor = 'pink';
+  renderDashLembretes();
+  toast('Lembrete salvo! 📌');
+}
+
+function toggleLembrete(id){
+  const arr = getLembretes();
+  const item = arr.find(l => l.id === id);
+  if(item) item.feito = !item.feito;
+  saveLembretes(arr);
+  renderDashLembretes();
+}
+
+function delLembrete(id){
+  saveLembretes(getLembretes().filter(l => l.id !== id));
+  renderDashLembretes();
+  toast('Lembrete removido 🗑️');
+}
+
+function agendarNotifLembrete(item){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  const dt = new Date(item.data + 'T' + item.hora);
+  const diff = dt - Date.now();
+  if(diff <= 0) return;
+  setTimeout(() => {
+    new Notification('📌 Lembrete — Minha Assistente', {
+      body: item.texto,
+      icon: '/favicon.ico'
+    });
+  }, diff);
+}
+
+function renderDashLembretes(){
+  const el = document.getElementById('dash-lembretes');
+  const empty = document.getElementById('dash-lembretes-empty');
+  if(!el) return;
+  const arr = getLembretes();
+  // Ordena: não feitos primeiro, depois por data/hora
+  const ord = [...arr].sort((a,b) => {
+    if(a.feito !== b.feito) return a.feito ? 1 : -1;
+    const da = (a.data||'9999') + (a.hora||'99:99');
+    const db = (b.data||'9999') + (b.hora||'99:99');
+    return da.localeCompare(db);
+  });
+  if(!ord.length){
+    el.innerHTML = '';
+    if(empty) empty.style.display = 'block';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+  el.innerHTML = ord.map(l => {
+    const c = LEM_CORES[l.cor] || LEM_CORES.pink;
+    const vencido = l.data && l.data < today && !l.feito;
+    let meta = '';
+    if(l.data){
+      const d = new Date(l.data + 'T12:00').toLocaleDateString('pt-BR',{day:'numeric',month:'short'});
+      meta = l.hora ? `${d} às ${l.hora}` : d;
+    } else if(l.hora) {
+      meta = `às ${l.hora}`;
+    }
+    return `<div style="
+      display:flex;align-items:flex-start;gap:10px;
+      padding:10px 12px;margin-bottom:6px;
+      background:${c.bg};border:1.5px solid ${c.border};
+      border-radius:14px;transition:opacity .2s;
+      ${l.feito ? 'opacity:.45;' : ''}
+    ">
+      <div onclick="toggleLembrete(${l.id})" style="
+        width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:1px;
+        border:2px solid ${c.border};background:${l.feito ? c.border : 'transparent'};
+        cursor:pointer;display:flex;align-items:center;justify-content:center;
+        font-size:10px;color:${c.txt};transition:all .15s
+      ">${l.feito ? '✓' : ''}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700;color:${c.txt};line-height:1.4;${l.feito?'text-decoration:line-through':''}">${escapeHtml(l.texto)}</div>
+        ${meta ? `<div style="font-size:10px;font-weight:700;color:${vencido?'#c03060':c.txt};opacity:.75;margin-top:2px">${vencido?'⚠️ ':''  }${meta}</div>` : ''}
+      </div>
+      <button onclick="delLembrete(${l.id})" style="
+        background:none;border:none;cursor:pointer;font-size:13px;
+        opacity:.45;padding:0;line-height:1;flex-shrink:0
+      " title="Remover">×</button>
+    </div>`;
+  }).join('');
+}
+
+// Recarrega lembretes na inicialização e agenda os pendentes
+function initLembretes(){
+  renderDashLembretes();
+  // Re-agenda notificações dos lembretes futuros
+  if('Notification' in window && Notification.permission === 'granted'){
+    getLembretes().filter(l => !l.feito && l.data && l.hora).forEach(agendarNotifLembrete);
+  }
+}
+
+// ─── SYNC ENTRE ABAS ─────────────────────────────────
+// Quando outra aba (ou PWA instalado) salva dados, recarrega o estado aqui
+window.addEventListener('storage', e => {
+  const chaves = ['c_tasks','c_habits','c_hlog','c_trans','c_notas','c_freela','c_agua','c_reuns','c_fus','c_lixo','c_lembretes'];
+  if(chaves.includes(e.key)){
+    S = loadState();
+    refreshDashboard();
+    // Se estiver na tela Hoje, atualiza tudo
+    const pHoje = document.getElementById('p-hoje');
+    if(pHoje && pHoje.classList.contains('active')){
+      checkFimDeSemana();
+      renderRecorrentes();
+      renderTimeline();
+      syncFocoCard();
+      renderTop3();
+      renderAlertas();
+      renderOliviaHoje();
+      renderHistoricoSemana();
+      renderHomeDashboard();
+      renderHomeInsights();
+    }
+  }
+});
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').then(()=>{
     console.log('SW registered ✅');

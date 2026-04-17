@@ -565,13 +565,17 @@ label.lbl{font-size:11px;font-weight:600;color:var(--ink-mid);display:block;marg
       </div>
       <div id="home-habs" class="col"></div>
     </div>
-    <!-- Água -->
+    <!-- Alertas -->
     <div class="card">
-      <div class="ct">💧 hidratação hoje</div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px" id="agua-copos"></div>
-      <div style="font-size:11px;color:var(--muted);font-weight:700" id="agua-label">0 de 8 copos</div>
-      <div class="div"></div>
-      <div class="ct">📋 alertas rápidos</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="font-size:16px">📋</span>
+          <div>
+            <div style="font-size:13px;font-weight:800;color:var(--ink);letter-spacing:-.3px">Alertas Rápidos</div>
+            <div style="font-size:10px;color:var(--ink-soft);font-weight:500;margin-top:1px">atenção agora</div>
+          </div>
+        </div>
+      </div>
       <div id="home-alertas" class="col"></div>
     </div>
   </div>
@@ -1319,13 +1323,13 @@ function renderAlertas(){
   const el=document.getElementById('home-alertas');if(!el)return;
   const items=[];
   const atras=getLateTasks();
-  if(atras.length)items.push(`<div style="font-size:11px;font-weight:700;color:var(--red)">⚠️ ${atras.length} tarefa(s) atrasada(s)</div>`);
+  if(atras.length)items.push('<div style="display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--redbg);border:1px solid var(--redbr);border-radius:var(--rs);"><span style="font-size:22px;flex-shrink:0">⚠️</span><div><div style="font-size:13px;font-weight:800;color:var(--red);letter-spacing:-.2px">'+atras.length+' tarefa'+(atras.length>1?'s':'')+' atrasada'+(atras.length>1?'s':'')+'</div><div style="font-size:11px;color:var(--red);opacity:.7;font-weight:500;margin-top:2px">'+atras.slice(0,2).map(t=>escapeHtml(t.titulo)).join(', ')+(atras.length>2?'…':'')+'</div></div></div>');
   const cuidados=getOliviaCuidados().filter(c=>!c.done&&c.status==='red');
-  if(cuidados.length)items.push(`<div style="font-size:11px;font-weight:700;color:var(--red)">🐱 Olivia: ${cuidados.length} cuidado(s) urgente(s)</div>`);
+  if(cuidados.length)items.push('<div style="display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--redbg);border:1px solid var(--redbr);border-radius:var(--rs);"><span style="font-size:22px;flex-shrink:0">🐱</span><div><div style="font-size:13px;font-weight:800;color:var(--red);letter-spacing:-.2px">Olivia — '+cuidados.length+' cuidado'+(cuidados.length>1?'s':'')+' urgente'+(cuidados.length>1?'s':'')+'</div><div style="font-size:11px;color:var(--red);opacity:.7;font-weight:500;margin-top:2px">'+cuidados.slice(0,2).map(c=>escapeHtml(c.titulo)).join(', ')+(cuidados.length>2?'…':'')+'</div></div></div>');
   const saude=getSaude().filter(s=>!s.done&&s.urg==='red');
-  if(saude.length)items.push(`<div style="font-size:11px;font-weight:700;color:var(--red)">💪 Saúde: ${saude.length} lembrete(s) urgente(s)</div>`);
-  if(!items.length)items.push(`<div style="font-size:11px;font-weight:700;color:var(--green)">✅ Tudo ok por enquanto!</div>`);
-  el.innerHTML=items.join('');
+  if(saude.length)items.push('<div style="display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--redbg);border:1px solid var(--redbr);border-radius:var(--rs);"><span style="font-size:22px;flex-shrink:0">💪</span><div><div style="font-size:13px;font-weight:800;color:var(--red);letter-spacing:-.2px">Saúde — '+saude.length+' lembrete'+(saude.length>1?'s':'')+' urgente'+(saude.length>1?'s':'')+'</div><div style="font-size:11px;color:var(--red);opacity:.7;font-weight:500;margin-top:2px">'+saude.slice(0,2).map(s=>escapeHtml(s.titulo)).join(', ')+(saude.length>2?'…':'')+'</div></div></div>');
+  if(!items.length)items.push('<div style="display:flex;align-items:center;gap:12px;padding:18px 14px;background:var(--grnbg);border:1px solid var(--grnbr);border-radius:var(--rs);"><span style="font-size:26px;flex-shrink:0">✅</span><div><div style="font-size:13px;font-weight:800;color:var(--grn);letter-spacing:-.2px">Tudo em dia!</div><div style="font-size:11px;color:var(--grn);opacity:.7;font-weight:500;margin-top:2px">Nenhum alerta urgente agora 💕</div></div></div>');
+  el.innerHTML='<div style="display:flex;flex-direction:column;gap:8px">'+items.join('')+'</div>';
 }
 
 // ══════════════════════════════════════════════════════

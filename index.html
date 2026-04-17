@@ -2319,8 +2319,11 @@ loadFromCloud().then(()=>{
   setInterval(()=>pollCloud(false), 10000);
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState==='visible') pollCloud(true);
+    if(document.visibilityState==='hidden' && _pendingSync) persistNow();
   });
   window.addEventListener('focus', ()=>pollCloud(true));
+  window.addEventListener('pageshow', ()=>pollCloud(true));
+  window.addEventListener('pagehide', ()=>{ if(_pendingSync) persistNow(); });
   window.addEventListener('online', ()=>{
     if(_pendingSync) persistNow();
     pollCloud(true);

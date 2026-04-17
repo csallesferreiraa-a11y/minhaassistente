@@ -1214,29 +1214,64 @@ function mergeStates(local, remote){
   return merged;
 }
 
-// Carrega do Supabase na inicialização
-async function loadFromCloud(){
-  showSyncStatus('syncing');
+// Carrega do Supabase e re-renderiza tudo
+async function loadFromCloud(silent=false){
+  if(!silent) showSyncStatus('syncing');
   const remote = await sbGet();
   if(remote && Object.keys(remote).length > 0){
-    // Merge inteligente: não perde dados do local
+    const before = JSON.stringify(S);
     S = mergeStates(S, remote);
     localStorage.setItem('c_state_cache', JSON.stringify(S));
-    // Sobe o merge pro Supabase (garante que nuvem fica atualizada)
-    await sbSet(S);
+    // Sobe o merge pro Supabase se houve mudança local
+    if(JSON.stringify(S) !== JSON.stringify(remote)) await sbSet(S);
+    // Re-renderiza só se os dados mudaram
+    if(!silent || JSON.stringify(S) !== before){
+      reRenderAll();
+    }
   } else {
-    // Supabase vazio: sobe o que tem local
     await sbSet(S);
   }
   showSyncStatus('ok');
-  init();
+  if(!silent) init();
+}
+
+// Re-renderiza todas as páginas visíveis sem reiniciar o app
+function reRenderAll(){
+  refreshHome();
+  renderFin();
+  const active = document.querySelector('.page.active');
+  if(active){
+    const id = active.id.replace('p-','');
+    if(id==='radar') renderRadar();
+    if(id==='tarefas') renderTasks();
+    if(id==='habitos') renderHabits();
+    if(id==='notas'){ renderNotas(); renderLembretesPage(); }
+    if(id==='olivia') renderOlivia();
+    if(id==='calendario') renderCalendario();
+  }
+}
+
+// Polling: busca mudanças a cada 30 segundos
+let _lastRemoteUpdate = null;
+async function pollCloud(){
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/carol_sync?id=eq.main&select=updated_at`, {
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    });
+    const rows = await r.json();
+    const remoteTime = rows?.[0]?.updated_at;
+    if(remoteTime && remoteTime !== _lastRemoteUpdate){
+      _lastRemoteUpdate = remoteTime;
+      await loadFromCloud(true); // silent = não mostra spinner
+    }
+  }catch(e){}
 }
 
 function showSyncStatus(status){
   let el = document.getElementById('sync-status');
   if(!el) return;
   if(status==='syncing'){ el.textContent='🔄 Sincronizando...'; el.style.color='var(--ink-soft)'; }
-  else if(status==='ok'){ el.textContent='☁️ Sincronizado'; el.style.color='var(--grn)'; setTimeout(()=>{ el.textContent=''; },2500); }
+  else if(status==='ok'){ el.textContent='☁️ Sincronizado'; el.style.color='var(--grn)'; setTimeout(()=>{ if(el.textContent==='☁️ Sincronizado')el.textContent=''; },3000); }
   else { el.textContent='⚠️ Sem conexão'; el.style.color='var(--amb)'; }
 }
 
@@ -2177,7 +2212,14 @@ function init(){
   document.querySelectorAll('input[type="date"]').forEach(el=>{if(!el.value)el.value=today;});
 }
 // Carrega do Supabase e re-renderiza
-loadFromCloud();
+loadFromCloud().then(()=>{
+  // Polling a cada 30s
+  setInterval(pollCloud, 30000);
+  // Sync quando volta ao foco (troca de aba/app)
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState==='visible') pollCloud();
+  });
+});
 </script>
 </body>
 </html>

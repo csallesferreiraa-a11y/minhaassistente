@@ -497,7 +497,7 @@ label.lbl{font-size:11px;font-weight:600;color:var(--ink-mid);display:block;marg
     Assistente IA
   </button>
 
-  <div class="sb-foot"><div class="sb-foot-txt">feito com carinho 🍒</div></div>
+  <div class="sb-foot"><div class="sb-foot-txt">feito com carinho 🍒</div><div id="sync-status" style="font-size:10px;margin-top:6px;font-weight:600;transition:color .3s"></div></div>
 </nav>
 
 <!-- ════════ MAIN ════════ -->
@@ -1113,45 +1113,145 @@ label.lbl{font-size:11px;font-weight:600;color:var(--ink-mid);display:block;marg
 
 <script>
 // ══════════════════════════════════════════════════════
+// SUPABASE CONFIG
+// ══════════════════════════════════════════════════════
+const SB_URL = 'https://ociznwaqwhhqlqfqmbiz.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jaXpud2Fxd2hocWxxZnFtYml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwODU0OTQsImV4cCI6MjA5MTY2MTQ5NH0.uyhWj9_mBSpNJLxgYp7GrT0U9bpZ_EfBe1ypL1eKuzU';
+
+async function sbGet(){
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/carol_sync?id=eq.main&select=data`, {
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    });
+    const rows = await r.json();
+    return rows?.[0]?.data || null;
+  }catch(e){ return null; }
+}
+
+async function sbSet(data){
+  try{
+    await fetch(`${SB_URL}/rest/v1/carol_sync?id=eq.main`, {
+      method:'PATCH',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body: JSON.stringify({data, updated_at: new Date().toISOString()})
+    });
+  }catch(e){ console.warn('Supabase save error',e); }
+}
+
+// ══════════════════════════════════════════════════════
 // ESTADO & STORAGE
 // ══════════════════════════════════════════════════════
 const today = new Date().toISOString().split('T')[0];
 
-function loadState(){
+function defaultState(){
   return {
-    tasks:   JSON.parse(localStorage.getItem('c_tasks')  || '[]'),
-    habits:  JSON.parse(localStorage.getItem('c_habits') || '[]'),
-    hlog:    JSON.parse(localStorage.getItem('c_hlog')   || '{}'),
-    trans:   JSON.parse(localStorage.getItem('c_trans')  || '[]'),
-    notas:   JSON.parse(localStorage.getItem('c_notas')  || '[]'),
-    agua:    parseInt(localStorage.getItem('c_agua')     || '0'),
-    lixo:    JSON.parse(localStorage.getItem('c_lixo')   || '[]'),
+    tasks:[], habits:[], hlog:{}, trans:[], notas:[], agua:0, lixo:[],
+    lembretes:[], olivia_cuidados:[], olivia_rotina:[], olivia_vacinas:[],
+    eventos:[], saude:[], foco:null, energia:null,
+    olivia_idade:'', olivia_notas:''
   };
 }
-let S = loadState();
 
-function sv(){
-  localStorage.setItem('c_tasks',  JSON.stringify(S.tasks));
-  localStorage.setItem('c_habits', JSON.stringify(S.habits));
-  localStorage.setItem('c_hlog',   JSON.stringify(S.hlog));
-  localStorage.setItem('c_trans',  JSON.stringify(S.trans));
-  localStorage.setItem('c_notas',  JSON.stringify(S.notas));
-  localStorage.setItem('c_agua',   S.agua);
-  localStorage.setItem('c_lixo',   JSON.stringify(S.lixo || []));
+function loadStateLocal(){
+  // Carrega do localStorage como cache/fallback
+  // Também tenta chaves antigas separadas (versão anterior do app)
+  const cached = localStorage.getItem('c_state_cache');
+  if(cached){ try{ return JSON.parse(cached); }catch(e){} }
+  // Tenta migrar do formato antigo (chaves separadas)
+  const oldTasks = localStorage.getItem('c_tasks');
+  if(oldTasks){
+    try{
+      const migrated = defaultState();
+      migrated.tasks   = JSON.parse(localStorage.getItem('c_tasks')  || '[]');
+      migrated.habits  = JSON.parse(localStorage.getItem('c_habits') || '[]');
+      migrated.hlog    = JSON.parse(localStorage.getItem('c_hlog')   || '{}');
+      migrated.trans   = JSON.parse(localStorage.getItem('c_trans')  || '[]');
+      migrated.notas   = JSON.parse(localStorage.getItem('c_notas')  || '[]');
+      migrated.agua    = parseInt(localStorage.getItem('c_agua')     || '0');
+      migrated.lixo    = JSON.parse(localStorage.getItem('c_lixo')   || '[]');
+      migrated.lembretes        = JSON.parse(localStorage.getItem('c_lembretes') || '[]');
+      migrated.olivia_cuidados  = JSON.parse(localStorage.getItem('c_olivia_cuidados') || '[]');
+      migrated.olivia_rotina    = JSON.parse(localStorage.getItem('c_olivia_rotina')   || '[]');
+      migrated.olivia_vacinas   = JSON.parse(localStorage.getItem('c_olivia_vacinas')  || '[]');
+      migrated.eventos          = JSON.parse(localStorage.getItem('c_eventos') || '[]');
+      migrated.saude            = JSON.parse(localStorage.getItem('c_saude')   || '[]');
+      migrated.olivia_idade     = localStorage.getItem('c_olivia_idade') || '';
+      migrated.olivia_notas     = localStorage.getItem('c_olivia_notas') || '';
+      const fe = JSON.parse(localStorage.getItem('carol_energia_hoje') || 'null');
+      if(fe) migrated.energia = fe;
+      const ff = JSON.parse(localStorage.getItem('carol_foco_hoje') || 'null');
+      if(ff) migrated.foco = ff;
+      console.log('Migrado do formato antigo:', migrated.tasks.length, 'tarefas');
+      return migrated;
+    }catch(e){}
+  }
+  return defaultState();
 }
 
-// Lembretes (armazenados separado)
-function getLembretes(){ return JSON.parse(localStorage.getItem('c_lembretes') || '[]'); }
-function saveLembretes(arr){ localStorage.setItem('c_lembretes', JSON.stringify(arr)); }
+let S = loadStateLocal();
+
+// Sincroniza tudo com Supabase
+let _svTimer = null;
+function sv(){
+  localStorage.setItem('c_state_cache', JSON.stringify(S));
+  clearTimeout(_svTimer);
+  _svTimer = setTimeout(()=>{ sbSet(S); }, 600);
+}
+
+// Mescla inteligente: preserva o que tiver mais dados
+function mergeStates(local, remote){
+  const merged = Object.assign(defaultState(), remote);
+  // Para arrays, usa o que tiver mais itens (evita perda de dados)
+  const arrays = ['tasks','habits','trans','notas','lixo','lembretes','olivia_cuidados','olivia_rotina','olivia_vacinas','eventos','saude'];
+  arrays.forEach(k=>{
+    const l = local[k]||[], r = remote[k]||[];
+    if(l.length > r.length) merged[k] = l;
+  });
+  // hlog: une os dois
+  merged.hlog = Object.assign({}, local.hlog||{}, remote.hlog||{});
+  // agua: usa o maior
+  merged.agua = Math.max(local.agua||0, remote.agua||0);
+  return merged;
+}
+
+// Carrega do Supabase na inicialização
+async function loadFromCloud(){
+  showSyncStatus('syncing');
+  const remote = await sbGet();
+  if(remote && Object.keys(remote).length > 0){
+    // Merge inteligente: não perde dados do local
+    S = mergeStates(S, remote);
+    localStorage.setItem('c_state_cache', JSON.stringify(S));
+    // Sobe o merge pro Supabase (garante que nuvem fica atualizada)
+    await sbSet(S);
+  } else {
+    // Supabase vazio: sobe o que tem local
+    await sbSet(S);
+  }
+  showSyncStatus('ok');
+  init();
+}
+
+function showSyncStatus(status){
+  let el = document.getElementById('sync-status');
+  if(!el) return;
+  if(status==='syncing'){ el.textContent='🔄 Sincronizando...'; el.style.color='var(--ink-soft)'; }
+  else if(status==='ok'){ el.textContent='☁️ Sincronizado'; el.style.color='var(--grn)'; setTimeout(()=>{ el.textContent=''; },2500); }
+  else { el.textContent='⚠️ Sem conexão'; el.style.color='var(--amb)'; }
+}
+
+// Lembretes
+function getLembretes(){ return S.lembretes || []; }
+function saveLembretes(arr){ S.lembretes = arr; sv(); }
 
 // Olivia
-function getOliviaCuidados(){ return JSON.parse(localStorage.getItem('c_olivia_cuidados') || '[]'); }
-function getOliviaRotina(){   return JSON.parse(localStorage.getItem('c_olivia_rotina')   || '[]'); }
-function getOliviaVacinas(){  return JSON.parse(localStorage.getItem('c_olivia_vacinas')  || '[]'); }
-function getEventos(){        return JSON.parse(localStorage.getItem('c_eventos') || '[]'); }
-function saveEventos(ev){     localStorage.setItem('c_eventos', JSON.stringify(ev)); }
-function getSaude(){          return JSON.parse(localStorage.getItem('c_saude') || '[]'); }
-function saveSaude(arr){      localStorage.setItem('c_saude', JSON.stringify(arr)); }
+function getOliviaCuidados(){ return S.olivia_cuidados || []; }
+function getOliviaRotina(){   return S.olivia_rotina   || []; }
+function getOliviaVacinas(){  return S.olivia_vacinas  || []; }
+function getEventos(){        return S.eventos || []; }
+function saveEventos(ev){     S.eventos = ev; sv(); }
+function getSaude(){          return S.saude || []; }
+function saveSaude(arr){      S.saude = arr; sv(); }
 
 // ══════════════════════════════════════════════════════
 // HELPERS
@@ -1212,14 +1312,14 @@ function toast(msg){
 // ENERGIA
 // ══════════════════════════════════════════════════════
 function setEnergia(nivel){
-  localStorage.setItem('carol_energia_hoje',JSON.stringify({nivel,data:today}));
+  S.energia={nivel,data:today};sv();
   document.querySelectorAll('.energy-btn[id^="en-"]').forEach(b=>b.classList.remove('active'));
   const el=document.getElementById('en-'+nivel);if(el)el.classList.add('active');
   toast({cansada:'Entendido — vamos focar no essencial hoje 💕',ok:'Ótimo! Vamos com equilíbrio ⚡',animada:'Energia total! Vai fundo 🚀'}[nivel]);
   renderTop3();
 }
 function initEnergia(){
-  const e=JSON.parse(localStorage.getItem('carol_energia_hoje')||'null');
+  const e=S.energia||null;
   if(e&&e.data===today){const el=document.getElementById('en-'+e.nivel);if(el)el.classList.add('active');}
 }
 
@@ -1227,7 +1327,7 @@ function initEnergia(){
 // FOCO DO DIA
 // ══════════════════════════════════════════════════════
 function syncFoco(){
-  const f=JSON.parse(localStorage.getItem('carol_foco_hoje')||'null');
+  const f=S.foco||null;
   const el=document.getElementById('foco-txt');if(!el)return;
   el.textContent=f&&f.data===today?f.txt:'Toque para definir seu foco de hoje';
 }
@@ -1250,7 +1350,7 @@ function salvarFocoCustom(){
   salvarFoco(v);
 }
 function salvarFoco(txt){
-  localStorage.setItem('carol_foco_hoje',JSON.stringify({txt,data:today}));
+  S.foco={txt,data:today};sv();
   syncFoco();fecharFocoEditor();toast('Foco definido! 🎯');
 }
 function fecharFocoEditor(){
@@ -1282,7 +1382,7 @@ function refreshHome(){
 
 function renderTop3(){
   const el=document.getElementById('home-top3');if(!el)return;
-  const e=JSON.parse(localStorage.getItem('carol_energia_hoje')||'null');
+  const e=S.energia||null;
   const nivel=e&&e.data===today?e.nivel:'ok';
   let tasks=getPendTasks().sort((a,b)=>scoreTask(b)-scoreTask(a));
   if(nivel==='cansada')tasks=[...getLateTasks(),...tasks.filter(t=>t.prio==='baixa'||t.prio==='media')].filter((t,i,a)=>a.findIndex(x=>x.id===t.id)===i);
@@ -1855,26 +1955,11 @@ function renderProximos(){
 // OLIVIA
 // ══════════════════════════════════════════════════════
 function initOlivia(){
-  if(!localStorage.getItem('c_olivia_cuidados')){
-    localStorage.setItem('c_olivia_cuidados',JSON.stringify([
-      {id:1,titulo:'💉 1ª Vacina V4 — URGENTE!',status:'red',done:false},
-      {id:2,titulo:'💊 Vermífugo inicial',status:'red',done:false},
-      {id:3,titulo:'🏥 1ª consulta veterinária',status:'orange',done:false},
-      {id:4,titulo:'💉 2ª Vacina V4 — 3 meses',status:'yellow',done:false},
-      {id:5,titulo:'✂️ Castração — 5-6 meses',status:'gray',done:false},
-    ]));
-    localStorage.setItem('c_olivia_rotina',JSON.stringify([
-      {id:1,titulo:'💧 Água fresca (trocar 2x/dia)',done:false},
-      {id:2,titulo:'🍽️ Ração (quantidade filhote)',done:false},
-      {id:3,titulo:'🏖️ Limpar caixa de areia',done:false},
-      {id:4,titulo:'🧶 Brincar (mín. 15 min)',done:false},
-    ]));
-    localStorage.setItem('c_olivia_vacinas',JSON.stringify([
-      {id:1,nome:'V4 (1ª dose)',quando:'2 meses — agora!',status:'red'},
-      {id:2,nome:'Vermífugo',quando:'2, 3 e 4 meses',status:'orange'},
-      {id:3,nome:'V4 (2ª dose) + Antirrábica',quando:'4 meses',status:'yellow'},
-      {id:4,nome:'Castração',quando:'5-6 meses',status:'green'},
-    ]));
+  if(!S.olivia_cuidados||S.olivia_cuidados.length===0){
+    S.olivia_cuidados=[{id:1,titulo:'💉 1ª Vacina V4 — URGENTE!',status:'red',done:false},{id:2,titulo:'💊 Vermífugo inicial',status:'red',done:false},{id:3,titulo:'🏥 1ª consulta veterinária',status:'orange',done:false},{id:4,titulo:'💉 2ª Vacina V4 — 3 meses',status:'yellow',done:false},{id:5,titulo:'✂️ Castração — 5-6 meses',status:'gray',done:false}];
+    S.olivia_rotina=[{id:1,titulo:'💧 Água fresca (trocar 2x/dia)',done:false},{id:2,titulo:'🍽️ Ração (quantidade filhote)',done:false},{id:3,titulo:'🏖️ Limpar caixa de areia',done:false},{id:4,titulo:'🧶 Brincar (mín. 15 min)',done:false}];
+    S.olivia_vacinas=[{id:1,nome:'V4 (1ª dose)',quando:'2 meses — agora!',status:'red'},{id:2,nome:'Vermífugo',quando:'2, 3 e 4 meses',status:'orange'},{id:3,nome:'V4 (2ª dose) + Antirrábica',quando:'4 meses',status:'yellow'},{id:4,nome:'Castração',quando:'5-6 meses',status:'green'}];
+    sv();
   }
   renderOlivia();
 }
@@ -1915,33 +2000,33 @@ function renderOlivia(){
     <button class="bic" style="font-size:11px" onclick="delVacina(${v.id})">🗑️</button>
   </div>`).join('');
 
-  const elN=document.getElementById('olivia-notas');if(elN)elN.value=localStorage.getItem('c_olivia_notas')||'';
-  const elI=document.getElementById('olivia-idade');if(elI)elI.textContent=localStorage.getItem('c_olivia_idade')||'2 meses';
+  const elN=document.getElementById('olivia-notas');if(elN)elN.value=S.olivia_notas||'';
+  const elI=document.getElementById('olivia-idade');if(elI)elI.textContent=S.olivia_idade||'2 meses';
 }
-function toggleOliviaCuidado(id){const a=getOliviaCuidados();const i=a.find(x=>x.id===id);if(i)i.done=!i.done;localStorage.setItem('c_olivia_cuidados',JSON.stringify(a));renderOlivia();}
-function editOliviaCuidado(id,v){const a=getOliviaCuidados();const i=a.find(x=>x.id===id);if(i)i.titulo=v.trim();localStorage.setItem('c_olivia_cuidados',JSON.stringify(a));}
-function delOliviaCuidado(id){localStorage.setItem('c_olivia_cuidados',JSON.stringify(getOliviaCuidados().filter(x=>x.id!==id)));renderOlivia();}
-function toggleOliviaRotina(id){const a=getOliviaRotina();const i=a.find(x=>x.id===id);if(i)i.done=!i.done;localStorage.setItem('c_olivia_rotina',JSON.stringify(a));renderOlivia();}
-function editOliviaRotina(id,v){const a=getOliviaRotina();const i=a.find(x=>x.id===id);if(i)i.titulo=v.trim();localStorage.setItem('c_olivia_rotina',JSON.stringify(a));}
-function delOliviaRotina(id){localStorage.setItem('c_olivia_rotina',JSON.stringify(getOliviaRotina().filter(x=>x.id!==id)));renderOlivia();}
-function editVacina(id,f,v){const a=getOliviaVacinas();const i=a.find(x=>x.id===id);if(i)i[f]=v.trim();localStorage.setItem('c_olivia_vacinas',JSON.stringify(a));}
-function delVacina(id){localStorage.setItem('c_olivia_vacinas',JSON.stringify(getOliviaVacinas().filter(x=>x.id!==id)));renderOlivia();}
+function toggleOliviaCuidado(id){const a=getOliviaCuidados();const i=a.find(x=>x.id===id);if(i)i.done=!i.done;S.olivia_cuidados=a;sv();renderOlivia();}
+function editOliviaCuidado(id,v){const a=getOliviaCuidados();const i=a.find(x=>x.id===id);if(i)i.titulo=v.trim();S.olivia_cuidados=a;sv();}
+function delOliviaCuidado(id){S.olivia_cuidados=getOliviaCuidados().filter(x=>x.id!==id);sv();renderOlivia();}
+function toggleOliviaRotina(id){const a=getOliviaRotina();const i=a.find(x=>x.id===id);if(i)i.done=!i.done;S.olivia_rotina=a;sv();renderOlivia();}
+function editOliviaRotina(id,v){const a=getOliviaRotina();const i=a.find(x=>x.id===id);if(i)i.titulo=v.trim();S.olivia_rotina=a;sv();}
+function delOliviaRotina(id){S.olivia_rotina=getOliviaRotina().filter(x=>x.id!==id);sv();renderOlivia();}
+function editVacina(id,f,v){const a=getOliviaVacinas();const i=a.find(x=>x.id===id);if(i)i[f]=v.trim();S.olivia_vacinas=a;sv();}
+function delVacina(id){S.olivia_vacinas=getOliviaVacinas().filter(x=>x.id!==id);sv();renderOlivia();}
 function addVacina(){
   const nome=document.getElementById('vac-nome').value.trim();if(!nome){toast('Nome!');return;}
   const a=getOliviaVacinas();
   a.push({id:Date.now(),nome,quando:document.getElementById('vac-quando').value.trim(),status:document.getElementById('vac-status').value});
-  localStorage.setItem('c_olivia_vacinas',JSON.stringify(a));closeM('m-vacina');renderOlivia();toast('Vacina adicionada! 💉');
+  S.olivia_vacinas=a;sv();closeM('m-vacina');renderOlivia();toast('Vacina adicionada! 💉');
 }
 function addOliviaItem(){
   const titulo=document.getElementById('oi-titulo').value.trim();if(!titulo){toast('Coloca o cuidado!');return;}
   const tipo=document.getElementById('oi-tipo').value;
-  const key=tipo==='rotina'?'c_olivia_rotina':'c_olivia_cuidados';
-  const a=JSON.parse(localStorage.getItem(key)||'[]');
+  const key=tipo==='rotina'?'olivia_rotina':'olivia_cuidados';
+  const a=S[key]||[];
   a.push({id:Date.now(),titulo,status:document.getElementById('oi-status').value,done:false});
-  localStorage.setItem(key,JSON.stringify(a));closeM('m-olivia-item');renderOlivia();toast('Cuidado adicionado! 🐱');
+  S[key]=a;sv();closeM('m-olivia-item');renderOlivia();toast('Cuidado adicionado! 🐱');
 }
-function salvarOliviaInfo(){localStorage.setItem('c_olivia_idade',document.getElementById('olivia-idade').textContent.trim());}
-function salvarOliviaNotas(){localStorage.setItem('c_olivia_notas',document.getElementById('olivia-notas').value);}
+function salvarOliviaInfo(){S.olivia_idade=document.getElementById('olivia-idade').textContent.trim();sv();}
+function salvarOliviaNotas(){S.olivia_notas=document.getElementById('olivia-notas').value;sv();}
 
 // ══════════════════════════════════════════════════════
 // GREET
@@ -2089,10 +2174,10 @@ async function replyChat(msg){
 function init(){
   initGreet();initEnergia();initHabs();initSaude();initOlivia();
   refreshHome();renderFin();
-  // Set today on date inputs
   document.querySelectorAll('input[type="date"]').forEach(el=>{if(!el.value)el.value=today;});
 }
-init();
+// Carrega do Supabase e re-renderiza
+loadFromCloud();
 </script>
 </body>
 </html>

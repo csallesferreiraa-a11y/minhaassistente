@@ -1117,25 +1117,63 @@ label.lbl{font-size:11px;font-weight:600;color:var(--ink-mid);display:block;marg
 // ══════════════════════════════════════════════════════
 const SB_URL = 'https://ociznwaqwhhqlqfqmbiz.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jaXpud2Fxd2hocWxxZnFtYml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwODU0OTQsImV4cCI6MjA5MTY2MTQ5NH0.uyhWj9_mBSpNJLxgYp7GrT0U9bpZ_EfBe1ypL1eKuzU';
+const SB_TABLE = 'carol_sync';
+const SB_ROW_ID = 'main';
+const DEVICE_ID_KEY = 'c_device_id';
+const CLOUD_TS_KEY = 'c_last_cloud_updated_at';
+const DEVICE_ID = (() => {
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if(!id){
+    id = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+})();
+
+function sbHeaders(extra={}){
+  return Object.assign({
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + SB_KEY
+  }, extra);
+}
 
 async function sbGet(){
   try{
-    const r = await fetch(`${SB_URL}/rest/v1/carol_sync?id=eq.main&select=data`, {
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    const r = await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?id=eq.${encodeURIComponent(SB_ROW_ID)}&select=id,data,updated_at`, {
+      headers: sbHeaders()
     });
+    if(!r.ok) throw new Error('get_' + r.status);
     const rows = await r.json();
-    return rows?.[0]?.data || null;
-  }catch(e){ return null; }
+    if(!Array.isArray(rows) || !rows.length) return null;
+    return rows[0] || null;
+  }catch(e){
+    console.warn('Supabase load error', e);
+    return null;
+  }
 }
 
 async function sbSet(data){
   try{
-    await fetch(`${SB_URL}/rest/v1/carol_sync?id=eq.main`, {
-      method:'PATCH',
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body: JSON.stringify({data, updated_at: new Date().toISOString()})
+    const payload = [{
+      id: SB_ROW_ID,
+      data,
+      updated_at: new Date().toISOString()
+    }];
+    const r = await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?on_conflict=id`, {
+      method:'POST',
+      headers: sbHeaders({
+        'Content-Type':'application/json',
+        'Prefer':'resolution=merge-duplicates,return=representation'
+      }),
+      body: JSON.stringify(payload)
     });
-  }catch(e){ console.warn('Supabase save error',e); }
+    if(!r.ok) throw new Error('set_' + r.status);
+    const rows = await r.json();
+    return rows?.[0] || null;
+  }catch(e){
+    console.warn('Supabase save error',e);
+    throw e;
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -1189,50 +1227,115 @@ function loadStateLocal(){
 }
 
 let S = loadStateLocal();
-
-// Sincroniza tudo com Supabase
 let _svTimer = null;
-function sv(){
+let _syncBusy = false;
+let _pendingSync = false;
+let _didFirstInit = false;
+let _lastRemoteUpdate = localStorage.getItem(CLOUD_TS_KEY) || null;
+
+function setLocalCache(){
   localStorage.setItem('c_state_cache', JSON.stringify(S));
-  clearTimeout(_svTimer);
-  _svTimer = setTimeout(()=>{ sbSet(S); }, 600);
 }
 
-// Mescla inteligente: preserva o que tiver mais dados
-function mergeStates(local, remote){
-  const merged = Object.assign(defaultState(), remote);
-  // Para arrays, usa o que tiver mais itens (evita perda de dados)
+function touchState(){
+  if(!S || typeof S !== 'object') S = defaultState();
+  S._client_updated_at = new Date().toISOString();
+  S._client_device_id = DEVICE_ID;
+}
+
+async function persistNow(){
+  if(_syncBusy) return;
+  _syncBusy = true;
+  showSyncStatus('syncing');
+  try{
+    touchState();
+    setLocalCache();
+    const row = await sbSet(S);
+    if(row?.updated_at){
+      _lastRemoteUpdate = row.updated_at;
+      localStorage.setItem(CLOUD_TS_KEY, _lastRemoteUpdate);
+    }
+    _pendingSync = false;
+    showSyncStatus('ok');
+  }catch(e){
+    showSyncStatus('off');
+  }finally{
+    _syncBusy = false;
+  }
+}
+
+function sv(){
+  touchState();
+  setLocalCache();
+  _pendingSync = true;
+  clearTimeout(_svTimer);
+  _svTimer = setTimeout(()=>{ persistNow(); }, 500);
+}
+
+function mergeArrayById(localArr=[], remoteArr=[], prefer='remote'){
+  const allObjectsHaveId = [...localArr, ...remoteArr].every(item => item && typeof item === 'object' && !Array.isArray(item) && 'id' in item);
+  if(!allObjectsHaveId){
+    return prefer === 'local'
+      ? Array.from(new Set([...localArr, ...remoteArr]))
+      : Array.from(new Set([...remoteArr, ...localArr]));
+  }
+  const map = new Map();
+  const first = prefer === 'local' ? remoteArr : localArr;
+  const second = prefer === 'local' ? localArr : remoteArr;
+  first.forEach(item => map.set(String(item.id), item));
+  second.forEach(item => map.set(String(item.id), item));
+  return Array.from(map.values()).sort((a,b)=>{
+    const av = Number(a?.id) || 0;
+    const bv = Number(b?.id) || 0;
+    return bv - av;
+  });
+}
+
+function mergeStates(local, remote, prefer='remote'){
+  const merged = Object.assign(defaultState(), prefer === 'local' ? remote : local, prefer === 'local' ? local : remote);
   const arrays = ['tasks','habits','trans','notas','lixo','lembretes','olivia_cuidados','olivia_rotina','olivia_vacinas','eventos','saude'];
   arrays.forEach(k=>{
-    const l = local[k]||[], r = remote[k]||[];
-    if(l.length > r.length) merged[k] = l;
+    merged[k] = mergeArrayById(local?.[k]||[], remote?.[k]||[], prefer);
   });
-  // hlog: une os dois
-  merged.hlog = Object.assign({}, local.hlog||{}, remote.hlog||{});
-  // agua: usa o maior
-  merged.agua = Math.max(local.agua||0, remote.agua||0);
+  merged.hlog = Object.assign({}, remote?.hlog||{}, local?.hlog||{});
+  if(prefer !== 'local') merged.hlog = Object.assign({}, local?.hlog||{}, remote?.hlog||{});
+  merged.agua = Math.max(local?.agua||0, remote?.agua||0);
+  merged.energia = prefer === 'local' ? (local?.energia ?? remote?.energia ?? null) : (remote?.energia ?? local?.energia ?? null);
+  merged.foco = prefer === 'local' ? (local?.foco ?? remote?.foco ?? null) : (remote?.foco ?? local?.foco ?? null);
+  merged.olivia_idade = prefer === 'local' ? (local?.olivia_idade || remote?.olivia_idade || '') : (remote?.olivia_idade || local?.olivia_idade || '');
+  merged.olivia_notas = prefer === 'local' ? (local?.olivia_notas || remote?.olivia_notas || '') : (remote?.olivia_notas || local?.olivia_notas || '');
+  merged._client_updated_at = prefer === 'local' ? (local?._client_updated_at || remote?._client_updated_at || null) : (remote?._client_updated_at || local?._client_updated_at || null);
+  merged._client_device_id = prefer === 'local' ? (local?._client_device_id || remote?._client_device_id || DEVICE_ID) : (remote?._client_device_id || local?._client_device_id || DEVICE_ID);
   return merged;
 }
 
-// Carrega do Supabase e re-renderiza tudo
 async function loadFromCloud(silent=false){
   if(!silent) showSyncStatus('syncing');
-  const remote = await sbGet();
-  if(remote && Object.keys(remote).length > 0){
-    const before = JSON.stringify(S);
-    S = mergeStates(S, remote);
-    localStorage.setItem('c_state_cache', JSON.stringify(S));
-    // Sobe o merge pro Supabase se houve mudança local
-    if(JSON.stringify(S) !== JSON.stringify(remote)) await sbSet(S);
-    // Re-renderiza só se os dados mudaram
-    if(!silent || JSON.stringify(S) !== before){
-      reRenderAll();
+  try{
+    const remoteRow = await sbGet();
+    if(remoteRow?.data && Object.keys(remoteRow.data).length > 0){
+      const before = JSON.stringify(S);
+      const prefer = _pendingSync ? 'local' : 'remote';
+      S = mergeStates(S, remoteRow.data, prefer);
+      setLocalCache();
+      if(remoteRow.updated_at){
+        _lastRemoteUpdate = remoteRow.updated_at;
+        localStorage.setItem(CLOUD_TS_KEY, _lastRemoteUpdate);
+      }
+      if(_pendingSync) await persistNow();
+      if(!silent || JSON.stringify(S) !== before) reRenderAll();
+    }else if(!_syncBusy){
+      await persistNow();
     }
-  } else {
-    await sbSet(S);
+    showSyncStatus('ok');
+  }catch(e){
+    console.warn('Cloud sync error', e);
+    showSyncStatus('off');
   }
-  showSyncStatus('ok');
-  if(!silent) init();
+  if(!_didFirstInit){
+    _didFirstInit = true;
+    init();
+  }
 }
 
 // Re-renderiza todas as páginas visíveis sem reiniciar o app
@@ -1251,20 +1354,20 @@ function reRenderAll(){
   }
 }
 
-// Polling: busca mudanças a cada 30 segundos
-let _lastRemoteUpdate = null;
-async function pollCloud(){
+// Polling: busca mudanças periodicamente
+async function pollCloud(force=false){
+  if(_syncBusy) return;
   try{
-    const r = await fetch(`${SB_URL}/rest/v1/carol_sync?id=eq.main&select=updated_at`, {
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
-    });
-    const rows = await r.json();
-    const remoteTime = rows?.[0]?.updated_at;
-    if(remoteTime && remoteTime !== _lastRemoteUpdate){
+    const remoteRow = await sbGet();
+    const remoteTime = remoteRow?.updated_at || null;
+    if(force || (remoteTime && remoteTime !== _lastRemoteUpdate)){
       _lastRemoteUpdate = remoteTime;
-      await loadFromCloud(true); // silent = não mostra spinner
+      if(remoteTime) localStorage.setItem(CLOUD_TS_KEY, remoteTime);
+      await loadFromCloud(true);
     }
-  }catch(e){}
+  }catch(e){
+    console.warn('Supabase poll error', e);
+  }
 }
 
 function showSyncStatus(status){
@@ -2213,11 +2316,14 @@ function init(){
 }
 // Carrega do Supabase e re-renderiza
 loadFromCloud().then(()=>{
-  // Polling a cada 30s
-  setInterval(pollCloud, 30000);
-  // Sync quando volta ao foco (troca de aba/app)
+  setInterval(()=>pollCloud(false), 10000);
   document.addEventListener('visibilitychange', ()=>{
-    if(document.visibilityState==='visible') pollCloud();
+    if(document.visibilityState==='visible') pollCloud(true);
+  });
+  window.addEventListener('focus', ()=>pollCloud(true));
+  window.addEventListener('online', ()=>{
+    if(_pendingSync) persistNow();
+    pollCloud(true);
   });
 });
 </script>

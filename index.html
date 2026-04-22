@@ -840,7 +840,8 @@ function defaultState(){
     lembretes:[],olivia_cuidados:[],olivia_rotina:[],olivia_vacinas:[],
     eventos:[],saude:[],foco:null,energia:null,
     olivia_idade:'',olivia_notas:'',
-    apex_checks:{}
+    apex_checks:{},
+    apex_routine:{}
   };
 }
 
@@ -921,6 +922,8 @@ function mergeStates(local,remote,prefer='remote'){
   if(prefer!=='local')merged.hlog=Object.assign({},local?.hlog||{},remote?.hlog||{});
   // apex_checks: merge de ambos os lados (union — nunca perde checks)
   merged.apex_checks=Object.assign({},remote?.apex_checks||{},local?.apex_checks||{});
+  // apex_routine: merge por dia — local prevalece (edições da Carol)
+  merged.apex_routine=Object.assign({},remote?.apex_routine||{},local?.apex_routine||{});
   merged.agua=Math.max(local?.agua||0,remote?.agua||0);
   merged.energia=prefer==='local'?(local?.energia??remote?.energia??null):(remote?.energia??local?.energia??null);
   merged.foco=prefer==='local'?(local?.foco??remote?.foco??null):(remote?.foco??local?.foco??null);
@@ -1316,35 +1319,71 @@ function renderFin(){
 // ══════════════════════════════════════════════════════
 // ROTINA APEX
 // ══════════════════════════════════════════════════════
-const APEX_ROUTINE={
+// Rotina padrão (usada como template se não houver customização salva)
+const APEX_ROUTINE_DEFAULT={
   seg:[
-    {id:'a1',name:'Post + Story Mundo Business',           tags:['post','story']},
-    {id:'a2',name:'Post + Story Folha Business',           tags:['post','story']},
-    {id:'a3',name:'BRM News ES, PR, SC, SP, RS, Portugal', tags:['news']},
-    {id:'a4',name:'Aniversariantes da semana',              tags:['especial']},
+    {id:'a1', name:'Post + Story Mundo Business',          tags:['post','story']},
+    {id:'a2', name:'Post + Story Agro Business',           tags:['post','story']},
+    {id:'a3', name:'FOLHA BUSINESS (MB + AB)',             tags:['post','story']},
+    {id:'brm-es',  name:'BRM News ES',                    tags:['news']},
+    {id:'brm-pr',  name:'BRM News PR',                    tags:['news']},
+    {id:'brm-sc',  name:'BRM News SC',                    tags:['news']},
+    {id:'brm-sp',  name:'BRM News SP',                    tags:['news']},
+    {id:'brm-rs',  name:'BRM News RS',                    tags:['news']},
+    {id:'brm-pt',  name:'BRM News Portugal',              tags:['news']},
+    {id:'a4', name:'Aniversariantes da semana',            tags:['especial']},
   ],
   ter:[
-    {id:'a1',name:'Post + Story Mundo Business',           tags:['post','story']},
-    {id:'a2',name:'Post + Story Folha Business',           tags:['post','story']},
-    {id:'a3',name:'BRM News ES, PR, SC, SP, RS, Portugal', tags:['news']},
+    {id:'a1', name:'Post + Story Mundo Business',          tags:['post','story']},
+    {id:'a2', name:'Post + Story Agro Business',           tags:['post','story']},
+    {id:'a3', name:'FOLHA BUSINESS (MB + AB)',             tags:['post','story']},
+    {id:'brm-es',  name:'BRM News ES',                    tags:['news']},
+    {id:'brm-pr',  name:'BRM News PR',                    tags:['news']},
+    {id:'brm-sc',  name:'BRM News SC',                    tags:['news']},
+    {id:'brm-sp',  name:'BRM News SP',                    tags:['news']},
+    {id:'brm-rs',  name:'BRM News RS',                    tags:['news']},
+    {id:'brm-pt',  name:'BRM News Portugal',              tags:['news']},
   ],
   qua:[
-    {id:'a1',name:'Post + Story Mundo Business',           tags:['post','story']},
-    {id:'a2',name:'Post + Story Folha Business',           tags:['post','story']},
-    {id:'a3',name:'BRM News ES, PR, SC, SP, RS, Portugal', tags:['news']},
+    {id:'a1', name:'Post + Story Mundo Business',          tags:['post','story']},
+    {id:'a2', name:'Post + Story Agro Business',           tags:['post','story']},
+    {id:'a3', name:'FOLHA BUSINESS (MB + AB)',             tags:['post','story']},
+    {id:'brm-es',  name:'BRM News ES',                    tags:['news']},
+    {id:'brm-pr',  name:'BRM News PR',                    tags:['news']},
+    {id:'brm-sc',  name:'BRM News SC',                    tags:['news']},
+    {id:'brm-sp',  name:'BRM News SP',                    tags:['news']},
+    {id:'brm-rs',  name:'BRM News RS',                    tags:['news']},
+    {id:'brm-pt',  name:'BRM News Portugal',              tags:['news']},
   ],
   qui:[
-    {id:'a1',name:'Post + Story Mundo Business',           tags:['post','story']},
-    {id:'a2',name:'Post + Story Folha Business',           tags:['post','story']},
-    {id:'a3',name:'BRM News ES, PR, SC, SP, RS, Portugal', tags:['news']},
+    {id:'a1', name:'Post + Story Mundo Business',          tags:['post','story']},
+    {id:'a2', name:'Post + Story Agro Business',           tags:['post','story']},
+    {id:'a3', name:'FOLHA BUSINESS (MB + AB)',             tags:['post','story']},
+    {id:'brm-es',  name:'BRM News ES',                    tags:['news']},
+    {id:'brm-pr',  name:'BRM News PR',                    tags:['news']},
+    {id:'brm-sc',  name:'BRM News SC',                    tags:['news']},
+    {id:'brm-sp',  name:'BRM News SP',                    tags:['news']},
+    {id:'brm-rs',  name:'BRM News RS',                    tags:['news']},
+    {id:'brm-pt',  name:'BRM News Portugal',              tags:['news']},
   ],
   sex:[
-    {id:'a5',name:'Post + Story Mundo Business (sábado)',  tags:['post','story']},
-    {id:'a6',name:'Post + Story Mundo Business (domingo)', tags:['post','story']},
-    {id:'a7',name:'Post + Story Folha Business (sábado)',  tags:['post','story']},
-    {id:'a8',name:'Post + Story Folha Business (domingo)', tags:['post','story']},
-    {id:'a3',name:'BRM News ES, PR, SC, SP, RS, Portugal', tags:['news']},
-    {id:'a9',name:'Giro da semana',                        tags:['especial']},
+    // Sexta: Folha Business (MB+AB) para sexta, sáb e dom
+    {id:'b1', name:'Post + Story Mundo Business (sexta)',  tags:['post','story']},
+    {id:'b2', name:'Post + Story Agro Business (sexta)',   tags:['post','story']},
+    {id:'b3', name:'FOLHA BUSINESS sexta (MB + AB)',       tags:['post','story']},
+    {id:'b4', name:'Post + Story Mundo Business (sábado)', tags:['post','story']},
+    {id:'b5', name:'Post + Story Agro Business (sábado)',  tags:['post','story']},
+    {id:'b6', name:'FOLHA BUSINESS sábado (MB + AB)',      tags:['post','story']},
+    {id:'b7', name:'Post + Story Mundo Business (domingo)',tags:['post','story']},
+    {id:'b8', name:'Post + Story Agro Business (domingo)', tags:['post','story']},
+    {id:'b9', name:'FOLHA BUSINESS domingo (MB + AB)',     tags:['post','story']},
+    {id:'brm-es',  name:'BRM News ES',                    tags:['news']},
+    {id:'brm-pr',  name:'BRM News PR',                    tags:['news']},
+    {id:'brm-sc',  name:'BRM News SC',                    tags:['news']},
+    {id:'brm-sp',  name:'BRM News SP',                    tags:['news']},
+    {id:'brm-rs',  name:'BRM News RS',                    tags:['news']},
+    {id:'brm-pt',  name:'BRM News Portugal',              tags:['news']},
+    {id:'b10',name:'Giro da semana',                       tags:['especial']},
   ],
 };
 const APEX_DOW={0:null,1:'seg',2:'ter',3:'qua',4:'qui',5:'sex',6:null};
@@ -1352,10 +1391,30 @@ const APEX_DAY_NAMES={seg:'Segunda-feira',ter:'Terça-feira',qua:'Quarta-feira',
 let _apexDay=APEX_DOW[new Date().getDay()]||'seg';
 
 function getApexChecks(){return S.apex_checks||{};}
+function getApexRoutine(day){
+  // Usa rotina customizada salva, senão usa o default
+  const custom=S.apex_routine;
+  if(custom&&custom[day]&&custom[day].length)return custom[day];
+  return APEX_ROUTINE_DEFAULT[day]||[];
+}
+function getAllApexItems(){
+  // Todos os IDs únicos de todos os dias (para contar checks)
+  const all=[];
+  Object.keys(APEX_ROUTINE_DEFAULT).forEach(d=>getApexRoutine(d).forEach(i=>all.push({day:d,...i})));
+  return all;
+}
 
 function apexDoneCount(date,day){
-  const checks=getApexChecks(),items=APEX_ROUTINE[day]||[];
+  const checks=getApexChecks(),items=getApexRoutine(day);
   return items.filter(item=>checks[date+'_'+day+'_'+item.id]).length;
+}
+
+function apexUpdateProgress(date,day){
+  const done=apexDoneCount(date,day),total=getApexRoutine(day).length,pct=total?Math.round(done/total*100):0;
+  if(document.getElementById('apex-done-n'))document.getElementById('apex-done-n').textContent=done;
+  if(document.getElementById('apex-total-n'))document.getElementById('apex-total-n').textContent='/'+total;
+  if(document.getElementById('apex-prog-bar'))document.getElementById('apex-prog-bar').style.width=pct+'%';
+  return {done,total};
 }
 
 function setApexDay(day,btn){
@@ -1376,37 +1435,77 @@ function renderApex(){
 }
 
 function renderApexContent(){
-  const day=_apexDay,items=APEX_ROUTINE[day]||[],dateKey=today,checks=getApexChecks();
+  const day=_apexDay,items=getApexRoutine(day),dateKey=today,checks=getApexChecks();
   const todayDay=APEX_DOW[new Date().getDay()],isToday=day===todayDay;
-  const done=apexDoneCount(dateKey,day),total=items.length,pct=total?Math.round(done/total*100):0;
-  if(document.getElementById('apex-done-n'))document.getElementById('apex-done-n').textContent=done;
-  if(document.getElementById('apex-total-n'))document.getElementById('apex-total-n').textContent='/'+total;
-  if(document.getElementById('apex-prog-bar'))document.getElementById('apex-prog-bar').style.width=pct+'%';
+  apexUpdateProgress(dateKey,day);
   const el=document.getElementById('apex-routine-content');if(!el)return;
-  const tagMap={post:'<span class="apex-tag apex-tag-post">post</span>',story:'<span class="apex-tag apex-tag-story">story</span>',news:'<span class="apex-tag apex-tag-news">news</span>',especial:'<span class="apex-tag apex-tag-especial">especial</span>'};
+
+  const tagMap={
+    post:    '<span class="apex-tag apex-tag-post">post</span>',
+    story:   '<span class="apex-tag apex-tag-story">story</span>',
+    news:    '<span class="apex-tag apex-tag-news">news</span>',
+    especial:'<span class="apex-tag apex-tag-especial">especial</span>',
+  };
+
   let html=`<div class="apex-section-title">📋 ${APEX_DAY_NAMES[day]||day}${isToday?' <span class="apex-today-pill">hoje</span>':''}</div>`;
+
   if(!items.length){
     html+='<div style="font-size:12px;color:var(--ink-soft);font-weight:600;text-align:center;padding:24px">🎉 Sem tarefas para esse dia!</div>';
   }else{
-    items.forEach(item=>{
+    items.forEach((item,idx)=>{
       const key=dateKey+'_'+day+'_'+item.id,checked=!!(checks[key]);
       const tags=(item.tags||[]).map(t=>tagMap[t]||'').join('');
-      html+=`<div class="apex-ri ${checked?'done':''}" id="apexri-${key}"><div class="apex-ri-cb ${checked?'on':''}" onclick="toggleApex('${dateKey}','${day}','${item.id}')"></div><div class="apex-ri-name">${escapeHtml(item.name)}</div><div class="apex-tags">${tags}</div></div>`;
+      html+=`<div class="apex-ri ${checked?'done':''}" id="apexri-${key}">
+        <div class="apex-ri-cb ${checked?'on':''}" onclick="toggleApex('${dateKey}','${day}','${item.id}')"></div>
+        <div class="apex-ri-name" contenteditable="true" spellcheck="false"
+          onblur="editApexItem('${day}',${idx},this.textContent)"
+          onclick="event.stopPropagation()"
+          style="outline:none;cursor:text;border-bottom:1px dashed transparent;transition:border-color .15s"
+          onfocus="this.style.borderBottomColor='var(--rose-mid)'"
+          onfocusout="this.style.borderBottomColor='transparent'"
+        >${escapeHtml(item.name)}</div>
+        <div class="apex-tags">${tags}</div>
+      </div>`;
     });
   }
-  html+=`<div class="apex-info-box"><strong>Padrão semanal:</strong><br><strong>Seg–Qui:</strong> Post+Story Mundo & Folha Business + BRM News.<br><strong>Segunda:</strong> tem extra — Aniversariantes da semana.<br><strong>Sexta:</strong> Posts fim de semana (sáb+dom) + BRM News + Giro da semana.</div>`;
+
+  html+=`<div class="apex-info-box">
+    <strong>Padrão:</strong>
+    <strong>Seg–Qui:</strong> MB + AB + FOLHA BUSINESS + BRM News por estado.<br>
+    <strong>Segunda:</strong> também tem Aniversariantes.<br>
+    <strong>Sexta:</strong> Folha Business (MB+AB) pra sexta, sáb e dom + BRM News + Giro.<br>
+    <span style="opacity:.7;font-size:10px">✏️ Clique em qualquer item para editar o nome</span>
+  </div>`;
+
   el.innerHTML=html;
+}
+
+function editApexItem(day,idx,newName){
+  newName=newName.trim();
+  if(!newName)return;
+  // Salva a rotina customizada do dia no estado
+  if(!S.apex_routine)S.apex_routine={};
+  if(!S.apex_routine[day]){
+    // Copia o default para o estado
+    S.apex_routine[day]=APEX_ROUTINE_DEFAULT[day].map(i=>({...i}));
+  }
+  if(S.apex_routine[day][idx]){
+    S.apex_routine[day][idx].name=newName;
+    sv();
+  }
 }
 
 function toggleApex(date,day,itemId){
   if(!S.apex_checks)S.apex_checks={};
-  const key=date+'_'+day+'_'+itemId;S.apex_checks[key]=!S.apex_checks[key];sv();
+  const key=date+'_'+day+'_'+itemId;
+  S.apex_checks[key]=!S.apex_checks[key];
+  sv();
   const row=document.getElementById('apexri-'+key),cb=row?row.querySelector('.apex-ri-cb'):null;
-  if(row&&cb){if(S.apex_checks[key]){cb.classList.add('on');row.classList.add('done');}else{cb.classList.remove('on');row.classList.remove('done');}}
-  const done=apexDoneCount(date,day),total=(APEX_ROUTINE[day]||[]).length,pct=total?Math.round(done/total*100):0;
-  if(document.getElementById('apex-done-n'))document.getElementById('apex-done-n').textContent=done;
-  if(document.getElementById('apex-total-n'))document.getElementById('apex-total-n').textContent='/'+total;
-  if(document.getElementById('apex-prog-bar'))document.getElementById('apex-prog-bar').style.width=pct+'%';
+  if(row&&cb){
+    if(S.apex_checks[key]){cb.classList.add('on');row.classList.add('done');}
+    else{cb.classList.remove('on');row.classList.remove('done');}
+  }
+  const {done,total}=apexUpdateProgress(date,day);
   if(done===total&&total>0)toast('Tudo feito hoje! 🎉');
 }
 
